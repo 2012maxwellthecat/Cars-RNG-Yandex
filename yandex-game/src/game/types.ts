@@ -14,6 +14,7 @@ export type Car = {
   baseChance: number;
   points: number;
   imageKey: string;
+  imageFile: string;
 };
 
 export type InventoryCar = {
@@ -26,6 +27,14 @@ export type PendingReward = {
   source: "spin" | "case";
   carId: string;
   createdAt: number;
+};
+
+export type CaseDefinition = {
+  id: string;
+  title: string;
+  minRarity: Rarity;
+  cost: number;
+  exclusiveCarId?: string;
 };
 
 export type LeaderboardEntry = {

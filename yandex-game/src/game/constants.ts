@@ -11,6 +11,13 @@ export const GARAGE_BASE_COST = 75_000;
 export const GARAGE_COST_STEP = 50_000;
 export const GARAGE_STEP = 5;
 
+export const SPIN_MAX_ATTEMPTS = 10_000;
+
+export const UNCOMMON_CASE_COST = 100_000;
+export const RARE_CASE_COST = 2_500_000;
+export const EXCLUSIVE_CASE_COST = 4_000_000;
+export const BULK_CASE_COUNTS = [10, 100] as const;
+
 export const RARITY_RANKS: Record<Rarity, number> = {
   Обычный: 0,
   Необычный: 1,

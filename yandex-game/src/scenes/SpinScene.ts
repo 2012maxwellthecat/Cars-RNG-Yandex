@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { CARS } from "../data/cars";
+import { keepPendingReward, sellPendingReward } from "../game/economy";
 import { spin } from "../game/spinEngine";
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
@@ -48,7 +49,8 @@ export class SpinScene extends Phaser.Scene {
     const save = saveService.current;
     addCarCard(this, 640, 320, car);
     addTextButton(this, 480, 540, "Оставить", async () => {
-      if (save.inventory.length >= save.garageCap) {
+      const result = keepPendingReward(save);
+      if (result.status === "garage-full") {
         this.add.text(430, 600, "Гараж заполнен. Продайте машину или освободите место.", {
           fontFamily: "Arial",
           fontSize: "22px",
@@ -57,21 +59,23 @@ export class SpinScene extends Phaser.Scene {
         return;
       }
 
-      save.inventory.push({
-        inventoryId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        carId: car.id,
-        obtainedAt: Date.now(),
-      });
-      save.pendingReward = null;
-      await saveService.save(save);
+      if (result.status !== "ok") {
+        this.scene.restart();
+        return;
+      }
+
+      await saveService.save(result.save);
       this.scene.start("GarageScene");
     });
 
     addTextButton(this, 800, 540, "Продать", async () => {
-      save.money += car.value;
-      save.pendingReward = null;
-      save.stats.carsSold += 1;
-      await saveService.save(save);
+      const result = sellPendingReward(save, CARS);
+      if (result.status !== "ok") {
+        this.scene.restart();
+        return;
+      }
+
+      await saveService.save(result.save);
       this.scene.start("MenuScene");
     });
   }

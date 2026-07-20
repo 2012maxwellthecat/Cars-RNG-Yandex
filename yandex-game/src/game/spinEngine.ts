@@ -1,5 +1,6 @@
 import type { Car } from "./types";
 import { chanceMultFromLevel } from "./saveModel";
+import { SPIN_MAX_ATTEMPTS } from "./constants";
 
 export type Rng = {
   float(): number;
@@ -13,18 +14,22 @@ export const browserRng: Rng = {
   },
 };
 
+export function getNormalSpinCars(cars: Car[]): Car[] {
+  return cars.filter((car) => car.rarity !== "Эксклюзивный");
+}
+
 export function spin(cars: Car[], chanceLevel: number, rng: Rng = browserRng): Car {
   const chanceMult = chanceMultFromLevel(chanceLevel);
   if (!Number.isFinite(chanceMult) || chanceMult <= 0) {
     throw new Error("chanceMult must be a positive finite number");
   }
 
-  const normalCars = cars.filter((car) => car.rarity !== "Эксклюзивный");
+  const normalCars = getNormalSpinCars(cars);
   if (normalCars.length === 0) {
     throw new Error("normal car pool is empty");
   }
 
-  for (let attempt = 0; attempt < 10_000; attempt += 1) {
+  for (let attempt = 0; attempt < SPIN_MAX_ATTEMPTS; attempt += 1) {
     const car = normalCars[rng.integer(0, normalCars.length - 1)];
     const winThreshold = car.baseChance * 100_000 * chanceMult;
     const roll = rng.integer(0, 10_000_000);

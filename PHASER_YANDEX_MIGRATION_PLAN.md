@@ -94,6 +94,8 @@ yandex-game/
 
 ## Этап 3. Перенос данных машин
 
+Статус: готово, см. `docs/phaser-car-assets-audit.md`.
+
 Источник:
 
 ```text
@@ -103,7 +105,7 @@ assets/cars/
 
 Нужно:
 
-1. Преобразовать `game/cars_data.py` в `src/data/cars.ts` или `src/data/cars.json`.
+1. Преобразовать `game/cars_data.py` в `src/data/cars.ts` или `src/data/cars.json`: готово, см. `yandex-game/src/data/cars.ts`.
 2. Сохранить поля:
    - `name`;
    - `rarity`;
@@ -111,8 +113,8 @@ assets/cars/
    - `baseChance`;
    - `points`;
    - `imageKey`.
-3. Проверить, что каждая машина имеет изображение.
-4. Привести имена файлов ассетов к стабильным ключам.
+3. Проверить, что каждая машина имеет изображение: готово, пропусков нет.
+4. Привести имена файлов ассетов к стабильным ключам: готово, используется `imageKey` в формате `car:<id>` и фактический `imageFile`.
 
 Пример модели:
 
@@ -137,6 +139,8 @@ export type Car = {
 ```
 
 ## Этап 4. Перенос игрового ядра
+
+Статус: готово, см. `docs/phaser-core-port.md`.
 
 Python-модули:
 
