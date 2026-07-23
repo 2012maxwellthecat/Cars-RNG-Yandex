@@ -163,6 +163,8 @@ src/game/saveModel.ts
 
 ## Этап 5. Игровые сцены
 
+Статус: готово, см. `docs/phaser-scenes-implementation.md`.
+
 ### BootScene
 
 - Инициализация базовых настроек.

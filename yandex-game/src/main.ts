@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
 import { BootScene } from "./scenes/BootScene";
+import { CasesScene } from "./scenes/CasesScene";
 import { GarageScene } from "./scenes/GarageScene";
 import { LeaderboardScene } from "./scenes/LeaderboardScene";
 import { MenuScene } from "./scenes/MenuScene";
@@ -24,6 +25,7 @@ const config: Phaser.Types.Core.GameConfig = {
     PreloadScene,
     MenuScene,
     SpinScene,
+    CasesScene,
     GarageScene,
     UpgradesScene,
     LeaderboardScene,

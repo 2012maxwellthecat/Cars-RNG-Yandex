@@ -2,7 +2,8 @@ import Phaser from "phaser";
 import { CARS } from "../data/cars";
 import { calculateScore, getTopEntries, submitScore } from "../services/leaderboardService";
 import { saveService } from "../services/saveService";
-import { addBackToMenu, addSceneTitle } from "../ui/layout";
+import type { LeaderboardEntry } from "../game/types";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle } from "../ui/layout";
 
 export class LeaderboardScene extends Phaser.Scene {
   constructor() {
@@ -12,28 +13,30 @@ export class LeaderboardScene extends Phaser.Scene {
   async create(): Promise<void> {
     addSceneTitle(this, "Лидерборд");
     addBackToMenu(this);
+    addPanel(this, 640, 384, 860, 470);
 
     const score = calculateScore(saveService.current.inventory, CARS);
-    await submitScore(score);
+    try {
+      await submitScore(score);
+    } catch {
+      // Local or unavailable SDK mode should not block the scene.
+    }
 
-    this.add.text(48, 110, `Ваш счет: ${score.toLocaleString("ru-RU")}`, {
-      fontFamily: "Arial",
-      fontSize: "28px",
-      color: "#ffd166",
-    });
+    addInfoText(this, 250, 164, `Ваш счет: ${score.toLocaleString("ru-RU")}`, "#ffd166", "30px");
 
-    const entries = await getTopEntries();
+    let entries: LeaderboardEntry[] = [];
+    try {
+      entries = await getTopEntries();
+    } catch {
+      entries = [];
+    }
     if (entries.length === 0) {
-      this.add.text(48, 170, "Лидерборд будет доступен в окружении Яндекс Игр.", {
-        fontFamily: "Arial",
-        fontSize: "24px",
-        color: "#ffffff",
-      });
+      addInfoText(this, 250, 250, "Лидерборд будет доступен в окружении Яндекс Игр.", "#ffffff", "26px");
       return;
     }
 
     entries.forEach((entry, index) => {
-      this.add.text(48, 170 + index * 42, `${entry.rank}. ${entry.displayName} — ${entry.score}`, {
+      this.add.text(250, 230 + index * 38, `${entry.rank}. ${entry.displayName} — ${entry.score}`, {
         fontFamily: "Arial",
         fontSize: "24px",
         color: "#ffffff",

@@ -4,7 +4,7 @@ import { buyChanceUpgrade, buyGarageUpgrade, getChanceUpgradeCost, getGarageUpgr
 import { chanceMultFromLevel } from "../game/saveModel";
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
-import { addBackToMenu, addSceneTitle } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle } from "../ui/layout";
 
 export class UpgradesScene extends Phaser.Scene {
   constructor() {
@@ -19,23 +19,13 @@ export class UpgradesScene extends Phaser.Scene {
     addSceneTitle(this, "Улучшения");
     addBackToMenu(this);
 
-    this.add.text(48, 120, `Баланс: ${save.money.toLocaleString("ru-RU")}`, {
-      fontFamily: "Arial",
-      fontSize: "28px",
-      color: "#ffd166",
-    });
+    addPanel(this, 640, 370, 820, 430);
+    addInfoText(this, 270, 154, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "30px");
+    addInfoText(this, 270, 202, `Множитель шанса: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff");
+    addInfoText(this, 270, 238, `Размер гаража: ${save.garageCap}`, "#ffffff");
 
-    this.add.text(48, 170, `Множитель шанса: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, {
-      fontFamily: "Arial",
-      fontSize: "24px",
-      color: "#ffffff",
-    });
-
-    this.add.text(48, 210, `Размер гаража: ${save.garageCap}`, {
-      fontFamily: "Arial",
-      fontSize: "24px",
-      color: "#ffffff",
-    });
+    addInfoText(this, 270, 318, "Шанс влияет на обычный спин.", "#d9e6f2", "22px");
+    addInfoText(this, 270, 408, "Гараж определяет, сколько машин можно хранить.", "#d9e6f2", "22px");
 
     addTextButton(this, 640, 330, `Шанс +0.1 за ${chanceCost.toLocaleString("ru-RU")}`, async () => {
       const result = buyChanceUpgrade(save);
@@ -45,7 +35,7 @@ export class UpgradesScene extends Phaser.Scene {
 
       await saveService.save(result.save);
       this.scene.restart();
-    });
+    }, { width: 430, disabled: save.money < chanceCost });
 
     addTextButton(this, 640, 420, `Гараж +${GARAGE_STEP} за ${garageCost.toLocaleString("ru-RU")}`, async () => {
       const result = buyGarageUpgrade(save);
@@ -55,6 +45,6 @@ export class UpgradesScene extends Phaser.Scene {
 
       await saveService.save(result.save);
       this.scene.restart();
-    });
+    }, { width: 430, disabled: save.money < garageCost });
   }
 }

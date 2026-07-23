@@ -1,20 +1,50 @@
 import Phaser from "phaser";
 import type { Car } from "../game/types";
 
-export function addCarCard(scene: Phaser.Scene, x: number, y: number, car: Car): Phaser.GameObjects.Container {
-  const background = scene.add.rectangle(0, 0, 460, 360, 0x202938, 1);
-  background.setStrokeStyle(2, 0x55677f);
+const RARITY_COLORS: Record<Car["rarity"], string> = {
+  Обычный: "#d9e6f2",
+  Необычный: "#65d68b",
+  Редкий: "#67a7ff",
+  Эпический: "#c083ff",
+  Легендарный: "#ffd166",
+  Эксклюзивный: "#ff8b8b",
+};
+
+const RARITY_STROKES: Record<Car["rarity"], number> = {
+  Обычный: 0x6f7c8c,
+  Необычный: 0x65d68b,
+  Редкий: 0x67a7ff,
+  Эпический: 0xc083ff,
+  Легендарный: 0xffd166,
+  Эксклюзивный: 0xff8b8b,
+};
+
+export function rarityColor(rarity: Car["rarity"]): string {
+  return RARITY_COLORS[rarity];
+}
+
+export function addCarCard(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  car: Car,
+  options: { width?: number; height?: number; imageWidth?: number; imageHeight?: number } = {},
+): Phaser.GameObjects.Container {
+  const width = options.width ?? 460;
+  const height = options.height ?? 360;
+  const background = scene.add.rectangle(0, 0, width, height, 0x202938, 1);
+  background.setStrokeStyle(3, RARITY_STROKES[car.rarity]);
 
   const image = scene.add.image(0, -72, car.imageKey);
-  image.setDisplaySize(360, 190);
+  image.setDisplaySize(options.imageWidth ?? 360, options.imageHeight ?? 190);
 
   const name = scene.add
     .text(0, 62, car.name, {
       fontFamily: "Arial",
-      fontSize: "30px",
+      fontSize: width < 360 ? "22px" : "30px",
       color: "#ffffff",
       align: "center",
-      wordWrap: { width: 360 },
+      wordWrap: { width: width - 64 },
     })
     .setOrigin(0.5);
 
@@ -22,7 +52,7 @@ export function addCarCard(scene: Phaser.Scene, x: number, y: number, car: Car):
     .text(0, 122, car.rarity, {
       fontFamily: "Arial",
       fontSize: "24px",
-      color: "#9fc8ff",
+      color: RARITY_COLORS[car.rarity],
     })
     .setOrigin(0.5);
 
