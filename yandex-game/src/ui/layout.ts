@@ -1,24 +1,47 @@
 import Phaser from "phaser";
 import { addTextButton } from "./buttons";
 
+// Get responsive coordinates based on actual game size
+export function getResponsiveLayout(scene: Phaser.Scene) {
+  const width = scene.scale.width;
+  const height = scene.scale.height;
+
+  return {
+    width,
+    height,
+    padding: Math.max(24, width * 0.0375), // 48px at 1280px width
+    buttonSpacing: Math.max(40, height * 0.055), // 80px at 720px height
+    panelSpacing: Math.max(20, width * 0.015),
+  };
+}
+
 export function addSceneTitle(scene: Phaser.Scene, title: string): Phaser.GameObjects.Text {
+  const layout = getResponsiveLayout(scene);
   return scene.add
-    .text(48, 36, title, {
+    .text(layout.padding, layout.padding * 0.75, title, {
       fontFamily: "Arial",
-      fontSize: "42px",
+      fontSize: `${Math.max(32, layout.padding * 0.875)}px`,
       color: "#ffffff",
     })
     .setOrigin(0, 0);
 }
 
 export function addBackToMenu(scene: Phaser.Scene): Phaser.GameObjects.Container {
-  return addTextButton(scene, 132, 662, "Назад", () => scene.scene.start("MenuScene"), {
-    width: 168,
-    height: 48,
-    fillColor: 0x263244,
-    strokeColor: 0x55677f,
-    fontSize: "22px",
-  });
+  const layout = getResponsiveLayout(scene);
+  return addTextButton(
+    scene,
+    layout.width - layout.padding - 84,
+    layout.padding * 1.25,
+    "Назад",
+    () => scene.scene.start("MenuScene"),
+    {
+      width: 168,
+      height: 48,
+      fillColor: 0x263244,
+      strokeColor: 0x55677f,
+      fontSize: "22px",
+    }
+  );
 }
 
 export function addPanel(
@@ -40,11 +63,23 @@ export function addInfoText(
   text: string,
   color = "#d9e6f2",
   fontSize = "24px",
+  options: { width?: number; fixedWidth?: number; align?: "left" | "center" | "right"; maxLines?: number } = {},
 ): Phaser.GameObjects.Text {
-  return scene.add.text(x, y, text, {
+  const style: Phaser.Types.GameObjects.Text.TextStyle = {
     fontFamily: "Arial",
     fontSize,
     color,
-    wordWrap: { width: 560 },
-  });
+    align: options.align ?? "left",
+    wordWrap: { width: options.width ?? 560 },
+  };
+
+  if (options.fixedWidth !== undefined) {
+    style.fixedWidth = options.fixedWidth;
+  }
+
+  if (options.maxLines !== undefined) {
+    style.maxLines = options.maxLines;
+  }
+
+  return scene.add.text(x, y, text, style);
 }

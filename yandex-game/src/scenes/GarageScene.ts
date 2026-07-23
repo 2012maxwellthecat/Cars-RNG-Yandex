@@ -4,7 +4,7 @@ import { getInventoryViews, sellInventoryCar, sortInventoryViews, type Inventory
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
 
 const PAGE_SIZE = 8;
 
@@ -27,38 +27,54 @@ export class GarageScene extends Phaser.Scene {
     const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
     this.page = Phaser.Math.Clamp(this.page, 0, totalPages - 1);
     const selected = items.find((item) => item.inventoryId === this.selectedInventoryId) ?? items[0] ?? null;
+    const layout = getResponsiveLayout(this);
 
     addSceneTitle(this, "Гараж");
     addBackToMenu(this);
-    addInfoText(this, 48, 100, `Машин: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "26px");
-    addInfoText(this, 48, 134, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
+    addInfoText(this, layout.padding, layout.height * 0.139, `Машин: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "26px");
+    addInfoText(this, layout.padding, layout.height * 0.186, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
 
     if (items.length === 0) {
-      addPanel(this, 640, 360, 760, 260);
-      addInfoText(this, 350, 312, "Гараж пуст. Выиграйте первую машину в спине.", "#ffffff", "28px");
-      addTextButton(this, 640, 410, "Крутить", () => this.scene.start("SpinScene"));
+      const emptyPanelWidth = layout.width * 0.594;
+      const emptyPanelHeight = layout.height * 0.361;
+      addPanel(this, layout.width * 0.5, layout.height * 0.5, emptyPanelWidth, emptyPanelHeight);
+      addInfoText(this, layout.width * 0.273, layout.height * 0.433, "Гараж пуст. Выиграйте первую машину в спине.", "#ffffff", "28px");
+      addTextButton(this, layout.width * 0.5, layout.height * 0.569, "Крутить", () => this.scene.start("SpinScene"));
       return;
     }
 
-    addPanel(this, 374, 390, 652, 444);
-    addPanel(this, 988, 390, 420, 444);
+    const leftPanelWidth = layout.width * 0.509;
+    const rightPanelWidth = layout.width * 0.328;
+    const panelHeight = layout.height * 0.617;
+    const panelY = layout.height * 0.542;
+
+    addPanel(this, layout.padding + leftPanelWidth / 2, panelY, leftPanelWidth, panelHeight);
+    addPanel(this, layout.width - layout.padding - rightPanelWidth / 2, panelY, rightPanelWidth, panelHeight);
     this.renderGrid(items);
     this.renderDetails(selected);
 
     if (totalPages > 1) {
+      const navY = layout.height * 0.881;
+      const navLeftX = layout.width * 0.203;
+      const navRightX = layout.width * 0.381;
+      const navCenterX = layout.width * 0.272;
+
       addTextButton(
         this,
-        260,
-        642,
+        navLeftX,
+        navY,
         "Назад",
         () => this.scene.restart({ page: this.page - 1, selectedInventoryId: this.selectedInventoryId }),
         { width: 150, height: 46, disabled: this.page === 0, fontSize: "20px" },
       );
-      addInfoText(this, 348, 628, `${this.page + 1} / ${totalPages}`, "#ffffff", "22px");
+      addInfoText(this, navCenterX, navY - 14, `${this.page + 1} / ${totalPages}`, "#ffffff", "22px", {
+        width: 96,
+        align: "center",
+      });
       addTextButton(
         this,
-        488,
-        642,
+        navRightX,
+        navY,
         "Вперёд",
         () => this.scene.restart({ page: this.page + 1, selectedInventoryId: this.selectedInventoryId }),
         { width: 150, height: 46, disabled: this.page + 1 >= totalPages, fontSize: "20px" },
@@ -67,16 +83,22 @@ export class GarageScene extends Phaser.Scene {
   }
 
   private renderGrid(items: InventoryCarView[]): void {
+    const layout = getResponsiveLayout(this);
     const pageItems = items.slice(this.page * PAGE_SIZE, this.page * PAGE_SIZE + PAGE_SIZE);
+    const cardSize = layout.width * 0.1125; // ~144px at 1280
+    const cardSpacingX = layout.width * 0.1297; // ~166px
+    const cardSpacingY = layout.height * 0.247; // ~178px
+    const startX = layout.width * 0.094;
+    const startY = layout.height * 0.319;
 
     pageItems.forEach((item, index) => {
       const row = Math.floor(index / 4);
       const col = index % 4;
-      const x = 120 + col * 166;
-      const y = 230 + row * 178;
+      const x = startX + col * cardSpacingX;
+      const y = startY + row * cardSpacingY;
       const selected = item.inventoryId === (this.selectedInventoryId ?? pageItems[0]?.inventoryId);
 
-      const background = this.add.rectangle(x, y, 144, 144, selected ? 0x30445c : 0x253044, 1);
+      const background = this.add.rectangle(x, y, cardSize, cardSize, selected ? 0x30445c : 0x253044, 1);
       background.setStrokeStyle(2, selected ? 0x82b7ff : 0x3e4f64);
       const image = this.add.image(x, y - 24, item.car.imageKey);
       image.setDisplaySize(126, 72);
@@ -90,7 +112,7 @@ export class GarageScene extends Phaser.Scene {
         })
         .setOrigin(0.5);
 
-      const hitArea = this.add.zone(x, y, 144, 144).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      const hitArea = this.add.zone(x, y, cardSize, cardSize).setOrigin(0.5).setInteractive({ useHandCursor: true });
       hitArea.on("pointerover", () => background.setFillStyle(0x30445c));
       hitArea.on("pointerout", () => background.setFillStyle(selected ? 0x30445c : 0x253044));
       hitArea.on("pointerdown", () => this.scene.restart({ page: this.page, selectedInventoryId: item.inventoryId }));
@@ -103,19 +125,27 @@ export class GarageScene extends Phaser.Scene {
       return;
     }
 
-    addCarCard(this, 988, 338, selected.car, {
+    const layout = getResponsiveLayout(this);
+    const detailsX = layout.width * 0.772;
+    const cardY = layout.height * 0.469;
+    const infoStartX = layout.width * 0.655;
+    const infoY1 = layout.height * 0.714;
+    const infoY2 = layout.height * 0.756;
+    const buttonY = layout.height * 0.856;
+
+    addCarCard(this, detailsX, cardY, selected.car, {
       width: 360,
       height: 300,
       imageWidth: 292,
       imageHeight: 154,
     });
 
-    addInfoText(this, 838, 514, `Получена: ${new Date(selected.obtainedAt).toLocaleDateString("ru-RU")}`, "#d9e6f2", "20px");
-    addInfoText(this, 838, 544, `Очки: ${selected.car.points.toLocaleString("ru-RU")}`, "#d9e6f2", "20px");
+    addInfoText(this, infoStartX, infoY1, `Получена: ${new Date(selected.obtainedAt).toLocaleDateString("ru-RU")}`, "#d9e6f2", "20px");
+    addInfoText(this, infoStartX, infoY2, `Очки: ${selected.car.points.toLocaleString("ru-RU")}`, "#d9e6f2", "20px");
     addTextButton(
       this,
-      988,
-      616,
+      detailsX,
+      buttonY,
       `Продать за ${selected.car.value.toLocaleString("ru-RU")}`,
       async () => {
         const result = sellInventoryCar(saveService.current, selected.inventoryId, CARS);

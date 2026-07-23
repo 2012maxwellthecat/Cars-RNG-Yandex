@@ -5,7 +5,7 @@ import { spin } from "../game/spinEngine";
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
 
 export class SpinScene extends Phaser.Scene {
   constructor() {
@@ -13,13 +13,19 @@ export class SpinScene extends Phaser.Scene {
   }
 
   create(): void {
+    const layout = getResponsiveLayout(this);
     addSceneTitle(this, "Спин");
     addBackToMenu(this);
 
     const save = saveService.current;
-    addPanel(this, 314, 154, 532, 92);
-    addInfoText(this, 82, 130, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
-    addInfoText(this, 82, 164, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+    const infoPanelWidth = layout.width * 0.416;
+    const infoPanelHeight = layout.height * 0.128;
+    const infoPanelX = layout.padding + infoPanelWidth / 2;
+    const infoPanelY = layout.height * 0.214;
+
+    addPanel(this, infoPanelX, infoPanelY, infoPanelWidth, infoPanelHeight);
+    addInfoText(this, layout.padding * 1.71, layout.height * 0.181, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
+    addInfoText(this, layout.padding * 1.71, layout.height * 0.228, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
 
     const pendingCar = CARS.find((car) => car.id === save.pendingReward?.carId);
     if (pendingCar) {
@@ -27,10 +33,10 @@ export class SpinScene extends Phaser.Scene {
       return;
     }
 
-    addInfoText(this, 430, 274, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "26px");
-    addTextButton(this, 640, 370, "Крутить", () => {
+    addInfoText(this, layout.width * 0.336, layout.height * 0.381, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "26px");
+    addTextButton(this, layout.width * 0.5, layout.height * 0.514, "Крутить", () => {
       if (CARS.length === 0) {
-        this.add.text(410, 430, "Каталог машин будет добавлен на этапе 3.", {
+        this.add.text(layout.width * 0.32, layout.height * 0.597, "Каталог машин будет добавлен на этапе 3.", {
           fontFamily: "Arial",
           fontSize: "24px",
           color: "#ffffff",
@@ -44,7 +50,8 @@ export class SpinScene extends Phaser.Scene {
 
   private playSpinAnimation(): void {
     const save = saveService.current;
-    const preview = this.add.container(640, 328);
+    const layout = getResponsiveLayout(this);
+    const preview = this.add.container(layout.width * 0.5, layout.height * 0.456);
     const previewCars = Phaser.Utils.Array.Shuffle(CARS.filter((car) => car.rarity !== "Эксклюзивный")).slice(0, 8);
     let step = 0;
 
@@ -98,12 +105,22 @@ export class SpinScene extends Phaser.Scene {
 
   private showPending(car: (typeof CARS)[number]): void {
     const save = saveService.current;
-    addCarCard(this, 640, 350, car);
-    addInfoText(this, 442, 146, "Выберите, что сделать с машиной.", "#ffffff", "24px");
-    addTextButton(this, 480, 594, "Оставить", async () => {
+    const layout = getResponsiveLayout(this);
+
+    addCarCard(this, layout.width * 0.5, layout.height * 0.486, car);
+    addInfoText(this, layout.width * 0.345, layout.height * 0.203, "Выберите, что сделать с машиной.", "#ffffff", "24px");
+
+    const button1X = layout.width * 0.375;
+    const button2X = layout.width * 0.625;
+    const buttonY = layout.height * 0.825;
+
+    addTextButton(this, button1X, buttonY, "Оставить", async () => {
       const result = keepPendingReward(save);
       if (result.status === "garage-full") {
-        addInfoText(this, 370, 642, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "22px");
+        addInfoText(this, layout.width * 0.289, layout.height * 0.761, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
+          width: layout.width * 0.422,
+          maxLines: 2,
+        });
         return;
       }
 
@@ -116,7 +133,7 @@ export class SpinScene extends Phaser.Scene {
       this.scene.start("GarageScene");
     });
 
-    addTextButton(this, 800, 594, `Продать за ${car.value.toLocaleString("ru-RU")}`, async () => {
+    addTextButton(this, button2X, buttonY, `Продать за ${car.value.toLocaleString("ru-RU")}`, async () => {
       const result = sellPendingReward(save, CARS);
       if (result.status !== "ok") {
         this.scene.restart();

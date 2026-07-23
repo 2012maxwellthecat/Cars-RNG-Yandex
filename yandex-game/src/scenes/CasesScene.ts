@@ -12,7 +12,7 @@ import type { CaseDefinition } from "../game/types";
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
 import { rarityColor } from "../ui/carCard";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
 
 export class CasesScene extends Phaser.Scene {
   private statusText: Phaser.GameObjects.Text | null = null;
@@ -30,51 +30,83 @@ export class CasesScene extends Phaser.Scene {
     const save = saveService.current;
     const baseCases = getBaseCaseDefinitions();
     const exclusiveCases = getExclusiveCaseDefinitions(CARS);
+    const layout = getResponsiveLayout(this);
 
     addSceneTitle(this, "Кейсы");
     addBackToMenu(this);
-    addInfoText(this, 48, 100, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
-    addInfoText(this, 48, 134, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
 
-    addPanel(this, 360, 390, 600, 444);
-    addPanel(this, 960, 390, 500, 444);
+    const infoY = layout.padding * 2.1;
+    addInfoText(this, layout.padding, infoY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
+    addInfoText(this, layout.padding, infoY + 34, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+
+    const panelWidth1 = layout.width * 0.468; // ~600px at 1280
+    const panelWidth2 = layout.width * 0.39; // ~500px at 1280
+    const panelHeight = layout.height * 0.616; // ~444px at 720
+    const panelY = layout.height * 0.54;
+
+    addPanel(this, layout.padding + panelWidth1 / 2, panelY, panelWidth1, panelHeight);
+    addPanel(this, layout.width - layout.padding - panelWidth2 / 2, panelY, panelWidth2, panelHeight);
 
     this.renderBaseCases(baseCases);
     this.renderExclusiveCases(exclusiveCases.slice(0, 4));
 
-    this.statusText = this.add.text(92, 642, "", {
+    this.statusText = this.add.text(layout.padding * 1.92, layout.height * 0.85, "", {
       fontFamily: "Arial",
-      fontSize: "22px",
+      fontSize: "20px",
       color: "#ffcf70",
-      wordWrap: { width: 760 },
+      wordWrap: { width: layout.width - layout.padding * 4 },
+      maxLines: 3,
     });
     this.statusText.setText(this.initialStatus);
   }
 
   private renderBaseCases(definitions: CaseDefinition[]): void {
-    addInfoText(this, 92, 188, "Обычные кейсы", "#ffffff", "26px");
+    const layout = getResponsiveLayout(this);
+    const startX = layout.padding * 1.92;
+    const titleY = layout.height * 0.26;
+
+    addInfoText(this, startX, titleY, "Обычные кейсы", "#ffffff", "26px");
     definitions.forEach((definition, index) => {
-      const y = 250 + index * 170;
-      addInfoText(this, 92, y - 48, definition.title, "#ffffff", "24px");
-      addInfoText(this, 92, y - 16, `Минимум: ${definition.minRarity}`, rarityColor(definition.minRarity), "20px");
-      addInfoText(this, 92, y + 12, `Цена: ${definition.cost.toLocaleString("ru-RU")}`, "#ffd166", "20px");
-      this.addCaseButtons(definition, 350, y);
+      const y = titleY + 80 + index * 170; // Увеличил отступ с 62 до 80
+      const textWidth = layout.width * 0.18;
+
+      addInfoText(this, startX, y - 48, definition.title, "#ffffff", "24px", { width: textWidth });
+      addInfoText(this, startX, y - 16, `Минимум: ${definition.minRarity}`, rarityColor(definition.minRarity), "20px", {
+        width: textWidth,
+      });
+      addInfoText(this, startX, y + 12, `Цена: ${definition.cost.toLocaleString("ru-RU")}`, "#ffd166", "20px", {
+        width: textWidth,
+      });
+      this.addCaseButtons(definition, startX + textWidth + 32, y);
     });
   }
 
   private renderExclusiveCases(definitions: CaseDefinition[]): void {
-    addInfoText(this, 742, 188, "Эксклюзивные кейсы", "#ffffff", "26px");
+    const layout = getResponsiveLayout(this);
+    const startX = layout.width * 0.58;
+    const titleY = layout.height * 0.26;
+    const textWidth = layout.width * 0.234;
+
+    addInfoText(this, startX, titleY, "Эксклюзивные кейсы", "#ffffff", "26px");
     definitions.forEach((definition, index) => {
-      const y = 246 + index * 90;
+      const y = titleY + 58 + index * 90;
       const car = CARS.find((item) => item.id === definition.exclusiveCarId);
-      addInfoText(this, 742, y - 24, definition.title, car ? rarityColor(car.rarity) : "#ffffff", "19px");
-      addInfoText(this, 742, y + 2, `Цена: ${definition.cost.toLocaleString("ru-RU")}`, "#ffd166", "18px");
-      addTextButton(this, 1088, y, "x1", () => void this.openSingle(definition), {
+      addInfoText(this, startX, y - 28, definition.title, car ? rarityColor(car.rarity) : "#ffffff", "18px", {
+        width: textWidth,
+        maxLines: 2,
+      });
+      addInfoText(this, startX, y + 12, `Цена: ${definition.cost.toLocaleString("ru-RU")}`, "#ffd166", "17px", {
+        width: textWidth,
+      });
+      const buttonX1 = layout.width * 0.85;
+      const buttonX2 = layout.width * 0.9125;
+
+      addTextButton(this, buttonX1, y, "x1", () => void this.openSingle(definition), {
         width: 70,
         height: 42,
         fontSize: "18px",
       });
-      addTextButton(this, 1168, y, "x10", () => void this.openBulk(definition, 10), {
+      addTextButton(this, buttonX2, y, "x10", () => void this.openBulk(definition, 10), {
         width: 74,
         height: 42,
         fontSize: "18px",

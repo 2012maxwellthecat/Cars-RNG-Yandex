@@ -7,6 +7,8 @@ export type TextButtonOptions = {
   strokeColor?: number;
   disabled?: boolean;
   fontSize?: string;
+  minFontSize?: number;
+  hitPadding?: number;
 };
 
 export function addTextButton(
@@ -24,6 +26,8 @@ export function addTextButton(
   const background = scene.add.rectangle(0, 0, width, height, fillColor, 1);
   background.setStrokeStyle(2, strokeColor);
 
+  const initialFontSize = Number.parseInt(options.fontSize ?? "24", 10);
+  const minFontSize = options.minFontSize ?? 14;
   const text = scene.add
     .text(0, 0, label, {
       fontFamily: "Arial",
@@ -33,6 +37,7 @@ export function addTextButton(
       wordWrap: { width: width - 24 },
     })
     .setOrigin(0.5);
+  fitTextInside(text, width - 24, height - 8, initialFontSize, minFontSize);
 
   const container = scene.add.container(x, y, [background, text]);
   container.setSize(width, height);
@@ -40,7 +45,8 @@ export function addTextButton(
     return container;
   }
 
-  const hitZone = scene.add.zone(x, y, width, height).setOrigin(0.5);
+  const hitPadding = options.hitPadding ?? 6;
+  const hitZone = scene.add.zone(x, y, width + hitPadding * 2, height + hitPadding * 2).setOrigin(0.5);
   hitZone.setInteractive({ useHandCursor: true });
 
   let canClick = true;
@@ -68,4 +74,18 @@ export function addTextButton(
   });
 
   return container;
+}
+
+function fitTextInside(
+  text: Phaser.GameObjects.Text,
+  maxWidth: number,
+  maxHeight: number,
+  initialFontSize: number,
+  minFontSize: number,
+): void {
+  let fontSize = initialFontSize;
+  while ((text.width > maxWidth || text.height > maxHeight) && fontSize > minFontSize) {
+    fontSize -= 1;
+    text.setFontSize(fontSize);
+  }
 }
