@@ -3,7 +3,7 @@ import { CARS } from "../data/cars";
 import { calculateScore, getTopEntries, submitScore } from "../services/leaderboardService";
 import { saveService } from "../services/saveService";
 import type { LeaderboardEntry } from "../game/types";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground } from "../ui/layout";
 
 export class LeaderboardScene extends Phaser.Scene {
   constructor() {
@@ -11,6 +11,7 @@ export class LeaderboardScene extends Phaser.Scene {
   }
 
   async create(): Promise<void> {
+    drawBackground(this);
     addSceneTitle(this, "Лидерборд");
     addBackToMenu(this);
     addPanel(this, 640, 384, 860, 470);

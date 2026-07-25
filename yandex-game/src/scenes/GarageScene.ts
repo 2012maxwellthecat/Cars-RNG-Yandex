@@ -4,7 +4,7 @@ import { getInventoryViews, sellInventoryCar, sortInventoryViews, type Inventory
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 
 const PAGE_SIZE = 8;
 
@@ -22,6 +22,7 @@ export class GarageScene extends Phaser.Scene {
   }
 
   create(): void {
+    drawBackground(this);
     const save = saveService.current;
     const items = sortInventoryViews(getInventoryViews(save, CARS));
     const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
@@ -98,25 +99,54 @@ export class GarageScene extends Phaser.Scene {
       const y = startY + row * cardSpacingY;
       const selected = item.inventoryId === (this.selectedInventoryId ?? pageItems[0]?.inventoryId);
 
-      const background = this.add.rectangle(x, y, cardSize, cardSize, selected ? 0x30445c : 0x253044, 1);
-      background.setStrokeStyle(2, selected ? 0x82b7ff : 0x3e4f64);
+      const cardGfx = this.add.graphics();
+      const radius = 10;
+      const hs = cardSize / 2;
+      if (selected) {
+        cardGfx.fillGradientStyle(0x4a2db0, 0x4a2db0, 0x1e1050, 0x1e1050, 1);
+      } else {
+        cardGfx.fillGradientStyle(0x2a1f60, 0x2a1f60, 0x110e38, 0x110e38, 1);
+      }
+      cardGfx.fillRoundedRect(x - hs, y - hs, cardSize, cardSize, radius);
+      cardGfx.lineStyle(2, selected ? 0xb07aff : 0x5030a0, 1);
+      cardGfx.strokeRoundedRect(x - hs, y - hs, cardSize, cardSize, radius);
+
       const image = this.add.image(x, y - 24, item.car.imageKey);
       image.setDisplaySize(126, 72);
       const label = this.add
         .text(x, y + 50, item.car.name, {
-          fontFamily: "Arial",
-          fontSize: "15px",
+          fontFamily: "'Arial Black', Arial",
+          fontStyle: "bold",
+          fontSize: "14px",
           color: "#ffffff",
+          stroke: "#000000",
+          strokeThickness: 3,
           align: "center",
           wordWrap: { width: 126 },
         })
         .setOrigin(0.5);
 
       const hitArea = this.add.zone(x, y, cardSize, cardSize).setOrigin(0.5).setInteractive({ useHandCursor: true });
-      hitArea.on("pointerover", () => background.setFillStyle(0x30445c));
-      hitArea.on("pointerout", () => background.setFillStyle(selected ? 0x30445c : 0x253044));
+      hitArea.on("pointerover", () => {
+        cardGfx.clear();
+        cardGfx.fillGradientStyle(0x5a3dc0, 0x5a3dc0, 0x2a1a60, 0x2a1a60, 1);
+        cardGfx.fillRoundedRect(x - hs, y - hs, cardSize, cardSize, radius);
+        cardGfx.lineStyle(2, 0xd0a0ff, 1);
+        cardGfx.strokeRoundedRect(x - hs, y - hs, cardSize, cardSize, radius);
+      });
+      hitArea.on("pointerout", () => {
+        cardGfx.clear();
+        if (selected) {
+          cardGfx.fillGradientStyle(0x4a2db0, 0x4a2db0, 0x1e1050, 0x1e1050, 1);
+        } else {
+          cardGfx.fillGradientStyle(0x2a1f60, 0x2a1f60, 0x110e38, 0x110e38, 1);
+        }
+        cardGfx.fillRoundedRect(x - hs, y - hs, cardSize, cardSize, radius);
+        cardGfx.lineStyle(2, selected ? 0xb07aff : 0x5030a0, 1);
+        cardGfx.strokeRoundedRect(x - hs, y - hs, cardSize, cardSize, radius);
+      });
       hitArea.on("pointerdown", () => this.scene.restart({ page: this.page, selectedInventoryId: item.inventoryId }));
-      this.add.container(0, 0, [background, image, label, hitArea]);
+      this.add.container(0, 0, [cardGfx, image, label, hitArea]);
     });
   }
 

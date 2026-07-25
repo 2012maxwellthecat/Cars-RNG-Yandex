@@ -5,7 +5,7 @@ import { spin } from "../game/spinEngine";
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 
 export class SpinScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +13,7 @@ export class SpinScene extends Phaser.Scene {
   }
 
   create(): void {
+    drawBackground(this);
     const layout = getResponsiveLayout(this);
     addSceneTitle(this, "Спин");
     addBackToMenu(this);

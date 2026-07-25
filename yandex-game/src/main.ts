@@ -13,7 +13,7 @@ import "./styles.css";
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: "game",
-  backgroundColor: "#141821",
+  backgroundColor: "#0e0b2e",
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

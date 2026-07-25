@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { CARS } from "../data/cars";
 import { calculateScore } from "../services/leaderboardService";
 import { addTextButton } from "../ui/buttons";
-import { addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
+import { addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 import { saveService } from "../services/saveService";
 import { chanceMultFromLevel } from "../game/saveModel";
 
@@ -12,6 +12,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create(): void {
+    drawBackground(this);
     const save = saveService.current;
     const score = calculateScore(save.inventory, CARS);
     const pendingCar = CARS.find((car) => car.id === save.pendingReward?.carId);

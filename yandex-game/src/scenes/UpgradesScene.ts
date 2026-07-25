@@ -4,7 +4,7 @@ import { buyChanceUpgrade, buyGarageUpgrade, getChanceUpgradeCost, getGarageUpgr
 import { chanceMultFromLevel } from "../game/saveModel";
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 
 export class UpgradesScene extends Phaser.Scene {
   constructor() {
@@ -12,6 +12,7 @@ export class UpgradesScene extends Phaser.Scene {
   }
 
   create(): void {
+    drawBackground(this);
     const save = saveService.current;
     const chanceCost = getChanceUpgradeCost(save);
     const garageCost = getGarageUpgradeCost(save);

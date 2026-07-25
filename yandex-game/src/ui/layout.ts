@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { addTextButton } from "./buttons";
 
-// Get responsive coordinates based on actual game size
 export function getResponsiveLayout(scene: Phaser.Scene) {
   const width = scene.scale.width;
   const height = scene.scale.height;
@@ -9,19 +8,33 @@ export function getResponsiveLayout(scene: Phaser.Scene) {
   return {
     width,
     height,
-    padding: Math.max(24, width * 0.0375), // 48px at 1280px width
-    buttonSpacing: Math.max(40, height * 0.055), // 80px at 720px height
+    padding: Math.max(24, width * 0.0375),
+    buttonSpacing: Math.max(40, height * 0.055),
     panelSpacing: Math.max(20, width * 0.015),
   };
+}
+
+export function drawBackground(scene: Phaser.Scene): void {
+  const { width, height } = scene.scale;
+  const gfx = scene.add.graphics();
+  // Deep purple top → dark navy bottom
+  gfx.fillGradientStyle(0x1a0a3e, 0x1a0a3e, 0x050a20, 0x050a20, 1);
+  gfx.fillRect(0, 0, width, height);
+  // Subtle radial-ish center highlight
+  gfx.fillGradientStyle(0x2a1060, 0x2a1060, 0x0a0828, 0x0a0828, 0.35);
+  gfx.fillRect(width * 0.15, 0, width * 0.7, height * 0.6);
 }
 
 export function addSceneTitle(scene: Phaser.Scene, title: string): Phaser.GameObjects.Text {
   const layout = getResponsiveLayout(scene);
   return scene.add
     .text(layout.padding, layout.padding * 0.75, title, {
-      fontFamily: "Arial",
-      fontSize: `${Math.max(32, layout.padding * 0.875)}px`,
-      color: "#ffffff",
+      fontFamily: "'Arial Black', 'Arial Bold', Arial",
+      fontStyle: "bold",
+      fontSize: `${Math.max(34, layout.padding * 0.875)}px`,
+      color: "#ffd700",
+      stroke: "#000000",
+      strokeThickness: 5,
     })
     .setOrigin(0, 0);
 }
@@ -37,8 +50,8 @@ export function addBackToMenu(scene: Phaser.Scene): Phaser.GameObjects.Container
     {
       width: 168,
       height: 48,
-      fillColor: 0x263244,
-      strokeColor: 0x55677f,
+      fillColor: 0x3b2280,
+      strokeColor: 0x7b5cff,
       fontSize: "22px",
     }
   );
@@ -50,10 +63,25 @@ export function addPanel(
   y: number,
   width: number,
   height: number,
-): Phaser.GameObjects.Rectangle {
-  const panel = scene.add.rectangle(x, y, width, height, 0x202938, 1);
-  panel.setStrokeStyle(2, 0x38485c);
-  return panel;
+): Phaser.GameObjects.Graphics {
+  const gfx = scene.add.graphics();
+  const hw = width / 2;
+  const hh = height / 2;
+  const radius = 16;
+
+  // Gradient fill: purple-blue top → deep navy bottom
+  gfx.fillGradientStyle(0x2c1d5e, 0x2c1d5e, 0x0f0c38, 0x0f0c38, 0.95);
+  gfx.fillRoundedRect(x - hw, y - hh, width, height, radius);
+
+  // Inner highlight at top
+  gfx.fillGradientStyle(0x5030a0, 0x5030a0, 0x2c1d5e, 0x2c1d5e, 0.3);
+  gfx.fillRoundedRect(x - hw + 2, y - hh + 2, width - 4, height * 0.3, { tl: radius, tr: radius, bl: 0, br: 0 });
+
+  // Bright border
+  gfx.lineStyle(2, 0x7b5cff, 1);
+  gfx.strokeRoundedRect(x - hw, y - hh, width, height, radius);
+
+  return gfx;
 }
 
 export function addInfoText(
@@ -66,7 +94,8 @@ export function addInfoText(
   options: { width?: number; fixedWidth?: number; align?: "left" | "center" | "right"; maxLines?: number } = {},
 ): Phaser.GameObjects.Text {
   const style: Phaser.Types.GameObjects.Text.TextStyle = {
-    fontFamily: "Arial",
+    fontFamily: "'Arial Black', Arial",
+    fontStyle: "bold",
     fontSize,
     color,
     align: options.align ?? "left",

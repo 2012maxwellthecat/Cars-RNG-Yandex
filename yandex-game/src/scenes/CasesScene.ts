@@ -12,7 +12,7 @@ import type { CaseDefinition } from "../game/types";
 import { saveService } from "../services/saveService";
 import { addTextButton } from "../ui/buttons";
 import { rarityColor } from "../ui/carCard";
-import { addBackToMenu, addInfoText, addPanel, addSceneTitle, getResponsiveLayout } from "../ui/layout";
+import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 
 export class CasesScene extends Phaser.Scene {
   private statusText: Phaser.GameObjects.Text | null = null;
@@ -27,6 +27,7 @@ export class CasesScene extends Phaser.Scene {
   }
 
   create(): void {
+    drawBackground(this);
     const save = saveService.current;
     const baseCases = getBaseCaseDefinitions();
     const exclusiveCases = getExclusiveCaseDefinitions(CARS);

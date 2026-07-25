@@ -19,6 +19,25 @@ const RARITY_STROKES: Record<Car["rarity"], number> = {
   Эксклюзивный: 0xff8b8b,
 };
 
+// Gradient top/bottom colors per rarity for card background
+const RARITY_BG_TOP: Record<Car["rarity"], number> = {
+  Обычный:   0x2a3040,
+  Необычный: 0x1a3828,
+  Редкий:    0x1a2860,
+  Эпический: 0x2d1a58,
+  Легендарный: 0x3c2c0a,
+  Эксклюзивный: 0x3c1a1a,
+};
+
+const RARITY_BG_BOTTOM: Record<Car["rarity"], number> = {
+  Обычный:   0x141820,
+  Необычный: 0x0d2018,
+  Редкий:    0x0d1840,
+  Эпический: 0x1d0e40,
+  Легендарный: 0x201800,
+  Эксклюзивный: 0x200a0a,
+};
+
 export function rarityColor(rarity: Car["rarity"]): string {
   return RARITY_COLORS[rarity];
 }
@@ -32,37 +51,63 @@ export function addCarCard(
 ): Phaser.GameObjects.Container {
   const width = options.width ?? 460;
   const height = options.height ?? 360;
-  const background = scene.add.rectangle(0, 0, width, height, 0x202938, 1);
-  background.setStrokeStyle(3, RARITY_STROKES[car.rarity]);
+  const radius = 16;
+  const hw = width / 2;
+  const hh = height / 2;
+
+  const gfx = scene.add.graphics();
+
+  // Rarity-tinted gradient background
+  const bgTop = RARITY_BG_TOP[car.rarity];
+  const bgBot = RARITY_BG_BOTTOM[car.rarity];
+  gfx.fillGradientStyle(bgTop, bgTop, bgBot, bgBot, 1);
+  gfx.fillRoundedRect(-hw, -hh, width, height, radius);
+
+  // Top shimmer
+  gfx.fillGradientStyle(0xffffff, 0xffffff, bgTop, bgTop, 0.08);
+  gfx.fillRoundedRect(-hw + 2, -hh + 2, width - 4, height * 0.35, { tl: radius, tr: radius, bl: 0, br: 0 });
+
+  // Rarity border glow
+  gfx.lineStyle(3, RARITY_STROKES[car.rarity], 1);
+  gfx.strokeRoundedRect(-hw, -hh, width, height, radius);
 
   const image = scene.add.image(0, -72, car.imageKey);
   image.setDisplaySize(options.imageWidth ?? 360, options.imageHeight ?? 190);
 
   const name = scene.add
     .text(0, 62, car.name, {
-      fontFamily: "Arial",
-      fontSize: width < 360 ? "22px" : "30px",
+      fontFamily: "'Arial Black', Arial",
+      fontStyle: "bold",
+      fontSize: width < 360 ? "22px" : "28px",
       color: "#ffffff",
+      stroke: "#000000",
+      strokeThickness: 4,
       align: "center",
       wordWrap: { width: width - 64 },
     })
     .setOrigin(0.5);
 
   const rarity = scene.add
-    .text(0, 122, car.rarity, {
-      fontFamily: "Arial",
-      fontSize: "24px",
+    .text(0, 118, car.rarity, {
+      fontFamily: "'Arial Black', Arial",
+      fontStyle: "bold",
+      fontSize: "22px",
       color: RARITY_COLORS[car.rarity],
+      stroke: "#000000",
+      strokeThickness: 3,
     })
     .setOrigin(0.5);
 
   const value = scene.add
-    .text(0, 156, `${car.value.toLocaleString("ru-RU")} $`, {
-      fontFamily: "Arial",
-      fontSize: "26px",
+    .text(0, 154, `${car.value.toLocaleString("ru-RU")} $`, {
+      fontFamily: "'Arial Black', Arial",
+      fontStyle: "bold",
+      fontSize: "24px",
       color: "#ffd166",
+      stroke: "#000000",
+      strokeThickness: 3,
     })
     .setOrigin(0.5);
 
-  return scene.add.container(x, y, [background, image, name, rarity, value]);
+  return scene.add.container(x, y, [gfx, image, name, rarity, value]);
 }
