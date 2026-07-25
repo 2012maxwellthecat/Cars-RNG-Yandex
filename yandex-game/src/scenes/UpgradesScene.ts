@@ -24,12 +24,12 @@ export class UpgradesScene extends Phaser.Scene {
     const panelWidth = layout.width * 0.64; // ~820px at 1280
     const panelHeight = layout.height * 0.597; // ~430px at 720
     const centerX = layout.width * 0.5;
-    const centerY = layout.height * 0.514;
+    const centerY = layout.height * 0.49;
 
     addPanel(this, centerX, centerY, panelWidth, panelHeight);
 
     const leftX = layout.width * 0.21;
-    const topY = layout.height * 0.214;
+    const topY = layout.height * 0.21;
 
     addInfoText(this, leftX, topY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "30px");
     addInfoText(this, leftX, topY + 48, `Множитель шанса: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff");

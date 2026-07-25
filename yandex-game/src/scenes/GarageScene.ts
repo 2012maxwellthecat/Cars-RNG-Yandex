@@ -56,9 +56,14 @@ export class GarageScene extends Phaser.Scene {
 
     if (totalPages > 1) {
       const navY = layout.height * 0.881;
-      const navLeftX = layout.width * 0.203;
-      const navRightX = layout.width * 0.381;
-      const navCenterX = layout.width * 0.272;
+      const btnW = 150;
+      const textW = 130;
+      const gap = 24;
+      // Center nav row on the left panel
+      const navCenterX = layout.padding + leftPanelWidth / 2;
+      const navLeftX = navCenterX - textW / 2 - gap - btnW / 2;
+      const navRightX = navCenterX + textW / 2 + gap + btnW / 2;
+      const textLeft = navCenterX - textW / 2;
 
       addTextButton(
         this,
@@ -66,10 +71,10 @@ export class GarageScene extends Phaser.Scene {
         navY,
         "Назад",
         () => this.scene.restart({ page: this.page - 1, selectedInventoryId: this.selectedInventoryId }),
-        { width: 150, height: 46, disabled: this.page === 0, fontSize: "20px" },
+        { width: btnW, height: 46, disabled: this.page === 0, fontSize: "20px" },
       );
-      addInfoText(this, navCenterX, navY - 14, `${this.page + 1} / ${totalPages}`, "#ffffff", "22px", {
-        width: 96,
+      addInfoText(this, textLeft, navY - 14, `${this.page + 1} / ${totalPages}`, "#ffffff", "22px", {
+        fixedWidth: textW,
         align: "center",
       });
       addTextButton(
@@ -78,7 +83,7 @@ export class GarageScene extends Phaser.Scene {
         navY,
         "Вперёд",
         () => this.scene.restart({ page: this.page + 1, selectedInventoryId: this.selectedInventoryId }),
-        { width: 150, height: 46, disabled: this.page + 1 >= totalPages, fontSize: "20px" },
+        { width: btnW, height: 46, disabled: this.page + 1 >= totalPages, fontSize: "20px" },
       );
     }
   }
@@ -89,8 +94,8 @@ export class GarageScene extends Phaser.Scene {
     const cardSize = layout.width * 0.1125; // ~144px at 1280
     const cardSpacingX = layout.width * 0.1297; // ~166px
     const cardSpacingY = layout.height * 0.247; // ~178px
-    const startX = layout.width * 0.094;
-    const startY = layout.height * 0.319;
+    const startX = layout.width * 0.097;
+    const startY = layout.height * 0.399;
 
     pageItems.forEach((item, index) => {
       const row = Math.floor(index / 4);
@@ -111,10 +116,12 @@ export class GarageScene extends Phaser.Scene {
       cardGfx.lineStyle(2, selected ? 0xb07aff : 0x5030a0, 1);
       cardGfx.strokeRoundedRect(x - hs, y - hs, cardSize, cardSize, radius);
 
-      const image = this.add.image(x, y - 24, item.car.imageKey);
-      image.setDisplaySize(126, 72);
+      const imgW = Math.round(cardSize * 0.875);
+      const imgH = Math.round(cardSize * 0.5);
+      const image = this.add.image(x, y - Math.round(cardSize * 0.167), item.car.imageKey);
+      image.setDisplaySize(imgW, imgH);
       const label = this.add
-        .text(x, y + 50, item.car.name, {
+        .text(x, y + Math.round(cardSize * 0.347), item.car.name, {
           fontFamily: "'Arial Black', Arial",
           fontStyle: "bold",
           fontSize: "14px",
@@ -122,7 +129,7 @@ export class GarageScene extends Phaser.Scene {
           stroke: "#000000",
           strokeThickness: 3,
           align: "center",
-          wordWrap: { width: 126 },
+          wordWrap: { width: imgW },
         })
         .setOrigin(0.5);
 
@@ -156,7 +163,7 @@ export class GarageScene extends Phaser.Scene {
     }
 
     const layout = getResponsiveLayout(this);
-    const detailsX = layout.width * 0.772;
+    const detailsX = layout.width * 0.798;
     const cardY = layout.height * 0.469;
     const infoStartX = layout.width * 0.655;
     const infoY1 = layout.height * 0.714;

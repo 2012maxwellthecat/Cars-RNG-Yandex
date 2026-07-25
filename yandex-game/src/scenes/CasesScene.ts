@@ -68,17 +68,14 @@ export class CasesScene extends Phaser.Scene {
 
     addInfoText(this, startX, titleY, "Обычные кейсы", "#ffffff", "26px");
     definitions.forEach((definition, index) => {
-      const y = titleY + 80 + index * 170; // Увеличил отступ с 62 до 80
+      const blockTop = titleY + 86 + index * 200;
       const textWidth = layout.width * 0.18;
 
-      addInfoText(this, startX, y - 48, definition.title, "#ffffff", "24px", { width: textWidth });
-      addInfoText(this, startX, y - 16, `Минимум: ${definition.minRarity}`, rarityColor(definition.minRarity), "20px", {
-        width: textWidth,
-      });
-      addInfoText(this, startX, y + 12, `Цена: ${definition.cost.toLocaleString("ru-RU")}`, "#ffd166", "20px", {
-        width: textWidth,
-      });
-      this.addCaseButtons(definition, startX + textWidth + 32, y);
+      // Stack top-down with 32px line height for Arial Black Bold 20px
+      addInfoText(this, startX, blockTop,      definition.title,                                         "#ffffff", "20px", { width: textWidth });
+      addInfoText(this, startX, blockTop + 66, `Минимум: ${definition.minRarity}`,                       rarityColor(definition.minRarity), "18px", { width: textWidth });
+      addInfoText(this, startX, blockTop + 98, `Цена: ${definition.cost.toLocaleString("ru-RU")}`,       "#ffd166", "18px", { width: textWidth });
+      this.addCaseButtons(definition, startX + textWidth + 32, blockTop + 52);
     });
   }
 

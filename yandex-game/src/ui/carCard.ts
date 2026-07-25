@@ -71,27 +71,38 @@ export function addCarCard(
   gfx.lineStyle(3, RARITY_STROKES[car.rarity], 1);
   gfx.strokeRoundedRect(-hw, -hh, width, height, radius);
 
-  const image = scene.add.image(0, -72, car.imageKey);
-  image.setDisplaySize(options.imageWidth ?? 360, options.imageHeight ?? 190);
+  // Scale all Y positions proportionally from the reference height of 360
+  const vscale = height / 360;
+  const imgH = options.imageHeight ?? 190;
+  const imgW = options.imageWidth ?? 360;
+  // Keep image inside card: top edge = imageY - imgH/2 >= -hh + 6
+  const imageY = Math.max(-hh + imgH / 2 + 6, Math.round(-72 * vscale));
+
+  const image = scene.add.image(0, imageY, car.imageKey);
+  image.setDisplaySize(Math.min(imgW, width - 16), imgH);
+
+  const nameY = Math.round(62 * vscale);
+  const rarityY = Math.round(108 * vscale);
+  const valueY = Math.min(Math.round(144 * vscale), hh - 16);
 
   const name = scene.add
-    .text(0, 62, car.name, {
+    .text(0, nameY, car.name, {
       fontFamily: "'Arial Black', Arial",
       fontStyle: "bold",
-      fontSize: width < 360 ? "22px" : "28px",
+      fontSize: width < 400 ? "20px" : "26px",
       color: "#ffffff",
       stroke: "#000000",
       strokeThickness: 4,
       align: "center",
-      wordWrap: { width: width - 64 },
+      wordWrap: { width: width - 32 },
     })
     .setOrigin(0.5);
 
   const rarity = scene.add
-    .text(0, 118, car.rarity, {
+    .text(0, rarityY, car.rarity, {
       fontFamily: "'Arial Black', Arial",
       fontStyle: "bold",
-      fontSize: "22px",
+      fontSize: "20px",
       color: RARITY_COLORS[car.rarity],
       stroke: "#000000",
       strokeThickness: 3,
@@ -99,10 +110,10 @@ export function addCarCard(
     .setOrigin(0.5);
 
   const value = scene.add
-    .text(0, 154, `${car.value.toLocaleString("ru-RU")} $`, {
+    .text(0, valueY, `${car.value.toLocaleString("ru-RU")} $`, {
       fontFamily: "'Arial Black', Arial",
       fontStyle: "bold",
-      fontSize: "24px",
+      fontSize: "22px",
       color: "#ffd166",
       stroke: "#000000",
       strokeThickness: 3,
