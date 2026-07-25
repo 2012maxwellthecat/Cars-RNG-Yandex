@@ -9,7 +9,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_2106",
-    imageFile: "lada_2106.jpg",
+    imageFile: "lada_2106.webp",
   },
   {
     id: "lada_2105",
@@ -19,7 +19,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_2105",
-    imageFile: "lada_2105.jpg",
+    imageFile: "lada_2105.webp",
   },
   {
     id: "lada_2104",
@@ -29,7 +29,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_2104",
-    imageFile: "lada_2104.jpg",
+    imageFile: "lada_2104.webp",
   },
   {
     id: "lada_2107",
@@ -39,7 +39,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_2107",
-    imageFile: "lada_2107.jpg",
+    imageFile: "lada_2107.webp",
   },
   {
     id: "lada_priora",
@@ -49,7 +49,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_priora",
-    imageFile: "lada_priora.jpg",
+    imageFile: "lada_priora.webp",
   },
   {
     id: "lada_granta",
@@ -59,7 +59,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_granta",
-    imageFile: "lada_granta.jpg",
+    imageFile: "lada_granta.webp",
   },
   {
     id: "lada_vesta",
@@ -69,7 +69,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_vesta",
-    imageFile: "lada_vesta.jpg",
+    imageFile: "lada_vesta.webp",
   },
   {
     id: "lada_aura",
@@ -79,7 +79,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:lada_aura",
-    imageFile: "lada_aura.jpg",
+    imageFile: "lada_aura.webp",
   },
   {
     id: "fiat_500",
@@ -89,7 +89,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:fiat_500",
-    imageFile: "fiat_500.JPG",
+    imageFile: "fiat_500.webp",
   },
   {
     id: "renault_logan",
@@ -99,7 +99,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:renault_logan",
-    imageFile: "renault_logan.jpg",
+    imageFile: "renault_logan.webp",
   },
   {
     id: "volkswagen_beetle",
@@ -109,7 +109,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:volkswagen_beetle",
-    imageFile: "volkswagen_beetle.jpg",
+    imageFile: "volkswagen_beetle.webp",
   },
   {
     id: "chevrolet_spark",
@@ -119,7 +119,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:chevrolet_spark",
-    imageFile: "chevrolet_spark.jpg",
+    imageFile: "chevrolet_spark.webp",
   },
   {
     id: "honda_fit",
@@ -129,7 +129,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:honda_fit",
-    imageFile: "honda_jazz.jpg",
+    imageFile: "honda_jazz.webp",
   },
   {
     id: "citroen_ds",
@@ -139,7 +139,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:citroen_ds",
-    imageFile: "citroen_ds3.jpg",
+    imageFile: "citroen_ds3.webp",
   },
   {
     id: "toyota_corolla",
@@ -149,7 +149,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:toyota_corolla",
-    imageFile: "toyota_corolla.jpg",
+    imageFile: "toyota_corolla.webp",
   },
   {
     id: "dodge_dart",
@@ -159,7 +159,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:dodge_dart",
-    imageFile: "dodge_dart.jpg",
+    imageFile: "dodge_dart.webp",
   },
   {
     id: "ford_fiesta",
@@ -169,7 +169,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:ford_fiesta",
-    imageFile: "ford_fiesta.jpg",
+    imageFile: "ford_fiesta.webp",
   },
   {
     id: "ford_focus",
@@ -179,7 +179,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:ford_focus",
-    imageFile: "ford_focus.jpg",
+    imageFile: "ford_focus.webp",
   },
   {
     id: "chrysler_200",
@@ -189,7 +189,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:chrysler_200",
-    imageFile: "chrysler_200.jpg",
+    imageFile: "chrysler_200.webp",
   },
   {
     id: "renault_kaptur",
@@ -199,7 +199,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:renault_kaptur",
-    imageFile: "renault_kaptur.jpg",
+    imageFile: "renault_kaptur.webp",
   },
   {
     id: "kia_soul",
@@ -209,7 +209,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:kia_soul",
-    imageFile: "kia_soul.jpg",
+    imageFile: "kia_soul.webp",
   },
   {
     id: "peugeot_208",
@@ -219,7 +219,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:peugeot_208",
-    imageFile: "peugeot_208.jpg",
+    imageFile: "peugeot_208.webp",
   },
   {
     id: "honda_civic",
@@ -229,7 +229,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:honda_civic",
-    imageFile: "honda_civic.jpg",
+    imageFile: "honda_civic.webp",
   },
   {
     id: "chevrolet_malibu_maxx",
@@ -239,7 +239,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:chevrolet_malibu_maxx",
-    imageFile: "chevrolet_malibu_maxx.jpg",
+    imageFile: "chevrolet_malibu_maxx.webp",
   },
   {
     id: "nissan_altima",
@@ -249,7 +249,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:nissan_altima",
-    imageFile: "nissan_altima.jpg",
+    imageFile: "nissan_altima.webp",
   },
   {
     id: "mitsubishi_outlander",
@@ -259,7 +259,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:mitsubishi_outlander",
-    imageFile: "mitsubishi_outlander.jpg",
+    imageFile: "mitsubishi_outlander.webp",
   },
   {
     id: "mazda_3",
@@ -269,7 +269,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:mazda_3",
-    imageFile: "mazda_3.jpg",
+    imageFile: "mazda_3.webp",
   },
   {
     id: "subaru_legacy",
@@ -279,7 +279,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:subaru_legacy",
-    imageFile: "subaru_legacy.jpg",
+    imageFile: "subaru_legacy.webp",
   },
   {
     id: "volkswagen_golf",
@@ -289,7 +289,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:volkswagen_golf",
-    imageFile: "volkswagen_golf.jpg",
+    imageFile: "volkswagen_golf.webp",
   },
   {
     id: "chevrolet_cruze",
@@ -299,7 +299,7 @@ export const CARS: Car[] = [
     baseChance: 95,
     points: 0,
     imageKey: "car:chevrolet_cruze",
-    imageFile: "chevrolet_cruze.jpg",
+    imageFile: "chevrolet_cruze.webp",
   },
   {
     id: "kia_niro",
@@ -309,7 +309,7 @@ export const CARS: Car[] = [
     baseChance: 100,
     points: 0,
     imageKey: "car:kia_niro",
-    imageFile: "kia_niro.jpg",
+    imageFile: "kia_niro.webp",
   },
   {
     id: "kia_sportage",
@@ -319,7 +319,7 @@ export const CARS: Car[] = [
     baseChance: 90,
     points: 0,
     imageKey: "car:kia_sportage",
-    imageFile: "kia_sportage.jpg",
+    imageFile: "kia_sportage.webp",
   },
   {
     id: "kia_optima",
@@ -329,7 +329,7 @@ export const CARS: Car[] = [
     baseChance: 90,
     points: 0,
     imageKey: "car:kia_optima",
-    imageFile: "kia_optima.jpg",
+    imageFile: "kia_optima.webp",
   },
   {
     id: "fiat_tipo",
@@ -339,7 +339,7 @@ export const CARS: Car[] = [
     baseChance: 90,
     points: 0,
     imageKey: "car:fiat_tipo",
-    imageFile: "fiat_tipo.jpg",
+    imageFile: "fiat_tipo.webp",
   },
   {
     id: "hyundai_elantra",
@@ -349,7 +349,7 @@ export const CARS: Car[] = [
     baseChance: 90,
     points: 0,
     imageKey: "car:hyundai_elantra",
-    imageFile: "hyundai_elantra.jpg",
+    imageFile: "hyundai_elantra.webp",
   },
   {
     id: "hyundai_tucson",
@@ -359,7 +359,7 @@ export const CARS: Car[] = [
     baseChance: 90,
     points: 0,
     imageKey: "car:hyundai_tucson",
-    imageFile: "hyundai_tucson.jpg",
+    imageFile: "hyundai_tucson.webp",
   },
   {
     id: "buick_verano",
@@ -369,7 +369,7 @@ export const CARS: Car[] = [
     baseChance: 90,
     points: 0,
     imageKey: "car:buick_verano",
-    imageFile: "buick_verano.JPG",
+    imageFile: "buick_verano.webp",
   },
   {
     id: "mazda_6",
@@ -379,7 +379,7 @@ export const CARS: Car[] = [
     baseChance: 85,
     points: 0,
     imageKey: "car:mazda_6",
-    imageFile: "mazda_6.jpg",
+    imageFile: "mazda_6.webp",
   },
   {
     id: "mini_cooper",
@@ -389,7 +389,7 @@ export const CARS: Car[] = [
     baseChance: 85,
     points: 0,
     imageKey: "car:mini_cooper",
-    imageFile: "mini_cooper.jpg",
+    imageFile: "mini_cooper.webp",
   },
   {
     id: "toyota_prius",
@@ -399,7 +399,7 @@ export const CARS: Car[] = [
     baseChance: 85,
     points: 0,
     imageKey: "car:toyota_prius",
-    imageFile: "toyota_prius.jpg",
+    imageFile: "toyota_prius.webp",
   },
   {
     id: "scion_fr_s",
@@ -409,7 +409,7 @@ export const CARS: Car[] = [
     baseChance: 80,
     points: 0,
     imageKey: "car:scion_fr_s",
-    imageFile: "scion_fr-s.jpg",
+    imageFile: "scion_fr-s.webp",
   },
   {
     id: "mazda_mx_5",
@@ -419,7 +419,7 @@ export const CARS: Car[] = [
     baseChance: 80,
     points: 0,
     imageKey: "car:mazda_mx_5",
-    imageFile: "mazda_mx-5.jpg",
+    imageFile: "mazda_mx-5.webp",
   },
   {
     id: "chevrolet_equinox",
@@ -429,7 +429,7 @@ export const CARS: Car[] = [
     baseChance: 80,
     points: 0,
     imageKey: "car:chevrolet_equinox",
-    imageFile: "chevrolet_equinox.jpg",
+    imageFile: "chevrolet_equinox.webp",
   },
   {
     id: "honda_hr_v",
@@ -439,7 +439,7 @@ export const CARS: Car[] = [
     baseChance: 80,
     points: 0,
     imageKey: "car:honda_hr_v",
-    imageFile: "honda_hr-v.jpg",
+    imageFile: "honda_hr-v.webp",
   },
   {
     id: "subaru_impreza",
@@ -449,7 +449,7 @@ export const CARS: Car[] = [
     baseChance: 75,
     points: 0,
     imageKey: "car:subaru_impreza",
-    imageFile: "subaru_impreza.jpg",
+    imageFile: "subaru_impreza.webp",
   },
   {
     id: "honda_accord",
@@ -459,7 +459,7 @@ export const CARS: Car[] = [
     baseChance: 75,
     points: 0,
     imageKey: "car:honda_accord",
-    imageFile: "honda_accord.jpg",
+    imageFile: "honda_accord.webp",
   },
   {
     id: "toyota_86",
@@ -469,7 +469,7 @@ export const CARS: Car[] = [
     baseChance: 75,
     points: 0,
     imageKey: "car:toyota_86",
-    imageFile: "toyota_gr86.jpg",
+    imageFile: "toyota_gr86.webp",
   },
   {
     id: "subaru_impreza_wrx_sti",
@@ -479,7 +479,7 @@ export const CARS: Car[] = [
     baseChance: 70,
     points: 0,
     imageKey: "car:subaru_impreza_wrx_sti",
-    imageFile: "subaru_impreza_wrx_sti.jpg",
+    imageFile: "subaru_impreza_wrx_sti.webp",
   },
   {
     id: "toyota_camry",
@@ -489,7 +489,7 @@ export const CARS: Car[] = [
     baseChance: 70,
     points: 0,
     imageKey: "car:toyota_camry",
-    imageFile: "toyota_camry.jpg",
+    imageFile: "toyota_camry.webp",
   },
   {
     id: "renault_duster",
@@ -499,7 +499,7 @@ export const CARS: Car[] = [
     baseChance: 70,
     points: 0,
     imageKey: "car:renault_duster",
-    imageFile: "renault_duster.jpg",
+    imageFile: "renault_duster.webp",
   },
   {
     id: "hyundai_sonata",
@@ -509,7 +509,7 @@ export const CARS: Car[] = [
     baseChance: 20,
     points: 0,
     imageKey: "car:hyundai_sonata",
-    imageFile: "hyundai_sonata.jpg",
+    imageFile: "hyundai_sonata.webp",
   },
   {
     id: "ford_mustang",
@@ -519,7 +519,7 @@ export const CARS: Car[] = [
     baseChance: 20,
     points: 0,
     imageKey: "car:ford_mustang",
-    imageFile: "ford_mustang.jpg",
+    imageFile: "ford_mustang.webp",
   },
   {
     id: "hyundai_santa_fe",
@@ -529,7 +529,7 @@ export const CARS: Car[] = [
     baseChance: 20,
     points: 0,
     imageKey: "car:hyundai_santa_fe",
-    imageFile: "hyundai_santa_fe.jpg",
+    imageFile: "hyundai_santa_fe.webp",
   },
   {
     id: "fiat_124_spider",
@@ -539,7 +539,7 @@ export const CARS: Car[] = [
     baseChance: 20,
     points: 0,
     imageKey: "car:fiat_124_spider",
-    imageFile: "fiat_124_spider.jpg",
+    imageFile: "fiat_124_spider.webp",
   },
   {
     id: "volkswagen_kafer",
@@ -549,7 +549,7 @@ export const CARS: Car[] = [
     baseChance: 18,
     points: 0,
     imageKey: "car:volkswagen_kafer",
-    imageFile: "volkswagen_kafer.jpg",
+    imageFile: "volkswagen_kafer.webp",
   },
   {
     id: "chevrolet_camaro",
@@ -559,7 +559,7 @@ export const CARS: Car[] = [
     baseChance: 18,
     points: 0,
     imageKey: "car:chevrolet_camaro",
-    imageFile: "chevrolet_camaro.jpg",
+    imageFile: "chevrolet_camaro.webp",
   },
   {
     id: "volkswagen_jetta",
@@ -569,7 +569,7 @@ export const CARS: Car[] = [
     baseChance: 18,
     points: 0,
     imageKey: "car:volkswagen_jetta",
-    imageFile: "volkswagen_jetta.jpg",
+    imageFile: "volkswagen_jetta.webp",
   },
   {
     id: "peugeot_308",
@@ -579,7 +579,7 @@ export const CARS: Car[] = [
     baseChance: 16.5,
     points: 0,
     imageKey: "car:peugeot_308",
-    imageFile: "peugeot_308.jpg",
+    imageFile: "peugeot_308.webp",
   },
   {
     id: "kia_sorento",
@@ -589,7 +589,7 @@ export const CARS: Car[] = [
     baseChance: 16.5,
     points: 0,
     imageKey: "car:kia_sorento",
-    imageFile: "kia_sorento.jpg",
+    imageFile: "kia_sorento.webp",
   },
   {
     id: "mazda_cx_5",
@@ -599,7 +599,7 @@ export const CARS: Car[] = [
     baseChance: 15,
     points: 0,
     imageKey: "car:mazda_cx_5",
-    imageFile: "mazda_cx-5.jpg",
+    imageFile: "mazda_cx-5.webp",
   },
   {
     id: "opel_astra",
@@ -609,7 +609,7 @@ export const CARS: Car[] = [
     baseChance: 15,
     points: 0,
     imageKey: "car:opel_astra",
-    imageFile: "opel_astra.jpg",
+    imageFile: "opel_astra.webp",
   },
   {
     id: "nissan_370z",
@@ -619,7 +619,7 @@ export const CARS: Car[] = [
     baseChance: 15,
     points: 0,
     imageKey: "car:nissan_370z",
-    imageFile: "nissan_370z.jpg",
+    imageFile: "nissan_370z.webp",
   },
   {
     id: "volvo_s60",
@@ -629,7 +629,7 @@ export const CARS: Car[] = [
     baseChance: 13.5,
     points: 0,
     imageKey: "car:volvo_s60",
-    imageFile: "volvo_s60.jpg",
+    imageFile: "volvo_s60.webp",
   },
   {
     id: "hyundai_veloster_n",
@@ -639,7 +639,7 @@ export const CARS: Car[] = [
     baseChance: 13.5,
     points: 0,
     imageKey: "car:hyundai_veloster_n",
-    imageFile: "hyundai_veloster_n.jpg",
+    imageFile: "hyundai_veloster_n.webp",
   },
   {
     id: "subaru_wrx",
@@ -649,7 +649,7 @@ export const CARS: Car[] = [
     baseChance: 12,
     points: 0,
     imageKey: "car:subaru_wrx",
-    imageFile: "subaru_wrx.jpg",
+    imageFile: "subaru_wrx.webp",
   },
   {
     id: "fiat_topolino",
@@ -659,7 +659,7 @@ export const CARS: Car[] = [
     baseChance: 12,
     points: 0,
     imageKey: "car:fiat_topolino",
-    imageFile: "fiat_topolino.jpg",
+    imageFile: "fiat_topolino.webp",
   },
   {
     id: "tesla_model_3",
@@ -669,7 +669,7 @@ export const CARS: Car[] = [
     baseChance: 12,
     points: 0,
     imageKey: "car:tesla_model_3",
-    imageFile: "tesla_model_3.jpg",
+    imageFile: "tesla_model_3.webp",
   },
   {
     id: "dodge_charger",
@@ -679,7 +679,7 @@ export const CARS: Car[] = [
     baseChance: 12,
     points: 0,
     imageKey: "car:dodge_charger",
-    imageFile: "dodge_charger.JPG",
+    imageFile: "dodge_charger.webp",
   },
   {
     id: "mitsubishi_lancer_evolution",
@@ -689,7 +689,7 @@ export const CARS: Car[] = [
     baseChance: 9,
     points: 0,
     imageKey: "car:mitsubishi_lancer_evolution",
-    imageFile: "mitsubishi_lancer_evolution.jpg",
+    imageFile: "mitsubishi_lancer_evolution.webp",
   },
   {
     id: "kia_stinger",
@@ -699,7 +699,7 @@ export const CARS: Car[] = [
     baseChance: 9,
     points: 0,
     imageKey: "car:kia_stinger",
-    imageFile: "kia_stinger.jpg",
+    imageFile: "kia_stinger.webp",
   },
   {
     id: "audi_tt",
@@ -709,7 +709,7 @@ export const CARS: Car[] = [
     baseChance: 9,
     points: 0,
     imageKey: "car:audi_tt",
-    imageFile: "audi_tt.jpg",
+    imageFile: "audi_tt.webp",
   },
   {
     id: "chevrolet_corvette_stingray",
@@ -719,7 +719,7 @@ export const CARS: Car[] = [
     baseChance: 9,
     points: 0,
     imageKey: "car:chevrolet_corvette_stingray",
-    imageFile: "chevrolet_corvette_stingray.JPG",
+    imageFile: "chevrolet_corvette_stingray.webp",
   },
   {
     id: "bmw_2_series",
@@ -739,7 +739,7 @@ export const CARS: Car[] = [
     baseChance: 7,
     points: 0,
     imageKey: "car:infiniti_q50",
-    imageFile: "infiniti_q50.jpg",
+    imageFile: "infiniti_q50.webp",
   },
   {
     id: "bmw_z4",
@@ -749,7 +749,7 @@ export const CARS: Car[] = [
     baseChance: 7,
     points: 0,
     imageKey: "car:bmw_z4",
-    imageFile: "bmw_z4.jpg",
+    imageFile: "bmw_z4.webp",
   },
   {
     id: "lexus_es",
@@ -759,7 +759,7 @@ export const CARS: Car[] = [
     baseChance: 6,
     points: 0,
     imageKey: "car:lexus_es",
-    imageFile: "lexus_es.jpg",
+    imageFile: "lexus_es.webp",
   },
   {
     id: "volvo_xc60",
@@ -769,7 +769,7 @@ export const CARS: Car[] = [
     baseChance: 6,
     points: 1,
     imageKey: "car:volvo_xc60",
-    imageFile: "volvo_xc60.jpg",
+    imageFile: "volvo_xc60.webp",
   },
   {
     id: "bmw_3_series",
@@ -779,7 +779,7 @@ export const CARS: Car[] = [
     baseChance: 5,
     points: 0,
     imageKey: "car:bmw_3_series",
-    imageFile: "bmw_3_series.jpg",
+    imageFile: "bmw_3_series.webp",
   },
   {
     id: "dodge_challenger",
@@ -789,7 +789,7 @@ export const CARS: Car[] = [
     baseChance: 5,
     points: 1,
     imageKey: "car:dodge_challenger",
-    imageFile: "dodge_challenger.jpg",
+    imageFile: "dodge_challenger.webp",
   },
   {
     id: "audi_a4",
@@ -799,7 +799,7 @@ export const CARS: Car[] = [
     baseChance: 4,
     points: 0,
     imageKey: "car:audi_a4",
-    imageFile: "audi_a4.jpg",
+    imageFile: "audi_a4.webp",
   },
   {
     id: "nissan_z",
@@ -809,7 +809,7 @@ export const CARS: Car[] = [
     baseChance: 0.9,
     points: 1,
     imageKey: "car:nissan_z",
-    imageFile: "nissan_z.jpg",
+    imageFile: "nissan_z.webp",
   },
   {
     id: "porsche_boxster",
@@ -819,7 +819,7 @@ export const CARS: Car[] = [
     baseChance: 0.9,
     points: 1,
     imageKey: "car:porsche_boxster",
-    imageFile: "porsche_boxster.jpg",
+    imageFile: "porsche_boxster.webp",
   },
   {
     id: "mercedes_benz_c_class",
@@ -829,7 +829,7 @@ export const CARS: Car[] = [
     baseChance: 0.85,
     points: 1,
     imageKey: "car:mercedes_benz_c_class",
-    imageFile: "mercedes-benz_c-class.jpg",
+    imageFile: "mercedes-benz_c-class.webp",
   },
   {
     id: "chevrolet_corvette",
@@ -839,7 +839,7 @@ export const CARS: Car[] = [
     baseChance: 0.85,
     points: 1,
     imageKey: "car:chevrolet_corvette",
-    imageFile: "chevrolet_corvette.JPG",
+    imageFile: "chevrolet_corvette.webp",
   },
   {
     id: "porsche_cayman",
@@ -849,7 +849,7 @@ export const CARS: Car[] = [
     baseChance: 0.85,
     points: 1,
     imageKey: "car:porsche_cayman",
-    imageFile: "porsche_cayman.jpg",
+    imageFile: "porsche_cayman.webp",
   },
   {
     id: "lincoln_mkz",
@@ -859,7 +859,7 @@ export const CARS: Car[] = [
     baseChance: 0.82,
     points: 1,
     imageKey: "car:lincoln_mkz",
-    imageFile: "lincoln_mkz.jpg",
+    imageFile: "lincoln_mkz.webp",
   },
   {
     id: "porsche_macan",
@@ -869,7 +869,7 @@ export const CARS: Car[] = [
     baseChance: 0.8,
     points: 1,
     imageKey: "car:porsche_macan",
-    imageFile: "porsche_macan.jpg",
+    imageFile: "porsche_macan.webp",
   },
   {
     id: "bmw_m3",
@@ -879,7 +879,7 @@ export const CARS: Car[] = [
     baseChance: 0.8,
     points: 1,
     imageKey: "car:bmw_m3",
-    imageFile: "bmw_m3.jpg",
+    imageFile: "bmw_m3.webp",
   },
   {
     id: "jaguar_f_pace",
@@ -889,7 +889,7 @@ export const CARS: Car[] = [
     baseChance: 0.8,
     points: 1,
     imageKey: "car:jaguar_f_pace",
-    imageFile: "jaguar_f-pace.jpg",
+    imageFile: "jaguar_f-pace.webp",
   },
   {
     id: "maserati_ghibli",
@@ -899,7 +899,7 @@ export const CARS: Car[] = [
     baseChance: 0.75,
     points: 1,
     imageKey: "car:maserati_ghibli",
-    imageFile: "maserati_ghibli.jpg",
+    imageFile: "maserati_ghibli.webp",
   },
   {
     id: "porsche_cayenne",
@@ -909,7 +909,7 @@ export const CARS: Car[] = [
     baseChance: 0.75,
     points: 1,
     imageKey: "car:porsche_cayenne",
-    imageFile: "porsche_cayenne.jpg",
+    imageFile: "porsche_cayenne.webp",
   },
   {
     id: "jaguar_f_type",
@@ -919,7 +919,7 @@ export const CARS: Car[] = [
     baseChance: 0.7,
     points: 1,
     imageKey: "car:jaguar_f_type",
-    imageFile: "jaguar_f-type.jpg",
+    imageFile: "jaguar_f-type.webp",
   },
   {
     id: "cadillac_escalade",
@@ -929,7 +929,7 @@ export const CARS: Car[] = [
     baseChance: 0.7,
     points: 1,
     imageKey: "car:cadillac_escalade",
-    imageFile: "cadillac_escalade.jpg",
+    imageFile: "cadillac_escalade.webp",
   },
   {
     id: "land_rover_range_rover_velar",
@@ -939,7 +939,7 @@ export const CARS: Car[] = [
     baseChance: 0.65,
     points: 1,
     imageKey: "car:land_rover_range_rover_velar",
-    imageFile: "land_rover_range_rover_velar.jpg",
+    imageFile: "land_rover_range_rover_velar.webp",
   },
   {
     id: "lexus_rx",
@@ -949,7 +949,7 @@ export const CARS: Car[] = [
     baseChance: 0.6,
     points: 1,
     imageKey: "car:lexus_rx",
-    imageFile: "lexus_rx.jpg",
+    imageFile: "lexus_rx.webp",
   },
   {
     id: "audi_q8",
@@ -959,7 +959,7 @@ export const CARS: Car[] = [
     baseChance: 0.6,
     points: 1,
     imageKey: "car:audi_q8",
-    imageFile: "audi_q8.jpg",
+    imageFile: "audi_q8.webp",
   },
   {
     id: "lotus_evora",
@@ -969,7 +969,7 @@ export const CARS: Car[] = [
     baseChance: 0.6,
     points: 1,
     imageKey: "car:lotus_evora",
-    imageFile: "lotus_evora.jpg",
+    imageFile: "lotus_evora.webp",
   },
   {
     id: "nissan_gt_r",
@@ -979,7 +979,7 @@ export const CARS: Car[] = [
     baseChance: 0.5,
     points: 1,
     imageKey: "car:nissan_gt_r",
-    imageFile: "nissan_gt-r.jpg",
+    imageFile: "nissan_gt-r.webp",
   },
   {
     id: "tesla_model_s",
@@ -989,7 +989,7 @@ export const CARS: Car[] = [
     baseChance: 0.5,
     points: 1,
     imageKey: "car:tesla_model_s",
-    imageFile: "tesla_model_s.jpg",
+    imageFile: "tesla_model_s.webp",
   },
   {
     id: "lexus_ls",
@@ -999,7 +999,7 @@ export const CARS: Car[] = [
     baseChance: 0.46,
     points: 2,
     imageKey: "car:lexus_ls",
-    imageFile: "lexus_ls.jpg",
+    imageFile: "lexus_ls.webp",
   },
   {
     id: "mercedes_benz_s_class",
@@ -1009,7 +1009,7 @@ export const CARS: Car[] = [
     baseChance: 0.42,
     points: 2,
     imageKey: "car:mercedes_benz_s_class",
-    imageFile: "mercedes-benz_s-class.jpg",
+    imageFile: "mercedes-benz_s-class.webp",
   },
   {
     id: "porsche_911",
@@ -1019,7 +1019,7 @@ export const CARS: Car[] = [
     baseChance: 0.3,
     points: 2,
     imageKey: "car:porsche_911",
-    imageFile: "porsche_911.jpg",
+    imageFile: "porsche_911.webp",
   },
   {
     id: "aston_martin_vantage",
@@ -1029,7 +1029,7 @@ export const CARS: Car[] = [
     baseChance: 0.3,
     points: 2,
     imageKey: "car:aston_martin_vantage",
-    imageFile: "aston_martin_vantage.jpg",
+    imageFile: "aston_martin_vantage.webp",
   },
   {
     id: "maserati_levante",
@@ -1039,7 +1039,7 @@ export const CARS: Car[] = [
     baseChance: 0.3,
     points: 2,
     imageKey: "car:maserati_levante",
-    imageFile: "maserati_levante.jpg",
+    imageFile: "maserati_levante.webp",
   },
   {
     id: "mclaren_570s",
@@ -1049,7 +1049,7 @@ export const CARS: Car[] = [
     baseChance: 0.12,
     points: 7,
     imageKey: "car:mclaren_570s",
-    imageFile: "mclaren_570s.jpg",
+    imageFile: "mclaren_570s.webp",
   },
   {
     id: "mclaren_gt",
@@ -1059,7 +1059,7 @@ export const CARS: Car[] = [
     baseChance: 0.12,
     points: 7,
     imageKey: "car:mclaren_gt",
-    imageFile: "mclaren_gt.jpg",
+    imageFile: "mclaren_gt.webp",
   },
   {
     id: "lamborghini_urus",
@@ -1069,7 +1069,7 @@ export const CARS: Car[] = [
     baseChance: 0.1,
     points: 8,
     imageKey: "car:lamborghini_urus",
-    imageFile: "lamborghini_urus.jpg",
+    imageFile: "lamborghini_urus.webp",
   },
   {
     id: "aston_martin_db11",
@@ -1079,7 +1079,7 @@ export const CARS: Car[] = [
     baseChance: 0.1,
     points: 8,
     imageKey: "car:aston_martin_db11",
-    imageFile: "aston_martin_db11.jpg",
+    imageFile: "aston_martin_db11.webp",
   },
   {
     id: "bentley_continental_gt",
@@ -1089,7 +1089,7 @@ export const CARS: Car[] = [
     baseChance: 0.095,
     points: 9,
     imageKey: "car:bentley_continental_gt",
-    imageFile: "bentley_continental_gt.jpg",
+    imageFile: "bentley_continental_gt.webp",
   },
   {
     id: "ferrari_488",
@@ -1099,7 +1099,7 @@ export const CARS: Car[] = [
     baseChance: 0.075,
     points: 12,
     imageKey: "car:ferrari_488",
-    imageFile: "ferrari_488.jpg",
+    imageFile: "ferrari_488.webp",
   },
   {
     id: "lamborghini_huracan",
@@ -1109,7 +1109,7 @@ export const CARS: Car[] = [
     baseChance: 0.075,
     points: 12,
     imageKey: "car:lamborghini_huracan",
-    imageFile: "lamborghini_huracan.jpg",
+    imageFile: "lamborghini_huracan.webp",
   },
   {
     id: "noble_m600",
@@ -1119,7 +1119,7 @@ export const CARS: Car[] = [
     baseChance: 0.075,
     points: 12,
     imageKey: "car:noble_m600",
-    imageFile: "noble_m600.jpg",
+    imageFile: "noble_m600.webp",
   },
   {
     id: "ferrari_812_superfast",
@@ -1129,7 +1129,7 @@ export const CARS: Car[] = [
     baseChance: 0.0705,
     points: 13,
     imageKey: "car:ferrari_812_superfast",
-    imageFile: "ferrari_812_superfast.jpg",
+    imageFile: "ferrari_812_superfast.webp",
   },
   {
     id: "mclaren_720s",
@@ -1139,7 +1139,7 @@ export const CARS: Car[] = [
     baseChance: 0.065,
     points: 15,
     imageKey: "car:mclaren_720s",
-    imageFile: "mclaren_720s.jpg",
+    imageFile: "mclaren_720s.webp",
   },
   {
     id: "rolls_royce_phantom",
@@ -1149,7 +1149,7 @@ export const CARS: Car[] = [
     baseChance: 0.06,
     points: 17,
     imageKey: "car:rolls_royce_phantom",
-    imageFile: "rolls-royce_phantom.jpg",
+    imageFile: "rolls-royce_phantom.webp",
   },
   {
     id: "lamborghini_aventador",
@@ -1159,7 +1159,7 @@ export const CARS: Car[] = [
     baseChance: 0.06,
     points: 17,
     imageKey: "car:lamborghini_aventador",
-    imageFile: "lamborghini_aventador.jpg",
+    imageFile: "lamborghini_aventador.webp",
   },
   {
     id: "aston_martin_db5",
@@ -1169,7 +1169,7 @@ export const CARS: Car[] = [
     baseChance: 0.05,
     points: 20,
     imageKey: "car:aston_martin_db5",
-    imageFile: "aston_martin_db5.jpg",
+    imageFile: "aston_martin_db5.webp",
   },
   {
     id: "jaguar_e_type",
@@ -1179,7 +1179,7 @@ export const CARS: Car[] = [
     baseChance: 0.0375,
     points: 24,
     imageKey: "car:jaguar_e_type",
-    imageFile: "jaguar_e-type.jpg",
+    imageFile: "jaguar_e-type.webp",
   },
   {
     id: "ford_gt40",
@@ -1189,7 +1189,7 @@ export const CARS: Car[] = [
     baseChance: 0.032,
     points: 29,
     imageKey: "car:ford_gt40",
-    imageFile: "ford_gt40.jpg",
+    imageFile: "ford_gt40.webp",
   },
   {
     id: "pagani_zonda",
@@ -1199,7 +1199,7 @@ export const CARS: Car[] = [
     baseChance: 0.03,
     points: 35,
     imageKey: "car:pagani_zonda",
-    imageFile: "pagani_zonda_c12.jpg",
+    imageFile: "pagani_zonda_c12.webp",
   },
   {
     id: "lamborghini_miura",
@@ -1209,7 +1209,7 @@ export const CARS: Car[] = [
     baseChance: 0.03,
     points: 35,
     imageKey: "car:lamborghini_miura",
-    imageFile: "lamborghini_miura.jpg",
+    imageFile: "lamborghini_miura.webp",
   },
   {
     id: "bugatti_veyron",
@@ -1219,7 +1219,7 @@ export const CARS: Car[] = [
     baseChance: 0.03,
     points: 35,
     imageKey: "car:bugatti_veyron",
-    imageFile: "bugatti_veyron.jpg",
+    imageFile: "bugatti_veyron.webp",
   },
   {
     id: "shelby_cobra",
@@ -1229,7 +1229,7 @@ export const CARS: Car[] = [
     baseChance: 0.026,
     points: 41,
     imageKey: "car:shelby_cobra",
-    imageFile: "ac_cobra.jpg",
+    imageFile: "ac_cobra.webp",
   },
   {
     id: "mclaren_f1",
@@ -1239,7 +1239,7 @@ export const CARS: Car[] = [
     baseChance: 0.026,
     points: 41,
     imageKey: "car:mclaren_f1",
-    imageFile: "mclaren_f1.jpg",
+    imageFile: "mclaren_f1.webp",
   },
   {
     id: "lamborghini_countach",
@@ -1249,7 +1249,7 @@ export const CARS: Car[] = [
     baseChance: 0.026,
     points: 41,
     imageKey: "car:lamborghini_countach",
-    imageFile: "lamborghini_countach.jpg",
+    imageFile: "lamborghini_countach.webp",
   },
   {
     id: "ferrari_f50",
@@ -1259,7 +1259,7 @@ export const CARS: Car[] = [
     baseChance: 0.022,
     points: 44,
     imageKey: "car:ferrari_f50",
-    imageFile: "ferrari_f50.jpg",
+    imageFile: "ferrari_f50.webp",
   },
   {
     id: "ferrari_laferrari",
@@ -1269,7 +1269,7 @@ export const CARS: Car[] = [
     baseChance: 0.02,
     points: 46,
     imageKey: "car:ferrari_laferrari",
-    imageFile: "ferrari_laferrari.jpg",
+    imageFile: "ferrari_laferrari.webp",
   },
   {
     id: "mercedes_benz_300sl",
@@ -1279,7 +1279,7 @@ export const CARS: Car[] = [
     baseChance: 0.014,
     points: 70,
     imageKey: "car:mercedes_benz_300sl",
-    imageFile: "mercedes-benz_300_sl.jpg",
+    imageFile: "mercedes-benz_300_sl.webp",
   },
   {
     id: "bugatti_type_35",
@@ -1289,7 +1289,7 @@ export const CARS: Car[] = [
     baseChance: 0.014,
     points: 70,
     imageKey: "car:bugatti_type_35",
-    imageFile: "bugatti_type_35.jpg",
+    imageFile: "bugatti_type_35.webp",
   },
   {
     id: "lamborghini_centenario",
@@ -1299,7 +1299,7 @@ export const CARS: Car[] = [
     baseChance: 0.01,
     points: 100,
     imageKey: "car:lamborghini_centenario",
-    imageFile: "lamborghini_centenario.JPG",
+    imageFile: "lamborghini_centenario.webp",
   },
   {
     id: "mclaren_speedtail",
@@ -1309,7 +1309,7 @@ export const CARS: Car[] = [
     baseChance: 0.01,
     points: 100,
     imageKey: "car:mclaren_speedtail",
-    imageFile: "mclaren_speedtail.jpg",
+    imageFile: "mclaren_speedtail.webp",
   },
   {
     id: "bugatti_eb110",
@@ -1319,7 +1319,7 @@ export const CARS: Car[] = [
     baseChance: 0.01,
     points: 100,
     imageKey: "car:bugatti_eb110",
-    imageFile: "bugatti_eb110.jpg",
+    imageFile: "bugatti_eb110.webp",
   },
   {
     id: "maybach_62",
@@ -1329,7 +1329,7 @@ export const CARS: Car[] = [
     baseChance: 0.01,
     points: 100,
     imageKey: "car:maybach_62",
-    imageFile: "maybach_62.jpg",
+    imageFile: "maybach_62.webp",
   },
   {
     id: "ferrari_275_gtb",
@@ -1339,7 +1339,7 @@ export const CARS: Car[] = [
     baseChance: 0.0092,
     points: 112,
     imageKey: "car:ferrari_275_gtb",
-    imageFile: "ferrari_275_gtb.jpg",
+    imageFile: "ferrari_275_gtb.webp",
   },
   {
     id: "ferrari_f40",
@@ -1349,7 +1349,7 @@ export const CARS: Car[] = [
     baseChance: 0.009,
     points: 115,
     imageKey: "car:ferrari_f40",
-    imageFile: "ferrari_f40.jpg",
+    imageFile: "ferrari_f40.webp",
   },
   {
     id: "pagani_huayra",
@@ -1359,7 +1359,7 @@ export const CARS: Car[] = [
     baseChance: 0.009,
     points: 115,
     imageKey: "car:pagani_huayra",
-    imageFile: "pagani_huayra.jpg",
+    imageFile: "pagani_huayra.webp",
   },
   {
     id: "koenigsegg_regera",
@@ -1369,7 +1369,7 @@ export const CARS: Car[] = [
     baseChance: 0.008,
     points: 130,
     imageKey: "car:koenigsegg_regera",
-    imageFile: "koenigsegg_regera.jpg",
+    imageFile: "koenigsegg_regera.webp",
   },
   {
     id: "porsche_917k",
@@ -1379,7 +1379,7 @@ export const CARS: Car[] = [
     baseChance: 0.008,
     points: 130,
     imageKey: "car:porsche_917k",
-    imageFile: "porsche_917k.jpg",
+    imageFile: "porsche_917k.webp",
   },
   {
     id: "bugatti_chiron",
@@ -1389,7 +1389,7 @@ export const CARS: Car[] = [
     baseChance: 0.008,
     points: 130,
     imageKey: "car:bugatti_chiron",
-    imageFile: "bugatti_chiron.jpg",
+    imageFile: "bugatti_chiron.webp",
   },
   {
     id: "lamborghini_sian",
@@ -1399,7 +1399,7 @@ export const CARS: Car[] = [
     baseChance: 0.008,
     points: 130,
     imageKey: "car:lamborghini_sian",
-    imageFile: "lamborghini_sian.jpg",
+    imageFile: "lamborghini_sian.webp",
   },
   {
     id: "koenigsegg_jesko",
@@ -1409,7 +1409,7 @@ export const CARS: Car[] = [
     baseChance: 0.008,
     points: 130,
     imageKey: "car:koenigsegg_jesko",
-    imageFile: "koenigsegg_jesko.jpg",
+    imageFile: "koenigsegg_jesko.webp",
   },
   {
     id: "pagani_huayra_roadster",
@@ -1419,7 +1419,7 @@ export const CARS: Car[] = [
     baseChance: 0.008,
     points: 130,
     imageKey: "car:pagani_huayra_roadster",
-    imageFile: "pagani_huayra_roadster.jpg",
+    imageFile: "pagani_huayra_roadster.webp",
   },
   {
     id: "pagani_utopia",
@@ -1429,7 +1429,7 @@ export const CARS: Car[] = [
     baseChance: 0.007,
     points: 130,
     imageKey: "car:pagani_utopia",
-    imageFile: "pagani_utopia.jpg",
+    imageFile: "pagani_utopia.webp",
   },
   {
     id: "aston_martin_vulcan",
@@ -1439,7 +1439,7 @@ export const CARS: Car[] = [
     baseChance: 0.007,
     points: 145,
     imageKey: "car:aston_martin_vulcan",
-    imageFile: "aston_martin_vulcan.jpg",
+    imageFile: "aston_martin_vulcan.webp",
   },
   {
     id: "koenigsegg_agera_rs",
@@ -1449,7 +1449,7 @@ export const CARS: Car[] = [
     baseChance: 0.007,
     points: 145,
     imageKey: "car:koenigsegg_agera_rs",
-    imageFile: "koenigsegg_agera.jpg",
+    imageFile: "koenigsegg_agera.webp",
   },
   {
     id: "mercedes_benz_clk_gtr",
@@ -1459,7 +1459,7 @@ export const CARS: Car[] = [
     baseChance: 0.006,
     points: 160,
     imageKey: "car:mercedes_benz_clk_gtr",
-    imageFile: "mercedes-benz_clk_gtr.jpg",
+    imageFile: "mercedes-benz_clk_gtr.webp",
   },
   {
     id: "lamborghini_veneno",
@@ -1469,7 +1469,7 @@ export const CARS: Car[] = [
     baseChance: 0.006,
     points: 160,
     imageKey: "car:lamborghini_veneno",
-    imageFile: "lamborghini_veneno.jpg",
+    imageFile: "lamborghini_veneno.webp",
   },
   {
     id: "mclaren_f1_lm",
@@ -1479,7 +1479,7 @@ export const CARS: Car[] = [
     baseChance: 0.006,
     points: 160,
     imageKey: "car:mclaren_f1_lm",
-    imageFile: "mclaren_f1_lm.jpg",
+    imageFile: "mclaren_f1_lm.webp",
   },
   {
     id: "bugatti_tourbillon",
@@ -1489,7 +1489,7 @@ export const CARS: Car[] = [
     baseChance: 0.006,
     points: 160,
     imageKey: "car:bugatti_tourbillon",
-    imageFile: "bugatti_tourbillon.jpg",
+    imageFile: "bugatti_tourbillon.webp",
   },
   {
     id: "bugatti_divo",
@@ -1499,7 +1499,7 @@ export const CARS: Car[] = [
     baseChance: 0.0055,
     points: 170,
     imageKey: "car:bugatti_divo",
-    imageFile: "bugatti_divo.jpg",
+    imageFile: "bugatti_divo.webp",
   },
   {
     id: "maybach_exelero",
@@ -1509,7 +1509,7 @@ export const CARS: Car[] = [
     baseChance: 0.004,
     points: 225,
     imageKey: "car:maybach_exelero",
-    imageFile: "maybach_exelero.jpg",
+    imageFile: "maybach_exelero.webp",
   },
   {
     id: "bugatti_centodieci",
@@ -1519,7 +1519,7 @@ export const CARS: Car[] = [
     baseChance: 0.004,
     points: 225,
     imageKey: "car:bugatti_centodieci",
-    imageFile: "bugatti_centodieci.jpg",
+    imageFile: "bugatti_centodieci.webp",
   },
   {
     id: "ferrari_sp1",
@@ -1529,7 +1529,7 @@ export const CARS: Car[] = [
     baseChance: 0.003,
     points: 350,
     imageKey: "car:ferrari_sp1",
-    imageFile: "ferrari_sp1.jpg",
+    imageFile: "ferrari_sp1.webp",
   },
   {
     id: "bugatti_la_voiture_noire",
@@ -1539,7 +1539,7 @@ export const CARS: Car[] = [
     baseChance: 0.002,
     points: 500,
     imageKey: "car:bugatti_la_voiture_noire",
-    imageFile: "bugatti_la_voiture_noire.jpg",
+    imageFile: "bugatti_la_voiture_noire.webp",
   },
   {
     id: "rolls_royce_sweptail",
@@ -1549,7 +1549,7 @@ export const CARS: Car[] = [
     baseChance: 0.00175,
     points: 700,
     imageKey: "car:rolls_royce_sweptail",
-    imageFile: "rolls-royce_sweptail.jpg",
+    imageFile: "rolls-royce_sweptail.webp",
   },
   {
     id: "pagani_zonda_hp_barchetta",
@@ -1559,7 +1559,7 @@ export const CARS: Car[] = [
     baseChance: 0.001,
     points: 1300,
     imageKey: "car:pagani_zonda_hp_barchetta",
-    imageFile: "pagani_zonda_hp_barchetta.jpg",
+    imageFile: "pagani_zonda_hp_barchetta.webp",
   },
   {
     id: "ferrari_330_p4",
@@ -1569,7 +1569,7 @@ export const CARS: Car[] = [
     baseChance: 0.0009,
     points: 1500,
     imageKey: "car:ferrari_330_p4",
-    imageFile: "ferrari_330p4.jpg",
+    imageFile: "ferrari_330p4.webp",
   },
   {
     id: "saleen_s7",
@@ -1579,7 +1579,7 @@ export const CARS: Car[] = [
     baseChance: 1.2,
     points: 180,
     imageKey: "car:saleen_s7",
-    imageFile: "saleen_s7.jpg",
+    imageFile: "saleen_s7.webp",
   },
   {
     id: "tvr_cerbera_speed_12",
@@ -1589,7 +1589,7 @@ export const CARS: Car[] = [
     baseChance: 0.9,
     points: 200,
     imageKey: "car:tvr_cerbera_speed_12",
-    imageFile: "tvr_cerbera_speed_12.jpg",
+    imageFile: "tvr_cerbera_speed_12.webp",
   },
   {
     id: "mclaren_senna",
@@ -1599,7 +1599,7 @@ export const CARS: Car[] = [
     baseChance: 0.6,
     points: 270,
     imageKey: "car:mclaren_senna",
-    imageFile: "mclaren_senna.jpg",
+    imageFile: "mclaren_senna.webp",
   },
   {
     id: "porsche_carrera_gt",
@@ -1609,7 +1609,7 @@ export const CARS: Car[] = [
     baseChance: 0.525,
     points: 300,
     imageKey: "car:porsche_carrera_gt",
-    imageFile: "porsche_carrera_gt.jpg",
+    imageFile: "porsche_carrera_gt.webp",
   },
   {
     id: "mclaren_p1",
@@ -1619,7 +1619,7 @@ export const CARS: Car[] = [
     baseChance: 0.45,
     points: 350,
     imageKey: "car:mclaren_p1",
-    imageFile: "mclaren_p1.jpg",
+    imageFile: "mclaren_p1.webp",
   },
   {
     id: "volkswagen_w12_nardo",
@@ -1629,7 +1629,7 @@ export const CARS: Car[] = [
     baseChance: 0.3,
     points: 625,
     imageKey: "car:volkswagen_w12_nardo",
-    imageFile: "volkswagen_w12_nardo.jpg",
+    imageFile: "volkswagen_w12_nardo.webp",
   },
   {
     id: "maserati_birdcage_75th",
@@ -1639,7 +1639,7 @@ export const CARS: Car[] = [
     baseChance: 0.27,
     points: 750,
     imageKey: "car:maserati_birdcage_75th",
-    imageFile: "maserati_birdcage_75th.jpg",
+    imageFile: "maserati_birdcage_75th.webp",
   },
   {
     id: "koenigsegg_ccgt",
@@ -1649,6 +1649,6 @@ export const CARS: Car[] = [
     baseChance: 0.21,
     points: 1000,
     imageKey: "car:koenigsegg_ccgt",
-    imageFile: "koenigsegg_ccgt.jpg",
+    imageFile: "koenigsegg_ccgt.webp",
   },
 ];

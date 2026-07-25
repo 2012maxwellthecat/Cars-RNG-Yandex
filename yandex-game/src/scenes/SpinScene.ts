@@ -46,8 +46,15 @@ export class SpinScene extends Phaser.Scene {
 
     const hintText = addInfoText(this, layout.width * 0.336, layout.height * 0.36, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "24px");
 
+    const hideSpinUI = () => {
+      hintText.setVisible(false);
+      spinBtn.setVisible(false);
+      autoBtn.setVisible(false);
+    };
+
     const spinBtn = addTextButton(this, cx, layout.height * 0.478, "Крутить", () => {
       if (CARS.length === 0) return;
+      hideSpinUI();
       this.playSpinAnimation(() => void this.finishSpin());
     });
 
@@ -78,9 +85,8 @@ export class SpinScene extends Phaser.Scene {
     stopBtn.setVisible(false);
 
     // --- Auto-spin start button ---
-    addTextButton(this, cx, layout.height * 0.597, "Автокрутка", () => {
-      hintText.setVisible(false);
-      spinBtn.setVisible(false);
+    const autoBtn = addTextButton(this, cx, layout.height * 0.597, "Автокрутка", () => {
+      hideSpinUI();
       statsPanelGfx.setVisible(true);
       spinsText.setVisible(true);
       progressText.setVisible(true);
@@ -195,17 +201,17 @@ export class SpinScene extends Phaser.Scene {
     const save = saveService.current;
     const layout = getResponsiveLayout(this);
 
-    addCarCard(this, layout.width * 0.5, layout.height * 0.486, car);
-    addInfoText(this, layout.width * 0.345, layout.height * 0.203, "Выберите, что сделать с машиной.", "#ffffff", "24px");
+    addCarCard(this, layout.width * 0.5, layout.height * 0.61, car, { height: 320 });
+    addInfoText(this, layout.width * 0.315, layout.height * 0.325, "Выберите, что сделать с машиной.", "#ffffff", "24px");
 
     const button1X = layout.width * 0.375;
     const button2X = layout.width * 0.625;
-    const buttonY = layout.height * 0.825;
+    const buttonY = layout.height * 0.894;
 
     addTextButton(this, button1X, buttonY, "Оставить", async () => {
       const result = keepPendingReward(save);
       if (result.status === "garage-full") {
-        addInfoText(this, layout.width * 0.289, layout.height * 0.761, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
+        addInfoText(this, layout.width * 0.289, layout.height * 0.838, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
           width: layout.width * 0.422, maxLines: 2,
         });
         return;

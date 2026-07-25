@@ -14,11 +14,16 @@ const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: "game",
   backgroundColor: "#0e0b2e",
+  render: {
+    antialias: true,
+    mipmapFilter: "LINEAR_MIPMAP_LINEAR",
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: 1280,
     height: 720,
+    zoom: window.devicePixelRatio,
   },
   scene: [
     BootScene,
