@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { CARS } from "../data/cars";
 import { calculateScore, getTopEntries, submitScore } from "../services/leaderboardService";
 import { saveService } from "../services/saveService";
+import { advertisementService } from "../services/advertisementService";
 import type { LeaderboardEntry } from "../game/types";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground } from "../ui/layout";
 
@@ -12,9 +13,21 @@ export class LeaderboardScene extends Phaser.Scene {
 
   async create(): Promise<void> {
     drawBackground(this);
+    const layout = { width: this.scale.width, height: this.scale.height, isPortrait: this.scale.height > this.scale.width };
+
+    // Случайный показ fullscreen рекламы (25% вероятность)
+    if (Math.random() < 0.25 && advertisementService.canShowAd('fullscreen', 300000)) {
+      await advertisementService.showFullscreenAd();
+    }
+
     addSceneTitle(this, "Лидерборд");
     addBackToMenu(this);
-    addPanel(this, 640, 384, 860, 470);
+
+    if (layout.isPortrait) {
+      addPanel(this, layout.width * 0.5, layout.height * 0.5, layout.width * 0.88, layout.height * 0.7);
+    } else {
+      addPanel(this, 640, 384, 860, 470);
+    }
 
     const score = calculateScore(saveService.current.inventory, CARS);
     try {
@@ -23,7 +36,9 @@ export class LeaderboardScene extends Phaser.Scene {
       // Local or unavailable SDK mode should not block the scene.
     }
 
-    addInfoText(this, 250, 164, `Ваш счет: ${score.toLocaleString("ru-RU")}`, "#ffd166", "30px");
+    const scoreY = layout.isPortrait ? layout.height * 0.11 : 164;
+    const scoreX = layout.isPortrait ? layout.width * 0.5 - 130 : 250;
+    addInfoText(this, scoreX, scoreY, `Ваш счет: ${score.toLocaleString("ru-RU")}`, "#ffd166", layout.isPortrait ? "28px" : "30px");
 
     let entries: LeaderboardEntry[] = [];
     try {
@@ -32,15 +47,22 @@ export class LeaderboardScene extends Phaser.Scene {
       entries = [];
     }
     if (entries.length === 0) {
-      addInfoText(this, 250, 250, "Лидерборд будет доступен в окружении Яндекс Игр.", "#ffffff", "26px");
+      const emptyY = layout.isPortrait ? layout.height * 0.24 : 250;
+      const emptyX = layout.isPortrait ? layout.width * 0.1 : 250;
+      addInfoText(this, emptyX, emptyY, "Лидерборд будет доступен в окружении Яндекс Игр.", "#ffffff", layout.isPortrait ? "24px" : "26px", { width: layout.width * 0.8 });
       return;
     }
 
+    const startY = layout.isPortrait ? layout.height * 0.21 : 230;
+    const startX = layout.isPortrait ? layout.width * 0.1 : 250;
+    const lineHeight = layout.isPortrait ? 46 : 38;
+
     entries.forEach((entry, index) => {
-      this.add.text(250, 230 + index * 38, `${entry.rank}. ${entry.displayName} — ${entry.score}`, {
+      this.add.text(startX, startY + index * lineHeight, `${entry.rank}. ${entry.displayName} — ${entry.score}`, {
         fontFamily: "Arial",
-        fontSize: "24px",
+        fontSize: layout.isPortrait ? "24px" : "24px",
         color: "#ffffff",
+        wordWrap: { width: layout.width * 0.75 },
       });
     });
   }

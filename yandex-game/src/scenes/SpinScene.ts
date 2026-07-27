@@ -4,6 +4,7 @@ import { keepPendingReward, processCarIntoGarage, sellPendingReward } from "../g
 import { spin } from "../game/spinEngine";
 import type { Car } from "../game/types";
 import { saveService } from "../services/saveService";
+import { advertisementService } from "../services/advertisementService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
@@ -26,11 +27,19 @@ export class SpinScene extends Phaser.Scene {
     addBackToMenu(this);
 
     const save = saveService.current;
-    const infoPanelWidth = layout.width * 0.416;
 
-    addPanel(this, layout.padding + infoPanelWidth / 2, layout.height * 0.214, infoPanelWidth, layout.height * 0.128);
-    addInfoText(this, layout.padding * 1.71, layout.height * 0.181, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
-    addInfoText(this, layout.padding * 1.71, layout.height * 0.228, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+    if (layout.isPortrait) {
+      const infoPanelWidth = layout.width * 0.86;
+      const cx = layout.width * 0.5;
+      addPanel(this, cx, layout.height * 0.09, infoPanelWidth, layout.height * 0.08);
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.065, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "22px");
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.095, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "20px");
+    } else {
+      const infoPanelWidth = layout.width * 0.416;
+      addPanel(this, layout.padding + infoPanelWidth / 2, layout.height * 0.214, infoPanelWidth, layout.height * 0.128);
+      addInfoText(this, layout.padding * 1.71, layout.height * 0.181, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
+      addInfoText(this, layout.padding * 1.71, layout.height * 0.228, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+    }
 
     const pendingCar = CARS.find((car) => car.id === save.pendingReward?.carId);
     if (pendingCar) {
@@ -44,55 +53,148 @@ export class SpinScene extends Phaser.Scene {
   private showSpinUI(layout: ReturnType<typeof getResponsiveLayout>): void {
     const cx = layout.width * 0.5;
 
-    const hintText = addInfoText(this, layout.width * 0.336, layout.height * 0.36, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "24px");
+    if (layout.isPortrait) {
+      const hintText = addInfoText(this, layout.padding * 1.5, layout.height * 0.23, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "24px", { width: layout.width * 0.85 });
 
-    const hideSpinUI = () => {
-      hintText.setVisible(false);
-      spinBtn.setVisible(false);
-      autoBtn.setVisible(false);
-    };
+      const hideSpinUI = () => {
+        hintText.setVisible(false);
+        spinBtn.setVisible(false);
+        autoBtn.setVisible(false);
+        if (freeSpinBtn) freeSpinBtn.setVisible(false);
+      };
 
-    const spinBtn = addTextButton(this, cx, layout.height * 0.478, "Крутить", () => {
-      if (CARS.length === 0) return;
-      hideSpinUI();
-      this.playSpinAnimation(() => void this.finishSpin());
-    });
+      const spinBtn = addTextButton(this, cx, layout.height * 0.34, "Крутить", () => {
+        if (CARS.length === 0) return;
+        hideSpinUI();
+        this.playSpinAnimation(() => void this.finishSpin());
+      }, { width: layout.width * 0.8, height: 64, fontSize: "26px" });
 
-    // --- Auto-spin stats UI (hidden until started) ---
-    const panelW = layout.width * 0.35;
-    const panelX = layout.width * 0.18;
-    const panelY = layout.height * 0.57;
-    const statsPanelGfx = addPanel(this, panelX, panelY, panelW, layout.height * 0.28);
-    statsPanelGfx.setVisible(false);
+      // Кнопка бесплатного спина за рекламу
+      const canShowFreeSpin = advertisementService.canShowAd('free-spin', 600000); // 10 минут
+      let freeSpinBtn: Phaser.GameObjects.Container | null = null;
 
-    const spinsText = this.add.text(panelX, panelY - layout.height * 0.1, "0 спинов", {
-      fontFamily: "'Arial Black', Arial", fontStyle: "bold",
-      fontSize: "24px", color: "#ffd700",
-      stroke: "#000000", strokeThickness: 4, align: "center",
-    }).setOrigin(0.5).setVisible(false);
+      if (canShowFreeSpin) {
+        freeSpinBtn = addTextButton(this, cx, layout.height * 0.42, "🎁 Бесплатный спин", async () => {
+          hideSpinUI();
+          const success = await advertisementService.showRewardedAd(() => {
+            // Выполнить спин без списания денег
+            this.playSpinAnimation(() => void this.finishSpin());
+          }, 'free-spin', 600000);
 
-    const progressText = this.add.text(panelX, panelY, "", {
-      fontFamily: "'Arial Black', Arial", fontStyle: "bold",
-      fontSize: "17px", color: "#d9e6f2",
-      stroke: "#000000", strokeThickness: 3,
-      align: "center", lineSpacing: 6,
-      wordWrap: { width: panelW - 32 },
-    }).setOrigin(0.5).setVisible(false);
+          if (!success) {
+            // Показать сообщение об ошибке и вернуть UI
+            addInfoText(this, cx, layout.height * 0.6, "Реклама временно недоступна", "#ff8b8b", "20px");
+            this.time.delayedCall(2000, () => {
+              this.scene.restart();
+            });
+          }
+        }, { width: layout.width * 0.8, height: 64, fillColor: 0x2ecc71, fontSize: "24px" });
+      }
 
-    const stopBtn = addTextButton(this, cx, layout.height * 0.86, "Стоп", () => {
-      this.autoSpinActive = false;
-    }, { width: 220, fillColor: 0x9e3c45 });
-    stopBtn.setVisible(false);
+      const panelW = layout.width * 0.88;
+      const panelY = layout.height * 0.56;
+      const statsPanelGfx = addPanel(this, cx, panelY, panelW, layout.height * 0.36);
+      statsPanelGfx.setVisible(false);
 
-    // --- Auto-spin start button ---
-    const autoBtn = addTextButton(this, cx, layout.height * 0.597, "Автокрутка", () => {
-      hideSpinUI();
-      statsPanelGfx.setVisible(true);
-      spinsText.setVisible(true);
-      progressText.setVisible(true);
-      stopBtn.setVisible(true);
-      this.runAutoSpin({ spinsText, progressText }, layout);
-    }, { width: 220, fillColor: 0x5b2fa0 });
+      const spinsText = this.add.text(cx, panelY - layout.height * 0.15, "0 спинов", {
+        fontFamily: "'Arial Black', Arial", fontStyle: "bold",
+        fontSize: "26px", color: "#ffd700",
+        stroke: "#000000", strokeThickness: 4, align: "center",
+      }).setOrigin(0.5).setVisible(false);
+
+      const progressText = this.add.text(cx, panelY, "", {
+        fontFamily: "'Arial Black', Arial", fontStyle: "bold",
+        fontSize: "18px", color: "#d9e6f2",
+        stroke: "#000000", strokeThickness: 3,
+        align: "center", lineSpacing: 6,
+        wordWrap: { width: panelW - 32 },
+      }).setOrigin(0.5).setVisible(false);
+
+      const stopBtn = addTextButton(this, cx, layout.height * 0.9, "Стоп", () => {
+        this.autoSpinActive = false;
+      }, { width: layout.width * 0.7, height: 64, fillColor: 0x9e3c45, fontSize: "24px" });
+      stopBtn.setVisible(false);
+
+      const autoBtnY = canShowFreeSpin ? layout.height * 0.52 : layout.height * 0.44;
+      const autoBtn = addTextButton(this, cx, autoBtnY, "Автокрутка", () => {
+        hideSpinUI();
+        statsPanelGfx.setVisible(true);
+        spinsText.setVisible(true);
+        progressText.setVisible(true);
+        stopBtn.setVisible(true);
+        this.runAutoSpin({ spinsText, progressText }, layout);
+      }, { width: layout.width * 0.8, height: 64, fillColor: 0x5b2fa0, fontSize: "26px" });
+    } else {
+      const hintText = addInfoText(this, layout.width * 0.336, layout.height * 0.36, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "24px");
+
+      const hideSpinUI = () => {
+        hintText.setVisible(false);
+        spinBtn.setVisible(false);
+        autoBtn.setVisible(false);
+        if (freeSpinBtn) freeSpinBtn.setVisible(false);
+      };
+
+      const spinBtn = addTextButton(this, cx, layout.height * 0.478, "Крутить", () => {
+        if (CARS.length === 0) return;
+        hideSpinUI();
+        this.playSpinAnimation(() => void this.finishSpin());
+      });
+
+      // Кнопка бесплатного спина за рекламу (landscape)
+      const canShowFreeSpin = advertisementService.canShowAd('free-spin', 600000);
+      let freeSpinBtn: Phaser.GameObjects.Container | null = null;
+
+      if (canShowFreeSpin) {
+        freeSpinBtn = addTextButton(this, cx, layout.height * 0.597, "🎁 Бесплатный спин", async () => {
+          hideSpinUI();
+          const success = await advertisementService.showRewardedAd(() => {
+            this.playSpinAnimation(() => void this.finishSpin());
+          }, 'free-spin', 600000);
+
+          if (!success) {
+            addInfoText(this, cx, layout.height * 0.7, "Реклама временно недоступна", "#ff8b8b", "18px");
+            this.time.delayedCall(2000, () => {
+              this.scene.restart();
+            });
+          }
+        }, { width: 220, height: 50, fillColor: 0x2ecc71, fontSize: "18px" });
+      }
+
+      const panelW = layout.width * 0.35;
+      const panelX = layout.width * 0.18;
+      const panelY = layout.height * 0.57;
+      const statsPanelGfx = addPanel(this, panelX, panelY, panelW, layout.height * 0.28);
+      statsPanelGfx.setVisible(false);
+
+      const spinsText = this.add.text(panelX, panelY - layout.height * 0.1, "0 спинов", {
+        fontFamily: "'Arial Black', Arial", fontStyle: "bold",
+        fontSize: "24px", color: "#ffd700",
+        stroke: "#000000", strokeThickness: 4, align: "center",
+      }).setOrigin(0.5).setVisible(false);
+
+      const progressText = this.add.text(panelX, panelY, "", {
+        fontFamily: "'Arial Black', Arial", fontStyle: "bold",
+        fontSize: "17px", color: "#d9e6f2",
+        stroke: "#000000", strokeThickness: 3,
+        align: "center", lineSpacing: 6,
+        wordWrap: { width: panelW - 32 },
+      }).setOrigin(0.5).setVisible(false);
+
+      const stopBtn = addTextButton(this, cx, layout.height * 0.86, "Стоп", () => {
+        this.autoSpinActive = false;
+      }, { width: 220, fillColor: 0x9e3c45 });
+      stopBtn.setVisible(false);
+
+      const autoBtnY = canShowFreeSpin ? layout.height * 0.716 : layout.height * 0.597;
+      const autoBtn = addTextButton(this, cx, autoBtnY, "Автокрутка", () => {
+        hideSpinUI();
+        statsPanelGfx.setVisible(true);
+        spinsText.setVisible(true);
+        progressText.setVisible(true);
+        stopBtn.setVisible(true);
+        this.runAutoSpin({ spinsText, progressText }, layout);
+      }, { width: 220, fillColor: 0x5b2fa0 });
+    }
   }
 
   private runAutoSpin(
@@ -201,31 +303,60 @@ export class SpinScene extends Phaser.Scene {
     const save = saveService.current;
     const layout = getResponsiveLayout(this);
 
-    addCarCard(this, layout.width * 0.5, layout.height * 0.61, car, { height: 320 });
-    addInfoText(this, layout.width * 0.315, layout.height * 0.325, "Выберите, что сделать с машиной.", "#ffffff", "24px");
+    if (layout.isPortrait) {
+      addCarCard(this, layout.width * 0.5, layout.height * 0.38, car, { width: layout.width * 0.88, height: 340, imageWidth: 300, imageHeight: 150 });
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.19, "Выберите, что сделать с машиной.", "#ffffff", "24px", { width: layout.width * 0.85 });
 
-    const button1X = layout.width * 0.375;
-    const button2X = layout.width * 0.625;
-    const buttonY = layout.height * 0.894;
+      const button1X = layout.width * 0.5;
+      const button1Y = layout.height * 0.64;
+      const button2Y = layout.height * 0.74;
 
-    addTextButton(this, button1X, buttonY, "Оставить", async () => {
-      const result = keepPendingReward(save);
-      if (result.status === "garage-full") {
-        addInfoText(this, layout.width * 0.289, layout.height * 0.838, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
-          width: layout.width * 0.422, maxLines: 2,
-        });
-        return;
-      }
-      if (result.status !== "ok") { this.scene.restart(); return; }
-      await saveService.save(result.save);
-      this.scene.start("GarageScene");
-    });
+      addTextButton(this, button1X, button1Y, "Оставить", async () => {
+        const result = keepPendingReward(save);
+        if (result.status === "garage-full") {
+          addInfoText(this, layout.padding * 1.5, layout.height * 0.82, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
+            width: layout.width * 0.85, maxLines: 2,
+          });
+          return;
+        }
+        if (result.status !== "ok") { this.scene.restart(); return; }
+        await saveService.save(result.save);
+        this.scene.start("GarageScene");
+      }, { width: layout.width * 0.8, height: 64, fontSize: "24px" });
 
-    addTextButton(this, button2X, buttonY, `Продать за ${car.value.toLocaleString("ru-RU")}`, async () => {
-      const result = sellPendingReward(save, CARS);
-      if (result.status !== "ok") { this.scene.restart(); return; }
-      await saveService.save(result.save);
-      this.scene.start("MenuScene");
-    });
+      addTextButton(this, button1X, button2Y, `Продать за ${car.value.toLocaleString("ru-RU")}`, async () => {
+        const result = sellPendingReward(save, CARS);
+        if (result.status !== "ok") { this.scene.restart(); return; }
+        await saveService.save(result.save);
+        this.scene.start("MenuScene");
+      }, { width: layout.width * 0.8, height: 64, fontSize: "24px" });
+    } else {
+      addCarCard(this, layout.width * 0.5, layout.height * 0.61, car, { height: 320 });
+      addInfoText(this, layout.width * 0.315, layout.height * 0.325, "Выберите, что сделать с машиной.", "#ffffff", "24px");
+
+      const button1X = layout.width * 0.375;
+      const button2X = layout.width * 0.625;
+      const buttonY = layout.height * 0.894;
+
+      addTextButton(this, button1X, buttonY, "Оставить", async () => {
+        const result = keepPendingReward(save);
+        if (result.status === "garage-full") {
+          addInfoText(this, layout.width * 0.289, layout.height * 0.838, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
+            width: layout.width * 0.422, maxLines: 2,
+          });
+          return;
+        }
+        if (result.status !== "ok") { this.scene.restart(); return; }
+        await saveService.save(result.save);
+        this.scene.start("GarageScene");
+      });
+
+      addTextButton(this, button2X, buttonY, `Продать за ${car.value.toLocaleString("ru-RU")}`, async () => {
+        const result = sellPendingReward(save, CARS);
+        if (result.status !== "ok") { this.scene.restart(); return; }
+        await saveService.save(result.save);
+        this.scene.start("MenuScene");
+      });
+    }
   }
 }

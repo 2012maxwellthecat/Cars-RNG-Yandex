@@ -90,8 +90,12 @@ export function addTextButton(
   }
 
   const hitPadding = options.hitPadding ?? 6;
-  const hitZone = scene.add.zone(x, y, width + hitPadding * 2, height + hitPadding * 2).setOrigin(0.5);
+  // Создаем hitZone с позицией (0, 0) относительно контейнера
+  const hitZone = scene.add.zone(0, 0, width + hitPadding * 2, height + hitPadding * 2).setOrigin(0.5);
   hitZone.setInteractive({ useHandCursor: true });
+
+  // Добавляем hitZone в контейнер, чтобы он двигался вместе с кнопкой
+  container.add(hitZone);
 
   let canClick = true;
   hitZone.on("pointerover", () => draw(false, true));

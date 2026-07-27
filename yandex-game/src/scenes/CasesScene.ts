@@ -10,6 +10,7 @@ import { BULK_CASE_COUNTS } from "../game/constants";
 import { processCarsIntoGarage } from "../game/economy";
 import type { CaseDefinition } from "../game/types";
 import { saveService } from "../services/saveService";
+import { advertisementService } from "../services/advertisementService";
 import { addTextButton } from "../ui/buttons";
 import { rarityColor } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
@@ -36,28 +37,97 @@ export class CasesScene extends Phaser.Scene {
     addSceneTitle(this, "Кейсы");
     addBackToMenu(this);
 
-    const infoY = layout.padding * 2.1;
-    addInfoText(this, layout.padding, infoY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
-    addInfoText(this, layout.padding, infoY + 34, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+    if (layout.isPortrait) {
+      const infoY = layout.padding * 1.5;
+      addInfoText(this, layout.padding, infoY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
+      addInfoText(this, layout.padding, infoY + 34, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+    } else {
+      const infoY = layout.padding * 2.1;
+      addInfoText(this, layout.padding, infoY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
+      addInfoText(this, layout.padding, infoY + 34, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+    }
 
-    const panelWidth1 = layout.width * 0.468; // ~600px at 1280
-    const panelWidth2 = layout.width * 0.39; // ~500px at 1280
-    const panelHeight = layout.height * 0.616; // ~444px at 720
-    const panelY = layout.height * 0.54;
+    if (layout.isPortrait) {
+      // Портретный режим: вертикальный список всех кейсов
+      const panelWidth = layout.width * 0.88;
+      const panelHeight = layout.height * 0.68;
+      const panelY = layout.height * 0.52;
 
-    addPanel(this, layout.padding + panelWidth1 / 2, panelY, panelWidth1, panelHeight);
-    addPanel(this, layout.width - layout.padding - panelWidth2 / 2, panelY, panelWidth2, panelHeight);
+      addPanel(this, layout.width * 0.5, panelY, panelWidth, panelHeight);
 
-    this.renderBaseCases(baseCases);
-    this.renderExclusiveCases(exclusiveCases.slice(0, 4));
+      let currentY = layout.height * 0.21;
+      addInfoText(this, layout.padding * 1.5, currentY, "Обычные кейсы", "#ffffff", "26px");
+      currentY += 44;
 
-    this.statusText = this.add.text(layout.padding * 1.92, layout.height * 0.85, "", {
-      fontFamily: "Arial",
-      fontSize: "20px",
-      color: "#ffcf70",
-      wordWrap: { width: layout.width - layout.padding * 4 },
-      maxLines: 3,
-    });
+      baseCases.forEach((definition) => {
+        addInfoText(this, layout.padding * 1.5, currentY, definition.title, "#ffffff", "22px");
+        currentY += 30;
+        addInfoText(this, layout.padding * 1.5, currentY, `Мин: ${definition.minRarity}`, rarityColor(definition.minRarity), "19px");
+        currentY += 28;
+        this.addCaseButtonsMobile(definition, layout.width * 0.15, currentY);
+        currentY += 64;
+      });
+
+      currentY += 20;
+      addInfoText(this, layout.padding * 1.5, currentY, "Эксклюзивные", "#ffffff", "26px");
+      currentY += 44;
+
+      exclusiveCases.slice(0, 4).forEach((definition) => {
+        addInfoText(this, layout.padding * 1.5, currentY, definition.title, "#ffffff", "22px");
+        currentY += 30;
+        this.addCaseButtonsMobile(definition, layout.width * 0.15, currentY);
+        currentY += 64;
+      });
+
+      // Кнопка бесплатного кейса за рекламу (portrait)
+      const canShowFreeCase = advertisementService.canShowAd('free-case', 1200000); // 20 минут
+      if (canShowFreeCase && baseCases.length > 0) {
+        currentY += 20;
+        addInfoText(this, layout.padding * 1.5, currentY, "🎁 Бесплатный", "#27ae60", "26px");
+        currentY += 44;
+        addTextButton(this, layout.width * 0.5, currentY, "Открыть кейс за рекламу", async () => {
+          const success = await advertisementService.showRewardedAd(async () => {
+            // Открыть случайный базовый кейс бесплатно
+            const randomCase = baseCases[Math.floor(Math.random() * baseCases.length)];
+            await this.openSingle(randomCase, true);
+          }, 'free-case', 1200000);
+
+          if (!success) {
+            this.statusText?.setText("Реклама временно недоступна");
+          }
+        }, { width: layout.width * 0.8, height: 60, fillColor: 0x27ae60, fontSize: "20px" });
+        currentY += 70;
+      }
+
+      this.statusText = this.add.text(layout.padding * 1.5, layout.height * 0.92, "", {
+        fontFamily: "Arial",
+        fontSize: "19px",
+        color: "#ffcf70",
+        wordWrap: { width: layout.width - layout.padding * 3 },
+        maxLines: 2,
+      });
+    } else {
+      // Ландшафтный режим: оригинальная двухколоночная компоновка
+      const panelWidth1 = layout.width * 0.468;
+      const panelWidth2 = layout.width * 0.39;
+      const panelHeight = layout.height * 0.616;
+      const panelY = layout.height * 0.54;
+
+      addPanel(this, layout.padding + panelWidth1 / 2, panelY, panelWidth1, panelHeight);
+      addPanel(this, layout.width - layout.padding - panelWidth2 / 2, panelY, panelWidth2, panelHeight);
+
+      this.renderBaseCases(baseCases);
+      this.renderExclusiveCases(exclusiveCases.slice(0, 4));
+
+      this.statusText = this.add.text(layout.padding * 1.92, layout.height * 0.85, "", {
+        fontFamily: "Arial",
+        fontSize: "20px",
+        color: "#ffcf70",
+        wordWrap: { width: layout.width - layout.padding * 4 },
+        maxLines: 3,
+      });
+    }
+
     this.statusText.setText(this.initialStatus);
   }
 
@@ -130,14 +200,32 @@ export class CasesScene extends Phaser.Scene {
     });
   }
 
-  private async openSingle(definition: CaseDefinition): Promise<void> {
+  private addCaseButtonsMobile(definition: CaseDefinition, x: number, y: number): void {
+    addTextButton(this, x, y, "x1", () => void this.openSingle(definition), {
+      width: 100,
+      height: 52,
+      fontSize: "22px",
+    });
+    addTextButton(this, x + 118, y, "x10", () => void this.openBulk(definition, 10), {
+      width: 100,
+      height: 52,
+      fontSize: "22px",
+    });
+    addTextButton(this, x + 236, y, "x100", () => void this.openBulk(definition, 100), {
+      width: 110,
+      height: 52,
+      fontSize: "22px",
+    });
+  }
+
+  private async openSingle(definition: CaseDefinition, isFree: boolean = false): Promise<void> {
     const save = saveService.current;
     if (save.pendingReward) {
       this.setStatus("Сначала решите судьбу предыдущей машины.");
       return;
     }
 
-    if (save.money < definition.cost) {
+    if (!isFree && save.money < definition.cost) {
       this.setStatus("Недостаточно денег.");
       return;
     }
@@ -145,7 +233,7 @@ export class CasesScene extends Phaser.Scene {
     const car = openCase(CARS, definition);
     await saveService.save({
       ...save,
-      money: save.money - definition.cost,
+      money: isFree ? save.money : save.money - definition.cost,
       pendingReward: {
         source: "case",
         carId: car.id,
@@ -154,6 +242,7 @@ export class CasesScene extends Phaser.Scene {
       stats: {
         ...save.stats,
         casesOpened: save.stats.casesOpened + 1,
+        rewardedAdsWatched: isFree ? save.stats.rewardedAdsWatched + 1 : save.stats.rewardedAdsWatched,
       },
     });
     this.scene.start("SpinScene");
@@ -170,6 +259,11 @@ export class CasesScene extends Phaser.Scene {
     if (save.money < totalCost) {
       this.setStatus("Недостаточно денег.");
       return;
+    }
+
+    // Показ fullscreen рекламы перед bulk открытием (100 кейсов)
+    if (count === 100 && advertisementService.canShowAd('fullscreen', 240000)) {
+      await advertisementService.showFullscreenAd();
     }
 
     const rewardCars = openCases(CARS, definition, count);

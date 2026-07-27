@@ -21,6 +21,10 @@ export class YandexSdkService {
     return this.sdk !== null && this.player !== null;
   }
 
+  getSdk(): YandexGamesSdk | null {
+    return this.sdk;
+  }
+
   getPlayerName(): string {
     return this.player?.getName() || "Игрок";
   }

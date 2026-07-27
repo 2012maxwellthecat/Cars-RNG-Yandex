@@ -11,6 +11,9 @@ export type PlayerStats = {
   spins: number;
   carsSold: number;
   casesOpened: number;
+  adsWatched: number;
+  rewardedAdsWatched: number;
+  lastAdTimestamp: number;
 };
 
 export type SaveData = {
@@ -35,6 +38,9 @@ export function createDefaultSave(): SaveData {
       spins: 0,
       carsSold: 0,
       casesOpened: 0,
+      adsWatched: 0,
+      rewardedAdsWatched: 0,
+      lastAdTimestamp: 0,
     },
   };
 }

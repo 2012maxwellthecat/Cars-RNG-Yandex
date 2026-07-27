@@ -8,12 +8,29 @@ body,
   background: #141821;
 }
 
+html,
+body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   touch-action: none;
   user-select: none;
 }
 
+/*
+ * Не переопределяем размеры канваса через CSS.
+ * Phaser (Scale.FIT + autoCenter: CENTER_BOTH) сам вычисляет размер канваса
+ * с сохранением пропорций и центрирует его. Если форсировать width/height через
+ * CSS или использовать object-fit, визуальное положение контента перестаёт
+ * совпадать с координатами системы ввода — хитбоксы кнопок "уезжают" на чёрные полосы.
+ */
 canvas {
   display: block;
+  touch-action: none;
 }

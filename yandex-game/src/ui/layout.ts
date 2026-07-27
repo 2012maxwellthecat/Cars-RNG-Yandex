@@ -4,10 +4,12 @@ import { addTextButton } from "./buttons";
 export function getResponsiveLayout(scene: Phaser.Scene) {
   const width = scene.scale.width;
   const height = scene.scale.height;
+  const isPortrait = height > width;
 
   return {
     width,
     height,
+    isPortrait,
     padding: Math.max(24, width * 0.0375),
     buttonSpacing: Math.max(40, height * 0.055),
     panelSpacing: Math.max(20, width * 0.015),
@@ -27,34 +29,71 @@ export function drawBackground(scene: Phaser.Scene): void {
 
 export function addSceneTitle(scene: Phaser.Scene, title: string): Phaser.GameObjects.Text {
   const layout = getResponsiveLayout(scene);
-  return scene.add
-    .text(layout.padding, layout.padding * 0.75, title, {
-      fontFamily: "'Arial Black', 'Arial Bold', Arial",
-      fontStyle: "bold",
-      fontSize: `${Math.max(34, layout.padding * 0.875)}px`,
-      color: "#ffd700",
-      stroke: "#000000",
-      strokeThickness: 5,
-    })
-    .setOrigin(0, 0);
+
+  if (layout.isPortrait) {
+    // Portrait mode: centered title at the top with larger font
+    return scene.add
+      .text(layout.width * 0.5, layout.padding * 0.9, title, {
+        fontFamily: "'Arial Black', 'Arial Bold', Arial",
+        fontStyle: "bold",
+        fontSize: `${Math.max(38, layout.padding * 1.2)}px`,
+        color: "#ffd700",
+        stroke: "#000000",
+        strokeThickness: 6,
+        align: "center",
+      })
+      .setOrigin(0.5, 0);
+  } else {
+    // Landscape mode: left-aligned title (original behavior)
+    return scene.add
+      .text(layout.padding, layout.padding * 0.75, title, {
+        fontFamily: "'Arial Black', 'Arial Bold', Arial",
+        fontStyle: "bold",
+        fontSize: `${Math.max(34, layout.padding * 0.875)}px`,
+        color: "#ffd700",
+        stroke: "#000000",
+        strokeThickness: 5,
+      })
+      .setOrigin(0, 0);
+  }
 }
 
 export function addBackToMenu(scene: Phaser.Scene): Phaser.GameObjects.Container {
   const layout = getResponsiveLayout(scene);
-  return addTextButton(
-    scene,
-    layout.width - layout.padding - 84,
-    layout.padding * 1.25,
-    "Назад",
-    () => scene.scene.start("MenuScene"),
-    {
-      width: 168,
-      height: 48,
-      fillColor: 0x3b2280,
-      strokeColor: 0x7b5cff,
-      fontSize: "22px",
-    }
-  );
+
+  if (layout.isPortrait) {
+    // Portrait mode: compact back button in top-left corner
+    return addTextButton(
+      scene,
+      layout.padding + 70,
+      layout.padding * 0.9,
+      "Назад",
+      () => scene.scene.start("MenuScene"),
+      {
+        width: 140,
+        height: 44,
+        fillColor: 0x3b2280,
+        strokeColor: 0x7b5cff,
+        fontSize: "20px",
+      }
+    );
+  } else {
+    // Landscape mode: top-right corner (original behavior)
+    return addTextButton(
+      scene,
+      layout.width - layout.padding - 84,
+      layout.padding * 1.25,
+      "Назад",
+      () => scene.scene.start("MenuScene"),
+      {
+        width: 168,
+        height: 48,
+        fillColor: 0x3b2280,
+        strokeColor: 0x7b5cff,
+        fontSize: "22px",
+      }
+    );
+  }
 }
 
 export function addPanel(

@@ -10,6 +10,9 @@ import { SpinScene } from "./scenes/SpinScene";
 import { UpgradesScene } from "./scenes/UpgradesScene";
 import "./styles.css";
 
+// Определяем ориентацию на основе размера окна
+const isPortrait = window.innerHeight > window.innerWidth;
+
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: "game",
@@ -21,9 +24,13 @@ const config: Phaser.Types.Core.GameConfig = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 1280,
-    height: 720,
-    zoom: window.devicePixelRatio,
+    // Портрет: 720x1280, Ландшафт: 1280x720
+    width: isPortrait ? 720 : 1280,
+    height: isPortrait ? 1280 : 720,
+    // Использовать window размеры для полного покрытия
+    parent: "game",
+    expandParent: true,
+    fullscreenTarget: "game",
   },
   scene: [
     BootScene,
