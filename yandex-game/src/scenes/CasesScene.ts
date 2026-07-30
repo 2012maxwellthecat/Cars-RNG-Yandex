@@ -34,6 +34,9 @@ export class CasesScene extends Phaser.Scene {
     const exclusiveCases = getExclusiveCaseDefinitions(CARS);
     const layout = getResponsiveLayout(this);
 
+    // Уведомить advertisementService о смене сцены
+    advertisementService.notifySceneChange("CasesScene");
+
     addSceneTitle(this, "Кейсы");
     addBackToMenu(this);
 
@@ -279,9 +282,7 @@ export class CasesScene extends Phaser.Scene {
     }
 
     // Показ fullscreen рекламы перед bulk открытием (100 кейсов)
-    if (count === 100 && advertisementService.canShowAd('fullscreen', 240000)) {
-      await advertisementService.showFullscreenAd();
-    }
+    // Удалено - теперь используется единая система рекламы при смене сцен
 
     const rewardCars = openCases(CARS, definition, count);
     const afterPurchase = {

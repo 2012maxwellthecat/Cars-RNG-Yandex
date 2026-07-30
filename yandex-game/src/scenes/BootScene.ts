@@ -16,8 +16,8 @@ export class BootScene extends Phaser.Scene {
     // Логирование информации об окружении
     logEnvironmentInfo();
 
-    // Инициализация сервиса рекламы
-    advertisementService.init(yandexSdk.getSdk());
+    // Инициализация сервиса рекламы с передачей game instance
+    advertisementService.init(yandexSdk.getSdk(), this.game);
 
     // Загрузка сохранений
     await saveService.load();

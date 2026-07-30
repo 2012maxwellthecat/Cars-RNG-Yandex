@@ -6,9 +6,7 @@ import { addTextButton } from "../ui/buttons";
 import { addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 import { saveService } from "../services/saveService";
 import { chanceMultFromLevel, type SaveData } from "../game/saveModel";
-
-// Счетчик возвратов в меню для показа fullscreen рекламы
-let menuVisitCounter = 0;
+import { yandexSdk } from "../services/yandexSdk";
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -22,11 +20,11 @@ export class MenuScene extends Phaser.Scene {
     const pendingCar = CARS.find((car) => car.id === save.pendingReward?.carId);
     const layout = getResponsiveLayout(this);
 
-    // Показ fullscreen рекламы каждые 4 возврата в меню
-    menuVisitCounter++;
-    if (menuVisitCounter % 4 === 0 && advertisementService.canShowAd('fullscreen', 180000)) {
-      await advertisementService.showFullscreenAd();
-    }
+    // Уведомить advertisementService о смене сцены
+    advertisementService.notifySceneChange("MenuScene");
+
+    // Показ fullscreen рекламы при переходе между сценами (без предупреждения)
+    await advertisementService.tryShowSceneChangeAd();
 
     addSceneTitle(this, "Cars RNG");
 
@@ -104,11 +102,16 @@ export class MenuScene extends Phaser.Scene {
       fontSize: "24px",
     });
     btnY += btnSpacing;
-    addTextButton(this, cx, btnY, "Лидерборд", () => this.scene.start("LeaderboardScene"), {
-      width: btnWidth,
-      height: btnHeight,
-      fontSize: "24px",
-    });
+
+    // Кнопка лидерборда (скрыта в гостевом режиме)
+    if (!yandexSdk.isGuestMode()) {
+      addTextButton(this, cx, btnY, "Лидерборд", () => this.scene.start("LeaderboardScene"), {
+        width: btnWidth,
+        height: btnHeight,
+        fontSize: "24px",
+      });
+      btnY += btnSpacing;
+    }
 
     // Кнопка бонусных денег за рекламу
     const canShowBonusAd = advertisementService.canShowAd('bonus-money', 900000); // 15 минут
@@ -184,7 +187,11 @@ export class MenuScene extends Phaser.Scene {
     addTextButton(this, buttonX, layout.height * 0.375, "Гараж", () => this.scene.start("GarageScene"), { width: 300 });
     addTextButton(this, buttonX, layout.height * 0.486, "Кейсы", () => this.scene.start("CasesScene"), { width: 300 });
     addTextButton(this, buttonX, layout.height * 0.597, "Улучшения", () => this.scene.start("UpgradesScene"), { width: 300 });
-    addTextButton(this, buttonX, layout.height * 0.708, "Лидерборд", () => this.scene.start("LeaderboardScene"), { width: 300 });
+
+    // Кнопка лидерборда (скрыта в гостевом режиме)
+    if (!yandexSdk.isGuestMode()) {
+      addTextButton(this, buttonX, layout.height * 0.708, "Лидерборд", () => this.scene.start("LeaderboardScene"), { width: 300 });
+    }
 
     // Кнопка бонусных денег за рекламу (landscape)
     const canShowBonusAd = advertisementService.canShowAd('bonus-money', 900000); // 15 минут

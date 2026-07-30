@@ -4,6 +4,7 @@ import { keepPendingReward, processCarIntoGarage, sellPendingReward } from "../g
 import { spin } from "../game/spinEngine";
 import type { Car } from "../game/types";
 import { saveService } from "../services/saveService";
+import { advertisementService } from "../services/advertisementService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
@@ -22,6 +23,10 @@ export class SpinScene extends Phaser.Scene {
   create(): void {
     drawBackground(this);
     const layout = getResponsiveLayout(this);
+
+    // Уведомить advertisementService о смене сцены
+    advertisementService.notifySceneChange("SpinScene");
+
     addSceneTitle(this, "Спин");
     addBackToMenu(this);
 

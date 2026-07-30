@@ -7,12 +7,31 @@ declare global {
     YaGames?: {
       init(): Promise<YandexGamesSdk>;
     };
+    ysdk?: YandexGamesSdk;
   }
 }
 
 export type YandexGamesSdk = {
   getPlayer(options?: { scopes?: boolean }): Promise<YandexPlayer>;
   getLeaderboards?(): Promise<YandexLeaderboards>;
+  environment?: {
+    i18n?: {
+      lang?: string;
+      tld?: string;
+    };
+    app?: {
+      id?: string;
+    };
+    browser?: {
+      lang?: string;
+    };
+    payload?: string;
+  };
+  features?: {
+    LoadingAPI?: {
+      ready(): void;
+    };
+  };
   adv?: {
     showFullscreenAdv(options?: {
       callbacks?: {

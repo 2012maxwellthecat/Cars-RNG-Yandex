@@ -35,6 +35,16 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Уведомить Yandex Games SDK о готовности игры
+    if (window.ysdk?.features?.LoadingAPI) {
+      try {
+        window.ysdk.features.LoadingAPI.ready();
+        console.log('[Yandex SDK] LoadingAPI.ready() вызван');
+      } catch (error) {
+        console.error('[Yandex SDK] Ошибка LoadingAPI.ready():', error);
+      }
+    }
+
     this.scene.start("MenuScene");
   }
 }

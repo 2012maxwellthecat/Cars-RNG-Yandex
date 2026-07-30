@@ -15,10 +15,11 @@ export class LeaderboardScene extends Phaser.Scene {
     drawBackground(this);
     const layout = { width: this.scale.width, height: this.scale.height, isPortrait: this.scale.height > this.scale.width };
 
-    // Случайный показ fullscreen рекламы (25% вероятность)
-    if (Math.random() < 0.25 && advertisementService.canShowAd('fullscreen', 300000)) {
-      await advertisementService.showFullscreenAd();
-    }
+    // Уведомить advertisementService о смене сцены
+    advertisementService.notifySceneChange("LeaderboardScene");
+
+    // Показ fullscreen рекламы при переходе между сценами (без предупреждения)
+    await advertisementService.tryShowSceneChangeAd();
 
     addSceneTitle(this, "Лидерборд");
     addBackToMenu(this);

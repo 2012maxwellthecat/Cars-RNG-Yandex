@@ -159,6 +159,28 @@
         return createMockLeaderboards();
       },
 
+      environment: {
+        i18n: {
+          lang: 'ru',
+          tld: 'ru'
+        },
+        app: {
+          id: 'mock-app-id'
+        },
+        browser: {
+          lang: 'ru-RU'
+        },
+        payload: ''
+      },
+
+      features: {
+        LoadingAPI: {
+          ready: () => {
+            console.log('%c[MOCK SDK] ✅ LoadingAPI.ready() вызван - игра готова к показу', 'color: #4CAF50; font-weight: bold;');
+          }
+        }
+      },
+
       adv: createMockAdvertisement()
     };
   };

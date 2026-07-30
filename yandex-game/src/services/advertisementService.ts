@@ -23,6 +23,10 @@ export interface AdStatistics {
 export class AdvertisementService {
   private sdk: YandexGamesSdk | null = null;
   private cooldowns = new Map<string, number>();
+  private gameInstance: Phaser.Game | null = null;
+  private lastSceneChangeTime = 0;
+  private currentSceneStartTime = 0;
+  private currentSceneName = "";
   private stats: AdStatistics = {
     fullscreenShown: 0,
     rewardedShown: 0,
@@ -31,16 +35,129 @@ export class AdvertisementService {
   };
 
   /**
-   * Инициализация сервиса с SDK
+   * Инициализация сервиса с SDK и Phaser Game instance
    */
-  init(sdk: YandexGamesSdk | null): void {
+  init(sdk: YandexGamesSdk | null, game?: Phaser.Game): void {
     this.sdk = sdk;
+    if (game) {
+      this.gameInstance = game;
+    }
     const env = detectEnvironment();
 
     if (env.shouldUseMockAds) {
       console.log('[Advertisement] Используется mock реклама (dev режим)');
     } else {
       console.log('[Advertisement] Используется настоящая Yandex реклама');
+    }
+  }
+
+  /**
+   * Установить экземпляр игры (если не был передан в init)
+   */
+  setGameInstance(game: Phaser.Game): void {
+    this.gameInstance = game;
+  }
+
+  /**
+   * Уведомить сервис о смене сцены
+   */
+  notifySceneChange(sceneName: string): void {
+    const now = Date.now();
+    this.currentSceneName = sceneName;
+    this.currentSceneStartTime = now;
+    console.log(`[Advertisement] Смена сцены: ${sceneName}`);
+  }
+
+  /**
+   * Показать fullscreen рекламу при переходе между сценами (без предупреждения)
+   * Cooldown: 5 минут
+   */
+  async tryShowSceneChangeAd(): Promise<boolean> {
+    const cooldownMs = 300000; // 5 минут
+    const now = Date.now();
+
+    if (now - this.lastSceneChangeTime < cooldownMs) {
+      console.log('[Advertisement] Fullscreen при смене сцены на cooldown');
+      return false;
+    }
+
+    this.lastSceneChangeTime = now;
+    return await this.showFullscreenAd();
+  }
+
+  /**
+   * Показать fullscreen рекламу внутри сцены с предупреждением (3 секунды)
+   * Вызывать каждые 5 минут нахождения в одной сцене
+   */
+  async showTimedAdWithWarning(scene: Phaser.Scene): Promise<boolean> {
+    const now = Date.now();
+    const timeInScene = now - this.currentSceneStartTime;
+
+    // Показывать каждые 5 минут
+    if (timeInScene < 300000) {
+      return false;
+    }
+
+    // Сброс таймера
+    this.currentSceneStartTime = now;
+
+    // Показать предупреждение
+    await this.showAdWarning(scene);
+
+    // Показать рекламу
+    return await this.showFullscreenAd();
+  }
+
+  /**
+   * Показать предупреждение о скорой рекламе с 3-секундным таймером
+   */
+  private async showAdWarning(scene: Phaser.Scene): Promise<void> {
+    const width = scene.scale.width;
+    const height = scene.scale.height;
+
+    // Затемнение фона
+    const overlay = scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.8).setDepth(10000);
+
+    // Текст предупреждения
+    const warningText = scene.add.text(width / 2, height / 2 - 40, 'Реклама через 3', {
+      fontFamily: "'Arial Black', Arial",
+      fontSize: '32px',
+      color: '#ffd700',
+      stroke: '#000000',
+      strokeThickness: 6,
+      align: 'center'
+    }).setOrigin(0.5).setDepth(10001);
+
+    // Обратный отсчет
+    for (let i = 2; i >= 0; i--) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (warningText.active) {
+        warningText.setText(`Реклама через ${i}`);
+      }
+    }
+
+    // Удалить элементы
+    overlay.destroy();
+    warningText.destroy();
+  }
+
+  /**
+   * Поставить звук игры на паузу
+   */
+  private pauseGameSound(): void {
+    if (this.gameInstance?.sound) {
+      this.gameInstance.sound.pauseAll();
+      console.log('[Advertisement] Звук игры приостановлен');
+    }
+  }
+
+  /**
+   * Возобновить звук игры
+   */
+  private resumeGameSound(): void {
+    if (this.gameInstance?.sound) {
+      this.gameInstance.sound.resumeAll();
+      console.log('[Advertisement] Звук игры возобновлен');
     }
   }
 
@@ -60,12 +177,16 @@ export class AdvertisementService {
 
     const env = detectEnvironment();
 
+    // Приостановить звук игры перед показом рекламы
+    this.pauseGameSound();
+
     // Mock режим (разработка)
     if (env.shouldUseMockAds) {
       console.log('[Advertisement] Mock fullscreen ad');
       await this.delay(1000);
       this.setCooldown('fullscreen');
       this.stats.fullscreenShown++;
+      this.resumeGameSound();
       onClose?.();
       return true;
     }
@@ -73,6 +194,7 @@ export class AdvertisementService {
     // Настоящая реклама (production)
     if (!this.sdk?.adv) {
       console.warn('[Advertisement] SDK реклама недоступна');
+      this.resumeGameSound();
       onClose?.();
       return false;
     }
@@ -81,6 +203,9 @@ export class AdvertisementService {
       this.sdk!.adv!.showFullscreenAdv({
         callbacks: {
           onClose: (wasShown) => {
+            // Возобновить звук после закрытия рекламы
+            this.resumeGameSound();
+
             if (wasShown) {
               this.stats.fullscreenShown++;
               this.setCooldown('fullscreen');
@@ -94,6 +219,7 @@ export class AdvertisementService {
           onError: (err) => {
             console.error('[Advertisement] Ошибка fullscreen рекламы:', err);
             this.stats.errors++;
+            this.resumeGameSound();
             onClose?.();
             resolve(false);
           },

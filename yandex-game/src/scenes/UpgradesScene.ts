@@ -26,6 +26,9 @@ export class UpgradesScene extends Phaser.Scene {
     const garageCost = getGarageUpgradeCost(save, discount);
     const layout = getResponsiveLayout(this);
 
+    // Уведомить advertisementService о смене сцены
+    advertisementService.notifySceneChange("UpgradesScene");
+
     // Скидка 50% на улучшения за просмотр рекламы (доступна раз в 30 минут)
     const canShowDiscount = !this.hasDiscount && advertisementService.canShowAd('upgrade-discount', 1800000);
 

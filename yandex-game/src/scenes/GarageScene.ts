@@ -28,10 +28,11 @@ export class GarageScene extends Phaser.Scene {
     const items = sortInventoryViews(getInventoryViews(save, CARS));
     const layout = getResponsiveLayout(this);
 
-    // Случайный показ fullscreen рекламы (30% вероятность)
-    if (Math.random() < 0.3 && advertisementService.canShowAd('fullscreen', 300000)) {
-      await advertisementService.showFullscreenAd();
-    }
+    // Уведомить advertisementService о смене сцены
+    advertisementService.notifySceneChange("GarageScene");
+
+    // Показ fullscreen рекламы при переходе между сценами (без предупреждения)
+    await advertisementService.tryShowSceneChangeAd();
 
     // В портретном режиме показываем меньше машин на странице
     const pageSize = layout.isPortrait ? 5 : PAGE_SIZE;

@@ -44,4 +44,17 @@ const config: Phaser.Types.Core.GameConfig = {
   ],
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+
+// Обработка сворачивания игры (требование Yandex Games 1.9)
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    // Игра свернута - остановить звук
+    game.sound.pauseAll();
+    console.log("[Visibility] Игра свернута, звук остановлен");
+  } else {
+    // Игра развернута - возобновить звук
+    game.sound.resumeAll();
+    console.log("[Visibility] Игра развернута, звук возобновлен");
+  }
+});
