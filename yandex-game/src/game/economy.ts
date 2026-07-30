@@ -37,13 +37,15 @@ export type UpgradeResult =
   | { status: "ok"; save: SaveData; cost: number }
   | { status: "money"; save: SaveData; cost: number };
 
-export function getChanceUpgradeCost(save: SaveData): number {
-  return Math.trunc(CHANCE_BASE_COST * (1 + save.chanceLevel * 0.1));
+export function getChanceUpgradeCost(save: SaveData, discountPercent = 0): number {
+  const baseCost = Math.trunc(CHANCE_BASE_COST * (1 + save.chanceLevel * 0.1));
+  return Math.trunc(baseCost * (1 - discountPercent / 100));
 }
 
-export function getGarageUpgradeCost(save: SaveData): number {
+export function getGarageUpgradeCost(save: SaveData, discountPercent = 0): number {
   const garageLevel = Math.max(0, Math.floor((save.garageCap - INITIAL_GARAGE_CAP) / GARAGE_STEP));
-  return GARAGE_BASE_COST + garageLevel * GARAGE_COST_STEP;
+  const baseCost = GARAGE_BASE_COST + garageLevel * GARAGE_COST_STEP;
+  return Math.trunc(baseCost * (1 - discountPercent / 100));
 }
 
 export function getInventoryViews(save: SaveData, cars: Car[]): InventoryCarView[] {

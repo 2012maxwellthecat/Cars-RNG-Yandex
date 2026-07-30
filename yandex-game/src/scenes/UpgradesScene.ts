@@ -8,19 +8,26 @@ import { addTextButton } from "../ui/buttons";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 
 export class UpgradesScene extends Phaser.Scene {
+  private hasDiscount = false;
+
   constructor() {
     super("UpgradesScene");
+  }
+
+  init(data: { discount?: boolean } = {}): void {
+    this.hasDiscount = data.discount ?? false;
   }
 
   create(): void {
     drawBackground(this);
     const save = saveService.current;
-    const chanceCost = getChanceUpgradeCost(save);
-    const garageCost = getGarageUpgradeCost(save);
+    const discount = this.hasDiscount ? 50 : 0;
+    const chanceCost = getChanceUpgradeCost(save, discount);
+    const garageCost = getGarageUpgradeCost(save, discount);
     const layout = getResponsiveLayout(this);
 
     // Скидка 50% на улучшения за просмотр рекламы (доступна раз в 30 минут)
-    const canShowDiscount = advertisementService.canShowAd('upgrade-discount', 1800000);
+    const canShowDiscount = !this.hasDiscount && advertisementService.canShowAd('upgrade-discount', 1800000);
 
     addSceneTitle(this, "Улучшения");
     addBackToMenu(this);
@@ -39,6 +46,10 @@ export class UpgradesScene extends Phaser.Scene {
       addInfoText(this, leftX, topY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "28px");
       addInfoText(this, leftX, topY + 44, `Множитель: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff", "24px");
       addInfoText(this, leftX, topY + 82, `Гараж: ${save.garageCap}`, "#ffffff", "24px");
+
+      if (this.hasDiscount) {
+        addInfoText(this, leftX, topY + 120, "✨ Скидка 50% активна!", "#27ae60", "22px");
+      }
 
       const chanceDescY = layout.height * 0.32;
       const garageDescY = layout.height * 0.56;
@@ -68,8 +79,8 @@ export class UpgradesScene extends Phaser.Scene {
         addInfoText(this, leftX, discountButtonY - 35, "🎁 Скидка 50% на любое улучшение", "#27ae60", "20px", { width: layout.width * 0.8 });
         addTextButton(this, centerX, discountButtonY, "Смотреть рекламу", async () => {
           const success = await advertisementService.showRewardedAd(() => {
-            // Применить скидку - пользователь выберет что купить
-            this.scene.restart();
+            // Перезапустить сцену со скидкой
+            this.scene.restart({ discount: true });
           }, 'upgrade-discount', 1800000);
 
           if (!success) {
@@ -91,6 +102,10 @@ export class UpgradesScene extends Phaser.Scene {
       addInfoText(this, leftX, topY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "30px");
       addInfoText(this, leftX, topY + 48, `Множитель шанса: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff");
       addInfoText(this, leftX, topY + 84, `Размер гаража: ${save.garageCap}`, "#ffffff");
+
+      if (this.hasDiscount) {
+        addInfoText(this, leftX, topY + 120, "✨ Скидка 50% активна!", "#27ae60", "20px");
+      }
 
       const chanceDescY = layout.height * 0.418;
       const garageDescY = layout.height * 0.593;
@@ -120,7 +135,7 @@ export class UpgradesScene extends Phaser.Scene {
         addInfoText(this, leftX, discountButtonY - 30, "🎁 Скидка 50% на любое улучшение за рекламу", "#27ae60", "18px");
         addTextButton(this, centerX, discountButtonY, "Смотреть рекламу", async () => {
           const success = await advertisementService.showRewardedAd(() => {
-            this.scene.restart();
+            this.scene.restart({ discount: true });
           }, 'upgrade-discount', 1800000);
 
           if (!success) {

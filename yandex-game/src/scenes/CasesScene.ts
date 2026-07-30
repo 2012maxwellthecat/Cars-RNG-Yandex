@@ -79,13 +79,13 @@ export class CasesScene extends Phaser.Scene {
         currentY += 64;
       });
 
-      // Кнопка бесплатного кейса за рекламу (portrait)
+      // Кнопка бесплатного необычного кейса за рекламу (portrait)
       const canShowFreeCase = advertisementService.canShowAd('free-case', 1200000); // 20 минут
       if (canShowFreeCase && baseCases.length > 0) {
         currentY += 20;
-        addInfoText(this, layout.padding * 1.5, currentY, "🎁 Бесплатный", "#27ae60", "26px");
+        addInfoText(this, layout.padding * 1.5, currentY, "🎁 Бесплатный необычный кейс", "#27ae60", "24px");
         currentY += 44;
-        addTextButton(this, layout.width * 0.5, currentY, "Открыть кейс за рекламу", async () => {
+        addTextButton(this, layout.width * 0.5, currentY, "Открыть за рекламу", async () => {
           const success = await advertisementService.showRewardedAd(async () => {
             // Открыть необычный кейс бесплатно
             const uncommonCase = baseCases[0]; // "case:uncommon"
@@ -147,6 +147,23 @@ export class CasesScene extends Phaser.Scene {
       addInfoText(this, startX, blockTop + 118, `Цена: ${definition.cost.toLocaleString("ru-RU")}`,       "#ffd166", "18px", { width: textWidth });
       this.addCaseButtons(definition, startX + textWidth + 32, blockTop + 52);
     });
+
+    // Кнопка бесплатного необычного кейса за рекламу (landscape)
+    const canShowFreeCase = advertisementService.canShowAd('free-case', 1200000); // 20 минут
+    if (canShowFreeCase && definitions.length > 0) {
+      const freeCaseY = titleY + 86 + definitions.length * 150 + 30;
+      addInfoText(this, startX, freeCaseY, "🎁 Бесплатный необычный кейс", "#27ae60", "18px");
+      addTextButton(this, startX + layout.width * 0.15, freeCaseY + 40, "Открыть за рекламу", async () => {
+        const success = await advertisementService.showRewardedAd(async () => {
+          const uncommonCase = definitions[0]; // "case:uncommon"
+          await this.openSingle(uncommonCase, true);
+        }, 'free-case', 1200000);
+
+        if (!success) {
+          this.statusText?.setText("Реклама временно недоступна");
+        }
+      }, { width: 280, height: 48, fillColor: 0x27ae60, fontSize: "18px" });
+    }
   }
 
   private renderExclusiveCases(definitions: CaseDefinition[]): void {

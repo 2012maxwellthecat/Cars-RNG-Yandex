@@ -2,7 +2,7 @@ import type { SaveData } from "../game/saveModel";
 import type { LeaderboardEntry } from "../game/types";
 import type { YandexGamesSdk, YandexPlayer } from "../types/yandex-games";
 
-const LEADERBOARD_NAME = "cars_rng_points";
+const LEADERBOARD_NAME = "carsRngPoints";
 
 export class YandexSdkService {
   private sdk: YandexGamesSdk | null = null;
