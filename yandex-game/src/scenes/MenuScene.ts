@@ -114,12 +114,12 @@ export class MenuScene extends Phaser.Scene {
     const canShowBonusAd = advertisementService.canShowAd('bonus-money', 900000); // 15 минут
     if (canShowBonusAd) {
       btnY += btnSpacing;
-      addTextButton(this, cx, btnY, "🎁 Получить 2000$", async () => {
+      addTextButton(this, cx, btnY, "🎁 Получить 50000$", async () => {
         const success = await advertisementService.showRewardedAd(() => {
           // Выдать бонус денег
           const updatedSave = {
             ...saveService.current,
-            money: saveService.current.money + 2000,
+            money: saveService.current.money + 50000,
             stats: {
               ...saveService.current.stats,
               rewardedAdsWatched: saveService.current.stats.rewardedAdsWatched + 1,
@@ -189,11 +189,11 @@ export class MenuScene extends Phaser.Scene {
     // Кнопка бонусных денег за рекламу (landscape)
     const canShowBonusAd = advertisementService.canShowAd('bonus-money', 900000); // 15 минут
     if (canShowBonusAd) {
-      addTextButton(this, buttonX, layout.height * 0.819, "🎁 Получить 2000$", async () => {
+      addTextButton(this, buttonX, layout.height * 0.819, "🎁 Получить 50000$", async () => {
         const success = await advertisementService.showRewardedAd(() => {
           const updatedSave = {
             ...saveService.current,
-            money: saveService.current.money + 2000,
+            money: saveService.current.money + 50000,
             stats: {
               ...saveService.current.stats,
               rewardedAdsWatched: saveService.current.stats.rewardedAdsWatched + 1,

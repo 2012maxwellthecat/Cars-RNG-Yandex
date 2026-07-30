@@ -87,9 +87,9 @@ export class CasesScene extends Phaser.Scene {
         currentY += 44;
         addTextButton(this, layout.width * 0.5, currentY, "Открыть кейс за рекламу", async () => {
           const success = await advertisementService.showRewardedAd(async () => {
-            // Открыть случайный базовый кейс бесплатно
-            const randomCase = baseCases[Math.floor(Math.random() * baseCases.length)];
-            await this.openSingle(randomCase, true);
+            // Открыть необычный кейс бесплатно
+            const uncommonCase = baseCases[0]; // "case:uncommon"
+            await this.openSingle(uncommonCase, true);
           }, 'free-case', 1200000);
 
           if (!success) {

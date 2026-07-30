@@ -4,7 +4,6 @@ import { keepPendingReward, processCarIntoGarage, sellPendingReward } from "../g
 import { spin } from "../game/spinEngine";
 import type { Car } from "../game/types";
 import { saveService } from "../services/saveService";
-import { advertisementService } from "../services/advertisementService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
@@ -60,7 +59,6 @@ export class SpinScene extends Phaser.Scene {
         hintText.setVisible(false);
         spinBtn.setVisible(false);
         autoBtn.setVisible(false);
-        if (freeSpinBtn) freeSpinBtn.setVisible(false);
       };
 
       const spinBtn = addTextButton(this, cx, layout.height * 0.34, "Крутить", () => {
@@ -68,28 +66,6 @@ export class SpinScene extends Phaser.Scene {
         hideSpinUI();
         this.playSpinAnimation(() => void this.finishSpin());
       }, { width: layout.width * 0.8, height: 64, fontSize: "26px" });
-
-      // Кнопка бесплатного спина за рекламу
-      const canShowFreeSpin = advertisementService.canShowAd('free-spin', 600000); // 10 минут
-      let freeSpinBtn: Phaser.GameObjects.Container | null = null;
-
-      if (canShowFreeSpin) {
-        freeSpinBtn = addTextButton(this, cx, layout.height * 0.42, "🎁 Бесплатный спин", async () => {
-          hideSpinUI();
-          const success = await advertisementService.showRewardedAd(() => {
-            // Выполнить спин без списания денег
-            this.playSpinAnimation(() => void this.finishSpin());
-          }, 'free-spin', 600000);
-
-          if (!success) {
-            // Показать сообщение об ошибке и вернуть UI
-            addInfoText(this, cx, layout.height * 0.6, "Реклама временно недоступна", "#ff8b8b", "20px");
-            this.time.delayedCall(2000, () => {
-              this.scene.restart();
-            });
-          }
-        }, { width: layout.width * 0.8, height: 64, fillColor: 0x2ecc71, fontSize: "24px" });
-      }
 
       const panelW = layout.width * 0.88;
       const panelY = layout.height * 0.56;
@@ -115,8 +91,7 @@ export class SpinScene extends Phaser.Scene {
       }, { width: layout.width * 0.7, height: 64, fillColor: 0x9e3c45, fontSize: "24px" });
       stopBtn.setVisible(false);
 
-      const autoBtnY = canShowFreeSpin ? layout.height * 0.52 : layout.height * 0.44;
-      const autoBtn = addTextButton(this, cx, autoBtnY, "Автокрутка", () => {
+      const autoBtn = addTextButton(this, cx, layout.height * 0.44, "Автокрутка", () => {
         hideSpinUI();
         statsPanelGfx.setVisible(true);
         spinsText.setVisible(true);
@@ -131,7 +106,6 @@ export class SpinScene extends Phaser.Scene {
         hintText.setVisible(false);
         spinBtn.setVisible(false);
         autoBtn.setVisible(false);
-        if (freeSpinBtn) freeSpinBtn.setVisible(false);
       };
 
       const spinBtn = addTextButton(this, cx, layout.height * 0.478, "Крутить", () => {
@@ -139,26 +113,6 @@ export class SpinScene extends Phaser.Scene {
         hideSpinUI();
         this.playSpinAnimation(() => void this.finishSpin());
       });
-
-      // Кнопка бесплатного спина за рекламу (landscape)
-      const canShowFreeSpin = advertisementService.canShowAd('free-spin', 600000);
-      let freeSpinBtn: Phaser.GameObjects.Container | null = null;
-
-      if (canShowFreeSpin) {
-        freeSpinBtn = addTextButton(this, cx, layout.height * 0.597, "🎁 Бесплатный спин", async () => {
-          hideSpinUI();
-          const success = await advertisementService.showRewardedAd(() => {
-            this.playSpinAnimation(() => void this.finishSpin());
-          }, 'free-spin', 600000);
-
-          if (!success) {
-            addInfoText(this, cx, layout.height * 0.7, "Реклама временно недоступна", "#ff8b8b", "18px");
-            this.time.delayedCall(2000, () => {
-              this.scene.restart();
-            });
-          }
-        }, { width: 220, height: 50, fillColor: 0x2ecc71, fontSize: "18px" });
-      }
 
       const panelW = layout.width * 0.35;
       const panelX = layout.width * 0.18;
@@ -185,8 +139,7 @@ export class SpinScene extends Phaser.Scene {
       }, { width: 220, fillColor: 0x9e3c45 });
       stopBtn.setVisible(false);
 
-      const autoBtnY = canShowFreeSpin ? layout.height * 0.716 : layout.height * 0.597;
-      const autoBtn = addTextButton(this, cx, autoBtnY, "Автокрутка", () => {
+      const autoBtn = addTextButton(this, cx, layout.height * 0.597, "Автокрутка", () => {
         hideSpinUI();
         statsPanelGfx.setVisible(true);
         spinsText.setVisible(true);
