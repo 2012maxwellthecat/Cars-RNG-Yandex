@@ -81,8 +81,52 @@ export class AdvertisementService {
       return false;
     }
 
-    this.lastSceneChangeTime = now;
-    return await this.showFullscreenAd();
+    const env = detectEnvironment();
+
+    // Приостановить звук игры перед показом рекламы
+    this.pauseGameSound();
+
+    // Mock режим (разработка)
+    if (env.shouldUseMockAds) {
+      console.log('[Advertisement] Mock fullscreen ad при смене сцены');
+      await this.delay(1000);
+      this.lastSceneChangeTime = now;
+      this.stats.fullscreenShown++;
+      this.resumeGameSound();
+      return true;
+    }
+
+    // Настоящая реклама (production)
+    if (!this.sdk?.adv) {
+      console.warn('[Advertisement] SDK реклама недоступна');
+      this.resumeGameSound();
+      return false;
+    }
+
+    return new Promise((resolve) => {
+      this.sdk!.adv!.showFullscreenAdv({
+        callbacks: {
+          onClose: (wasShown) => {
+            this.resumeGameSound();
+
+            if (wasShown) {
+              this.stats.fullscreenShown++;
+              this.lastSceneChangeTime = now;
+              console.log('[Advertisement] Fullscreen реклама при смене сцены показана');
+            } else {
+              console.log('[Advertisement] Fullscreen реклама не показана');
+            }
+            resolve(wasShown);
+          },
+          onError: (err) => {
+            console.error('[Advertisement] Ошибка fullscreen рекламы:', err);
+            this.stats.errors++;
+            this.resumeGameSound();
+            resolve(false);
+          },
+        },
+      });
+    });
   }
 
   /**
@@ -95,6 +139,7 @@ export class AdvertisementService {
 
     // Показывать каждые 5 минут
     if (timeInScene < 300000) {
+      console.log(`[Advertisement] В сцене ${this.currentSceneName} прошло ${Math.floor(timeInScene/1000)}с, до рекламы ${Math.floor((300000-timeInScene)/1000)}с`);
       return false;
     }
 
@@ -105,7 +150,50 @@ export class AdvertisementService {
     await this.showAdWarning(scene);
 
     // Показать рекламу
-    return await this.showFullscreenAd();
+    const env = detectEnvironment();
+
+    // Приостановить звук игры перед показом рекламы
+    this.pauseGameSound();
+
+    // Mock режим (разработка)
+    if (env.shouldUseMockAds) {
+      console.log('[Advertisement] Mock fullscreen ad с предупреждением');
+      await this.delay(1000);
+      this.stats.fullscreenShown++;
+      this.resumeGameSound();
+      return true;
+    }
+
+    // Настоящая реклама (production)
+    if (!this.sdk?.adv) {
+      console.warn('[Advertisement] SDK реклама недоступна');
+      this.resumeGameSound();
+      return false;
+    }
+
+    return new Promise((resolve) => {
+      this.sdk!.adv!.showFullscreenAdv({
+        callbacks: {
+          onClose: (wasShown) => {
+            this.resumeGameSound();
+
+            if (wasShown) {
+              this.stats.fullscreenShown++;
+              console.log('[Advertisement] Fullscreen реклама с предупреждением показана');
+            } else {
+              console.log('[Advertisement] Fullscreen реклама не показана');
+            }
+            resolve(wasShown);
+          },
+          onError: (err) => {
+            console.error('[Advertisement] Ошибка fullscreen рекламы:', err);
+            this.stats.errors++;
+            this.resumeGameSound();
+            resolve(false);
+          },
+        },
+      });
+    });
   }
 
   /**
@@ -167,14 +255,6 @@ export class AdvertisementService {
    * @returns Promise<boolean> - true если реклама была показана
    */
   async showFullscreenAd(onClose?: () => void): Promise<boolean> {
-    const cooldownMs = 180000; // 3 минуты
-
-    if (!this.canShowAd('fullscreen', cooldownMs)) {
-      console.log('[Advertisement] Fullscreen реклама на cooldown');
-      onClose?.();
-      return false;
-    }
-
     const env = detectEnvironment();
 
     // Приостановить звук игры перед показом рекламы
@@ -184,7 +264,6 @@ export class AdvertisementService {
     if (env.shouldUseMockAds) {
       console.log('[Advertisement] Mock fullscreen ad');
       await this.delay(1000);
-      this.setCooldown('fullscreen');
       this.stats.fullscreenShown++;
       this.resumeGameSound();
       onClose?.();
@@ -208,7 +287,6 @@ export class AdvertisementService {
 
             if (wasShown) {
               this.stats.fullscreenShown++;
-              this.setCooldown('fullscreen');
               console.log('[Advertisement] Fullscreen реклама показана');
             } else {
               console.log('[Advertisement] Fullscreen реклама не показана');

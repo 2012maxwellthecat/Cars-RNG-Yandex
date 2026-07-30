@@ -146,6 +146,8 @@
 
   // Mock SDK Instance
   const createMockSdk = () => {
+    const leaderboardsInstance = createMockLeaderboards();
+
     return {
       getPlayer: async (options = {}) => {
         console.log('[MOCK SDK] SDK.getPlayer called with options:', options);
@@ -154,10 +156,12 @@
       },
 
       getLeaderboards: async () => {
-        console.log('[MOCK SDK] SDK.getLeaderboards called');
+        console.log('[MOCK SDK] SDK.getLeaderboards called (deprecated)');
         await new Promise(resolve => setTimeout(resolve, 100));
-        return createMockLeaderboards();
+        return leaderboardsInstance;
       },
+
+      leaderboards: leaderboardsInstance,
 
       environment: {
         i18n: {

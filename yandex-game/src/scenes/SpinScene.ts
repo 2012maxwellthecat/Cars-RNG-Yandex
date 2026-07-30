@@ -27,6 +27,15 @@ export class SpinScene extends Phaser.Scene {
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("SpinScene");
 
+    // Запустить таймер проверки рекламы каждые 5 минут
+    this.time.addEvent({
+      delay: 300000, // 5 минут
+      callback: () => {
+        void advertisementService.showTimedAdWithWarning(this);
+      },
+      loop: true
+    });
+
     addSceneTitle(this, "Спин");
     addBackToMenu(this);
 

@@ -93,28 +93,27 @@ export class YandexSdkService {
   }
 
   async submitLeaderboardScore(score: number): Promise<void> {
-    if (!this.sdk?.getLeaderboards || this.isGuest) {
+    if (!this.sdk?.leaderboards || this.isGuest) {
       console.log('[Yandex SDK] Лидерборд недоступен в гостевом режиме');
       return;
     }
 
     try {
-      const leaderboards = await this.sdk.getLeaderboards();
-      await leaderboards.setLeaderboardScore(LEADERBOARD_NAME, score);
+      await this.sdk.leaderboards.setLeaderboardScore(LEADERBOARD_NAME, score);
+      console.log('[Yandex SDK] Счет отправлен в лидерборд:', score);
     } catch (error) {
       console.error('[Yandex SDK] Ошибка отправки счета:', error);
     }
   }
 
   async getLeaderboardEntries(limit = 10): Promise<LeaderboardEntry[]> {
-    if (!this.sdk?.getLeaderboards || this.isGuest) {
+    if (!this.sdk?.leaderboards || this.isGuest) {
       console.log('[Yandex SDK] Лидерборд недоступен в гостевом режиме');
       return [];
     }
 
     try {
-      const leaderboards = await this.sdk.getLeaderboards();
-      const response = await leaderboards.getLeaderboardEntries(LEADERBOARD_NAME, {
+      const response = await this.sdk.leaderboards.getLeaderboardEntries(LEADERBOARD_NAME, {
         quantityTop: limit,
       });
 

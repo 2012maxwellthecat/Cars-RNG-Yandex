@@ -14,6 +14,7 @@ declare global {
 export type YandexGamesSdk = {
   getPlayer(options?: { scopes?: boolean }): Promise<YandexPlayer>;
   getLeaderboards?(): Promise<YandexLeaderboards>;
+  leaderboards?: YandexLeaderboards;
   environment?: {
     i18n?: {
       lang?: string;
