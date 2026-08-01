@@ -4,7 +4,13 @@ export type Rarity =
   | "Редкий"
   | "Эпический"
   | "Легендарный"
-  | "Эксклюзивный";
+  | "Эксклюзивный"
+  | "Common"
+  | "Uncommon"
+  | "Rare"
+  | "Epic"
+  | "Legendary"
+  | "Exclusive";
 
 export type Car = {
   id: string;

@@ -25,6 +25,12 @@ export const RARITY_RANKS: Record<Rarity, number> = {
   Эпический: 3,
   Легендарный: 4,
   Эксклюзивный: 5,
+  Common: 0,
+  Uncommon: 1,
+  Rare: 2,
+  Epic: 3,
+  Legendary: 4,
+  Exclusive: 5,
 };
 
 export const DEFAULT_INVENTORY_ORDER: Rarity[] = [

@@ -1,6 +1,7 @@
 import type { SaveData } from "../game/saveModel";
 import type { LeaderboardEntry } from "../game/types";
 import type { YandexGamesSdk, YandexPlayer } from "../types/yandex-games";
+import { i18nService } from "../i18n/i18nService";
 
 const LEADERBOARD_NAME = "carsRngPoints";
 
@@ -8,6 +9,12 @@ export class YandexSdkService {
   private sdk: YandexGamesSdk | null = null;
   private player: YandexPlayer | null = null;
   private isGuest = false;
+  /**
+   * Авторизован ли игрок. Это НЕ то же самое, что isGuest: getPlayer()
+   * успешно резолвится и для неавторизованного игрока, а setScore в
+   * лидерборд требует именно авторизации.
+   */
+  private authorized = false;
   private detectedLanguage = "ru";
 
   async init(): Promise<void> {
@@ -21,19 +28,28 @@ export class YandexSdkService {
       this.sdk = await window.YaGames.init();
       window.ysdk = this.sdk; // Сохраняем глобально для LoadingAPI
 
-      // Определение языка через SDK
+      // Определение языка через SDK и установка в i18n сервис
       if (this.sdk.environment?.i18n?.lang) {
         this.detectedLanguage = this.sdk.environment.i18n.lang;
+        i18nService.setLanguageFromSDK(this.detectedLanguage);
         console.log('[Yandex SDK] Определен язык:', this.detectedLanguage);
       } else {
         console.log('[Yandex SDK] Язык не определен, используется русский по умолчанию');
+        i18nService.setLanguageFromSDK('ru');
       }
 
       try {
-        this.player = await this.sdk.getPlayer({ scopes: false });
-        console.log('[Yandex SDK] Игрок авторизован:', this.player.getName());
+        this.player = await this.sdk.getPlayer({ scopes: true });
+        // getPlayer() резолвится и для гостя, поэтому авторизацию
+        // проверяем отдельным вызовом, а не фактом успеха.
+        this.authorized = this.player.isAuthorized?.() ?? false;
+        console.log(
+          this.authorized
+            ? `[Yandex SDK] Игрок авторизован: ${this.getPlayerName()}`
+            : '[Yandex SDK] Игрок не авторизован, лидерборд только для чтения',
+        );
       } catch (playerError) {
-        console.warn('[Yandex SDK] Авторизация не выполнена, гостевой режим:', playerError);
+        console.warn('[Yandex SDK] Не удалось получить игрока, офлайн режим:', playerError);
         this.isGuest = true;
         // Игра продолжает работать без авторизации
       }
@@ -92,28 +108,60 @@ export class YandexSdkService {
     }
   }
 
+  /**
+   * Отправить счёт в лидерборд. Требует авторизации игрока:
+   * у гостя Yandex результат не примет.
+   */
   async submitLeaderboardScore(score: number): Promise<void> {
-    if (!this.sdk?.leaderboards || this.isGuest) {
-      console.log('[Yandex SDK] Лидерборд недоступен в гостевом режиме');
+    if (!this.sdk?.leaderboards) {
+      console.log('[Yandex SDK] Лидерборд недоступен: нет API в SDK');
+      return;
+    }
+
+    if (!(await this.canSetScore())) {
+      console.log('[Yandex SDK] Счёт не отправлен: игрок не авторизован');
       return;
     }
 
     try {
-      await this.sdk.leaderboards.setLeaderboardScore(LEADERBOARD_NAME, score);
+      // setScore, а НЕ setLeaderboardScore: у ysdk.leaderboards имена
+      // методов короче, чем у устаревшего ysdk.getLeaderboards().
+      await this.sdk.leaderboards.setScore(LEADERBOARD_NAME, score);
       console.log('[Yandex SDK] Счет отправлен в лидерборд:', score);
     } catch (error) {
       console.error('[Yandex SDK] Ошибка отправки счета:', error);
     }
   }
 
-  async getLeaderboardEntries(limit = 10): Promise<LeaderboardEntry[]> {
-    if (!this.sdk?.leaderboards || this.isGuest) {
-      console.log('[Yandex SDK] Лидерборд недоступен в гостевом режиме');
-      return [];
+  /**
+   * Доступен ли setScore. Yandex рекомендует isAvailableMethod,
+   * но метод есть не во всех версиях SDK — тогда полагаемся на isAuthorized.
+   */
+  private async canSetScore(): Promise<boolean> {
+    if (this.sdk?.isAvailableMethod) {
+      try {
+        return await this.sdk.isAvailableMethod('leaderboards.setScore');
+      } catch (error) {
+        console.warn('[Yandex SDK] isAvailableMethod недоступен:', error);
+      }
+    }
+
+    return this.authorized;
+  }
+
+  /**
+   * Прочитать топ лидерборда. Авторизация НЕ нужна — гость тоже видит таблицу,
+   * просто не попадает в неё сам.
+   */
+  async getLeaderboardEntries(limit = 10): Promise<LeaderboardEntry[] | null> {
+    if (!this.sdk?.leaderboards) {
+      console.log('[Yandex SDK] Лидерборд недоступен: нет API в SDK');
+      return null;
     }
 
     try {
-      const response = await this.sdk.leaderboards.getLeaderboardEntries(LEADERBOARD_NAME, {
+      // getEntries, а НЕ getLeaderboardEntries — см. комментарий в setScore.
+      const response = await this.sdk.leaderboards.getEntries(LEADERBOARD_NAME, {
         quantityTop: limit,
       });
 
@@ -123,8 +171,52 @@ export class YandexSdkService {
         score: entry.score,
       }));
     } catch (error) {
+      // Частая причина — технического имени LEADERBOARD_NAME нет в консоли
+      // разработчика: Yandex отвечает 404.
       console.error('[Yandex SDK] Ошибка загрузки лидерборда:', error);
-      return [];
+      return null;
+    }
+  }
+
+  /**
+   * Авторизован ли игрок (нужно для попадания в лидерборд)
+   */
+  isAuthorized(): boolean {
+    return this.authorized;
+  }
+
+  /**
+   * Можно ли предложить игроку войти в аккаунт
+   */
+  canRequestAuthorization(): boolean {
+    return !this.authorized && !!this.sdk?.auth?.openAuthDialog;
+  }
+
+  /**
+   * Открыть диалог авторизации Yandex.
+   * @returns true если игрок вошёл в аккаунт
+   */
+  async requestAuthorization(): Promise<boolean> {
+    if (!this.sdk?.auth?.openAuthDialog) {
+      return false;
+    }
+
+    try {
+      await this.sdk.auth.openAuthDialog();
+      // Повторный getPlayer() нужен, чтобы подтянуть имя и аватар.
+      this.player = await this.sdk.getPlayer({ scopes: false });
+      this.authorized = this.player.isAuthorized?.() ?? true;
+
+      if (this.authorized) {
+        // Игрок вошёл — облачные сохранения снова имеют смысл.
+        this.isGuest = false;
+        console.log('[Yandex SDK] Игрок авторизовался:', this.getPlayerName());
+      }
+
+      return this.authorized;
+    } catch (error) {
+      console.log('[Yandex SDK] Авторизация отклонена игроком:', error);
+      return false;
     }
   }
 }

@@ -8,6 +8,7 @@ import { MenuScene } from "./scenes/MenuScene";
 import { PreloadScene } from "./scenes/PreloadScene";
 import { SpinScene } from "./scenes/SpinScene";
 import { UpgradesScene } from "./scenes/UpgradesScene";
+import { SettingsScene } from "./scenes/SettingsScene";
 import "./styles.css";
 
 // Определяем ориентацию на основе размера окна
@@ -41,6 +42,7 @@ const config: Phaser.Types.Core.GameConfig = {
     GarageScene,
     UpgradesScene,
     LeaderboardScene,
+    SettingsScene,
   ],
 };
 

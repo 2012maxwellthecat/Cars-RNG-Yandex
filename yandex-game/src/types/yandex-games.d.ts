@@ -6,15 +6,32 @@ declare global {
   interface Window {
     YaGames?: {
       init(): Promise<YandexGamesSdk>;
+      /** Признак mock SDK для локальной разработки, см. public/sdk.js */
+      __isMock?: boolean;
     };
     ysdk?: YandexGamesSdk;
   }
 }
 
 export type YandexGamesSdk = {
-  getPlayer(options?: { scopes?: boolean }): Promise<YandexPlayer>;
-  getLeaderboards?(): Promise<YandexLeaderboards>;
+  getPlayer(options?: { scopes?: boolean; signed?: boolean }): Promise<YandexPlayer>;
+  /**
+   * Актуальное API лидербордов (SDK v2).
+   *
+   * ВАЖНО: устаревший ysdk.getLeaderboards() возвращал объект с ДРУГИМИ
+   * именами методов (setLeaderboardScore / getLeaderboardEntries). У
+   * ysdk.leaderboards они называются setScore / getEntries. Перепутанные
+   * имена дают TypeError, который легко потерять в catch.
+   */
   leaderboards?: YandexLeaderboards;
+  /**
+   * Проверка доступности метода, требующего авторизации.
+   * Например: isAvailableMethod('leaderboards.setScore')
+   */
+  isAvailableMethod?(methodName: string): Promise<boolean>;
+  auth?: {
+    openAuthDialog(): Promise<void>;
+  };
   environment?: {
     i18n?: {
       lang?: string;
@@ -55,16 +72,30 @@ export type YandexPlayer = {
   setData(data: { saveData: SaveData }, flush?: boolean): Promise<void>;
   getUniqueID(): string;
   getName(): string;
+  /** Авторизован ли игрок. Для гостя getPlayer() тоже успешно резолвится. */
+  isAuthorized?(): boolean;
 };
 
 export type YandexLeaderboards = {
-  setLeaderboardScore(name: string, score: number): Promise<void>;
-  getLeaderboardEntries(name: string, options?: { quantityTop?: number }): Promise<{
+  /** Требует авторизации игрока */
+  setScore(leaderboardName: string, score: number, extraData?: string): Promise<void>;
+  /** Авторизация не нужна: топ доступен и гостю */
+  getEntries(
+    leaderboardName: string,
+    options?: {
+      quantityTop?: number;
+      includeUser?: boolean;
+      quantityAround?: number;
+    },
+  ): Promise<{
+    userRank: number;
     entries: Array<{
       rank: number;
       score: number;
+      extraData?: string;
       player: {
         publicName: string;
+        uniqueID: string;
       };
     }>;
   }>;

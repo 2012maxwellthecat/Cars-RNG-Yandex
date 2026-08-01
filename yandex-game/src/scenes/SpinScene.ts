@@ -8,6 +8,8 @@ import { advertisementService } from "../services/advertisementService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
+import { i18nService } from "../i18n/i18nService";
+import { audioService } from "../services/audioService";
 
 export class SpinScene extends Phaser.Scene {
   private autoSpinActive = false;
@@ -23,13 +25,14 @@ export class SpinScene extends Phaser.Scene {
   create(): void {
     drawBackground(this);
     const layout = getResponsiveLayout(this);
+    const t = i18nService.getTranslations();
 
     // Уведомить advertisementService о смене сцены.
     // Таймер рекламы живёт внутри сервиса: Phaser-таймер умирал на каждом
     // scene.restart() после спина, и реклама с предупреждением не наступала.
     advertisementService.notifySceneChange("SpinScene");
 
-    addSceneTitle(this, "Спин");
+    addSceneTitle(this, t.spinTitle);
     addBackToMenu(this);
 
     const save = saveService.current;
@@ -38,13 +41,13 @@ export class SpinScene extends Phaser.Scene {
       const infoPanelWidth = layout.width * 0.86;
       const cx = layout.width * 0.5;
       addPanel(this, cx, layout.height * 0.09, infoPanelWidth, layout.height * 0.08);
-      addInfoText(this, layout.padding * 1.5, layout.height * 0.065, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "22px");
-      addInfoText(this, layout.padding * 1.5, layout.height * 0.095, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "20px");
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.065, `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "22px");
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.095, `${t.garageTitle}: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "20px");
     } else {
       const infoPanelWidth = layout.width * 0.416;
       addPanel(this, layout.padding + infoPanelWidth / 2, layout.height * 0.214, infoPanelWidth, layout.height * 0.128);
-      addInfoText(this, layout.padding * 1.71, layout.height * 0.181, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
-      addInfoText(this, layout.padding * 1.71, layout.height * 0.228, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+      addInfoText(this, layout.padding * 1.71, layout.height * 0.181, `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
+      addInfoText(this, layout.padding * 1.71, layout.height * 0.228, `${t.garageTitle}: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
     }
 
     const pendingCar = CARS.find((car) => car.id === save.pendingReward?.carId);
@@ -58,9 +61,10 @@ export class SpinScene extends Phaser.Scene {
 
   private showSpinUI(layout: ReturnType<typeof getResponsiveLayout>): void {
     const cx = layout.width * 0.5;
+    const t = i18nService.getTranslations();
 
     if (layout.isPortrait) {
-      const hintText = addInfoText(this, layout.padding * 1.5, layout.height * 0.23, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "24px", { width: layout.width * 0.85 });
+      const hintText = addInfoText(this, layout.padding * 1.5, layout.height * 0.23, t.spinHint, "#ffffff", "24px", { width: layout.width * 0.85 });
 
       const hideSpinUI = () => {
         hintText.setVisible(false);
@@ -68,8 +72,9 @@ export class SpinScene extends Phaser.Scene {
         autoBtn.setVisible(false);
       };
 
-      const spinBtn = addTextButton(this, cx, layout.height * 0.34, "Крутить", () => {
+      const spinBtn = addTextButton(this, cx, layout.height * 0.34, t.spinButton, () => {
         if (CARS.length === 0) return;
+        audioService.playSound("button");
         hideSpinUI();
         this.playSpinAnimation(() => void this.finishSpin());
       }, { width: layout.width * 0.8, height: 64, fontSize: "26px" });
@@ -79,7 +84,7 @@ export class SpinScene extends Phaser.Scene {
       const statsPanelGfx = addPanel(this, cx, panelY, panelW, layout.height * 0.36);
       statsPanelGfx.setVisible(false);
 
-      const spinsText = this.add.text(cx, panelY - layout.height * 0.15, "0 спинов", {
+      const spinsText = this.add.text(cx, panelY - layout.height * 0.15, `0 ${t.spinSpins}`, {
         fontFamily: "'Arial Black', Arial", fontStyle: "bold",
         fontSize: "26px", color: "#ffd700",
         stroke: "#000000", strokeThickness: 4, align: "center",
@@ -93,12 +98,12 @@ export class SpinScene extends Phaser.Scene {
         wordWrap: { width: panelW - 32 },
       }).setOrigin(0.5).setVisible(false);
 
-      const stopBtn = addTextButton(this, cx, layout.height * 0.9, "Стоп", () => {
+      const stopBtn = addTextButton(this, cx, layout.height * 0.9, t.spinStop, () => {
         this.autoSpinActive = false;
       }, { width: layout.width * 0.7, height: 64, fillColor: 0x9e3c45, fontSize: "24px" });
       stopBtn.setVisible(false);
 
-      const autoBtn = addTextButton(this, cx, layout.height * 0.44, "Автокрутка", () => {
+      const autoBtn = addTextButton(this, cx, layout.height * 0.44, t.spinAutoSpin, () => {
         hideSpinUI();
         statsPanelGfx.setVisible(true);
         spinsText.setVisible(true);
@@ -107,7 +112,7 @@ export class SpinScene extends Phaser.Scene {
         this.runAutoSpin({ spinsText, progressText }, layout);
       }, { width: layout.width * 0.8, height: 64, fillColor: 0x5b2fa0, fontSize: "26px" });
     } else {
-      const hintText = addInfoText(this, layout.width * 0.336, layout.height * 0.36, "Нажмите кнопку, чтобы получить машину.", "#ffffff", "24px");
+      const hintText = addInfoText(this, layout.width * 0.336, layout.height * 0.36, t.spinHint, "#ffffff", "24px");
 
       const hideSpinUI = () => {
         hintText.setVisible(false);
@@ -115,8 +120,9 @@ export class SpinScene extends Phaser.Scene {
         autoBtn.setVisible(false);
       };
 
-      const spinBtn = addTextButton(this, cx, layout.height * 0.478, "Крутить", () => {
+      const spinBtn = addTextButton(this, cx, layout.height * 0.478, t.spinButton, () => {
         if (CARS.length === 0) return;
+        audioService.playSound("button");
         hideSpinUI();
         this.playSpinAnimation(() => void this.finishSpin());
       });
@@ -127,7 +133,7 @@ export class SpinScene extends Phaser.Scene {
       const statsPanelGfx = addPanel(this, panelX, panelY, panelW, layout.height * 0.28);
       statsPanelGfx.setVisible(false);
 
-      const spinsText = this.add.text(panelX, panelY - layout.height * 0.1, "0 спинов", {
+      const spinsText = this.add.text(panelX, panelY - layout.height * 0.1, `0 ${t.spinSpins}`, {
         fontFamily: "'Arial Black', Arial", fontStyle: "bold",
         fontSize: "24px", color: "#ffd700",
         stroke: "#000000", strokeThickness: 4, align: "center",
@@ -141,12 +147,12 @@ export class SpinScene extends Phaser.Scene {
         wordWrap: { width: panelW - 32 },
       }).setOrigin(0.5).setVisible(false);
 
-      const stopBtn = addTextButton(this, cx, layout.height * 0.86, "Стоп", () => {
+      const stopBtn = addTextButton(this, cx, layout.height * 0.86, t.spinStop, () => {
         this.autoSpinActive = false;
       }, { width: 220, fillColor: 0x9e3c45 });
       stopBtn.setVisible(false);
 
-      const autoBtn = addTextButton(this, cx, layout.height * 0.597, "Автокрутка", () => {
+      const autoBtn = addTextButton(this, cx, layout.height * 0.597, t.spinAutoSpin, () => {
         hideSpinUI();
         statsPanelGfx.setVisible(true);
         spinsText.setVisible(true);
@@ -168,6 +174,7 @@ export class SpinScene extends Phaser.Scene {
     let added = 0;
     let replaced = 0;
     let soldNew = 0;
+    const t = i18nService.getTranslations();
 
     const autoTick = () => {
       if (!this.autoSpinActive) {
@@ -190,7 +197,7 @@ export class SpinScene extends Phaser.Scene {
           width: 360, height: 280, imageWidth: 280, imageHeight: 140,
         });
         const actionColor = result.action === "added" ? "#65d68b" : result.action === "replaced" ? "#ffd166" : "#ff8b8b";
-        const actionLabel = result.action === "added" ? "В гараж" : result.action === "replaced" ? "Замена" : "Продано";
+        const actionLabel = result.action === "added" ? (i18nService.isRussian() ? "В гараж" : "To Garage") : result.action === "replaced" ? (i18nService.isRussian() ? "Замена" : "Replaced") : t.spinSold;
         const actionText = this.add.text(layout.width * 0.5, layout.height * 0.72, actionLabel, {
           fontFamily: "'Arial Black', Arial", fontStyle: "bold",
           fontSize: "28px", color: actionColor,
@@ -198,12 +205,12 @@ export class SpinScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         void saveService.save(save).then(() => {
-          if (ui.spinsText.active) ui.spinsText.setText(`${done} спинов`);
+          if (ui.spinsText.active) ui.spinsText.setText(`${done} ${t.spinSpins}`);
           if (ui.progressText.active) {
             const earned = save.money - moneyBefore;
             ui.progressText.setText(
-              `Добавлено: ${added}  Заменено: ${replaced}  Продано: ${soldNew}\n` +
-              `Баланс: ${save.money.toLocaleString("ru-RU")} $\n` +
+              `${i18nService.isRussian() ? 'Добавлено' : 'Added'}: ${added}  ${i18nService.isRussian() ? 'Заменено' : 'Replaced'}: ${replaced}  ${i18nService.isRussian() ? 'Продано' : 'Sold'}: ${soldNew}\n` +
+              `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")} $\n` +
               `${earned >= 0 ? "+" : ""}${earned.toLocaleString("ru-RU")} $`,
             );
           }
@@ -225,6 +232,9 @@ export class SpinScene extends Phaser.Scene {
     const preview = this.add.container(layout.width * 0.5, layout.height * 0.456);
     const previewCars = Phaser.Utils.Array.Shuffle(CARS.filter((car) => car.rarity !== "Эксклюзивный")).slice(0, 8);
     let step = 0;
+
+    // Проигрываем звук спина
+    audioService.playSound("spin");
 
     const tick = () => {
       preview.removeAll(true);
@@ -251,6 +261,13 @@ export class SpinScene extends Phaser.Scene {
   private async finishSpin(): Promise<void> {
     const save = saveService.current;
     const car = spin(CARS, save.chanceLevel);
+
+    // Проигрываем звук выигрыша для редких машин
+    const rareRarities = ["Легендарный", "Эпический", "Эксклюзивный", "Legendary", "Epic", "Exclusive"];
+    if (rareRarities.includes(car.rarity)) {
+      audioService.playSound("win");
+    }
+
     await saveService.save({
       ...save,
       pendingReward: { source: "spin" as const, carId: car.id, createdAt: Date.now() },
@@ -262,19 +279,20 @@ export class SpinScene extends Phaser.Scene {
   private showPending(car: Car): void {
     const save = saveService.current;
     const layout = getResponsiveLayout(this);
+    const t = i18nService.getTranslations();
 
     if (layout.isPortrait) {
       addCarCard(this, layout.width * 0.5, layout.height * 0.38, car, { width: layout.width * 0.88, height: 340, imageWidth: 300, imageHeight: 150 });
-      addInfoText(this, layout.padding * 1.5, layout.height * 0.19, "Выберите, что сделать с машиной.", "#ffffff", "24px", { width: layout.width * 0.85 });
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.19, i18nService.isRussian() ? "Выберите, что сделать с машиной." : "Choose what to do with the car.", "#ffffff", "24px", { width: layout.width * 0.85 });
 
       const button1X = layout.width * 0.5;
       const button1Y = layout.height * 0.64;
       const button2Y = layout.height * 0.74;
 
-      addTextButton(this, button1X, button1Y, "Оставить", async () => {
+      addTextButton(this, button1X, button1Y, t.spinKeep, async () => {
         const result = keepPendingReward(save);
         if (result.status === "garage-full") {
-          addInfoText(this, layout.padding * 1.5, layout.height * 0.82, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
+          addInfoText(this, layout.padding * 1.5, layout.height * 0.82, i18nService.isRussian() ? "Гараж заполнен. Продайте машину или освободите место." : "Garage is full. Sell a car or free up space.", "#ff8b8b", "20px", {
             width: layout.width * 0.85, maxLines: 2,
           });
           return;
@@ -284,7 +302,7 @@ export class SpinScene extends Phaser.Scene {
         this.scene.start("GarageScene");
       }, { width: layout.width * 0.8, height: 64, fontSize: "24px" });
 
-      addTextButton(this, button1X, button2Y, `Продать за ${car.value.toLocaleString("ru-RU")}`, async () => {
+      addTextButton(this, button1X, button2Y, `${t.spinSell} ${car.value.toLocaleString("ru-RU")}`, async () => {
         const result = sellPendingReward(save, CARS);
         if (result.status !== "ok") { this.scene.restart(); return; }
         await saveService.save(result.save);
@@ -292,16 +310,16 @@ export class SpinScene extends Phaser.Scene {
       }, { width: layout.width * 0.8, height: 64, fontSize: "24px" });
     } else {
       addCarCard(this, layout.width * 0.5, layout.height * 0.61, car, { height: 320 });
-      addInfoText(this, layout.width * 0.315, layout.height * 0.325, "Выберите, что сделать с машиной.", "#ffffff", "24px");
+      addInfoText(this, layout.width * 0.315, layout.height * 0.325, i18nService.isRussian() ? "Выберите, что сделать с машиной." : "Choose what to do with the car.", "#ffffff", "24px");
 
       const button1X = layout.width * 0.375;
       const button2X = layout.width * 0.625;
       const buttonY = layout.height * 0.894;
 
-      addTextButton(this, button1X, buttonY, "Оставить", async () => {
+      addTextButton(this, button1X, buttonY, t.spinKeep, async () => {
         const result = keepPendingReward(save);
         if (result.status === "garage-full") {
-          addInfoText(this, layout.width * 0.289, layout.height * 0.838, "Гараж заполнен. Продайте машину или освободите место.", "#ff8b8b", "20px", {
+          addInfoText(this, layout.width * 0.289, layout.height * 0.838, i18nService.isRussian() ? "Гараж заполнен. Продайте машину или освободите место." : "Garage is full. Sell a car or free up space.", "#ff8b8b", "20px", {
             width: layout.width * 0.422, maxLines: 2,
           });
           return;
@@ -311,7 +329,7 @@ export class SpinScene extends Phaser.Scene {
         this.scene.start("GarageScene");
       });
 
-      addTextButton(this, button2X, buttonY, `Продать за ${car.value.toLocaleString("ru-RU")}`, async () => {
+      addTextButton(this, button2X, buttonY, `${t.spinSell} ${car.value.toLocaleString("ru-RU")}`, async () => {
         const result = sellPendingReward(save, CARS);
         if (result.status !== "ok") { this.scene.restart(); return; }
         await saveService.save(result.save);

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Generator - Cars RNG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0e0b2e;
+            color: #ffffff;
+        }
+        h1 {
+            color: #ffd700;
+            text-align: center;
+        }
+        .container {
+            background: #1a0a3e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        button {
+            background: #4a2db0;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #6a4dd0;
+        }
+        button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+        .sound-item {
+            background: #2a1f60;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sound-name {
+            font-weight: bold;
+            color: #ffd166;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #27ae60;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.error {
+            background: #9e3c45;
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Audio Generator</h1>
+    <div class="container">
+        <p>Этот инструмент генерирует звуковые эффекты для игры Cars RNG и сохраняет их в формате WAV.</p>
+
+        <div id="sounds">
+            <div class="sound-item">
+                <span class="sound-name">click.wav</span>
+                <span>Звук клика/нажатия</span>
+            </div>
+            <div class="sound-item">
+                <span class="sound-name">button.wav</span>
+                <span>Звук кнопки (мягкий)</span>
+            </div>
+            <div class="sound-item">
+                <span class="sound-name">spin.wav</span>
+                <span>Звук вращения спина</span>
+            </div>
+            <div class="sound-item">
+                <span class="sound-name">win.wav</span>
+                <span>Звук выигрыша</span>
+            </div>
+            <div class="sound-item">
+                <span class="sound-name">case-open.wav</span>
+                <span>Звук открытия кейса</span>
+            </div>
+            <div class="sound-item">
+                <span class="sound-name">background-music.wav</span>
+                <span>Фоновая музыка (8 сек. loop)</span>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button id="generateBtn">Сгенерировать все звуки</button>
+            <button id="downloadBtn" disabled>Скачать все (ZIP)</button>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script type="module">
+        import { AudioGenerator } from './src/utils/audioGenerator.ts';
+
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
+
+        let generatedSounds = null;
+
+        generateBtn.addEventListener('click', async () => {
+            try {
+                status.style.display = 'block';
+                status.className = 'status';
+                status.textContent = 'Генерация звуков...';
+                generateBtn.disabled = true;
+
+                const generator = new AudioGenerator();
+                generatedSounds = await generator.generateAllSounds();
+
+                status.textContent = '✅ Все звуки успешно сгенерированы!';
+                downloadBtn.disabled = false;
+
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Ошибка при генерации: ' + error.message;
+                generateBtn.disabled = false;
+            }
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            if (!generatedSounds) return;
+
+            try {
+                // Используем JSZip для создания архива
+                const JSZip = window.JSZip;
+                if (!JSZip) {
+                    alert('Загрузка JSZip...');
+                    return;
+                }
+
+                const zip = new JSZip();
+                const musicFolder = zip.folder('music');
+                const soundsFolder = zip.folder('sounds');
+
+                // Добавляем файлы в соответствующие папки
+                musicFolder.file('background-music.wav', generatedSounds.bgMusic);
+                soundsFolder.file('click.wav', generatedSounds.click);
+                soundsFolder.file('button.wav', generatedSounds.button);
+                soundsFolder.file('spin.wav', generatedSounds.spin);
+                soundsFolder.file('win.wav', generatedSounds.win);
+                soundsFolder.file('case-open.wav', generatedSounds.caseOpen);
+
+                // Генерация и скачивание ZIP
+                const content = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cars-rng-audio.zip';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                status.textContent = '✅ ZIP архив скачан!';
+
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Ошибка при создании ZIP: ' + error.message;
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>

@@ -9,19 +9,30 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Cars RNG</title>
     <!-- Yandex Games SDK -->
-    <!-- В production (yandex.net) загружается настоящий SDK -->
-    <!-- В development (localhost) загружается mock SDK -->
+    <!-- Локальный адрес: mock SDK из public/sdk.js. Всё остальное: настоящий SDK -->
     <script>
-      // Проверка окружения
-      const isYandexEnvironment = window.location.hostname.includes('yandex.net') ||
-                                   window.location.hostname.includes('yandex.ru');
+      /*
+       * Проверяем именно локальные адреса, а не домены Яндекса.
+       * Раньше условие было обратным (hostname содержит yandex.net/yandex.ru),
+       * и любая неожиданная хостовая схема роняла игру на mock SDK — то есть
+       * в продакшене показывался выдуманный лидерборд вместо настоящего.
+       * Теперь ошибка условия приводит к загрузке настоящего SDK, а не подделки.
+       */
+      var host = window.location.hostname;
+      var isLocalHost =
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        host === '::1' ||
+        host === '' ||
+        host.endsWith('.local') ||
+        /^192\.168\./.test(host) ||
+        /^10\./.test(host) ||
+        /^172\.(1[6-9]|2[0-9]|3[01])\./.test(host);
 
-      if (isYandexEnvironment) {
-        // Production: загружаем настоящий Yandex Games SDK
-        document.write('<script src="https://yandex.ru/games/sdk/v2"><\/script>');
-      } else {
-        // Development: загружаем mock SDK
+      if (isLocalHost) {
         document.write('<script src="/sdk.js"><\/script>');
+      } else {
+        document.write('<script src="https://yandex.ru/games/sdk/v2"><\/script>');
       }
     </script>
   </head>

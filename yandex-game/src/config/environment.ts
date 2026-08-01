@@ -49,13 +49,10 @@ function isMockSDK(): boolean {
     return false;
   }
 
-  try {
-    // Mock SDK имеет специфичную реализацию с console.log внутри
-    const sdkString = window.YaGames.toString();
-    return sdkString.includes('MOCK') || sdkString.includes('mock');
-  } catch {
-    return false;
-  }
+  // Mock помечает себя флагом (см. public/sdk.js).
+  // Прежняя проверка через YaGames.toString() не работала: для объекта она
+  // всегда даёт "[object Object]", поэтому mock считался настоящим SDK.
+  return window.YaGames.__isMock === true;
 }
 
 /**

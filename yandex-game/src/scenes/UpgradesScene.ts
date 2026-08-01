@@ -6,6 +6,8 @@ import { saveService } from "../services/saveService";
 import { advertisementService } from "../services/advertisementService";
 import { addTextButton } from "../ui/buttons";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
+import { i18nService } from "../i18n/i18nService";
+import { audioService } from "../services/audioService";
 
 export class UpgradesScene extends Phaser.Scene {
   private hasDiscount = false;
@@ -25,6 +27,7 @@ export class UpgradesScene extends Phaser.Scene {
     const chanceCost = getChanceUpgradeCost(save, discount);
     const garageCost = getGarageUpgradeCost(save, discount);
     const layout = getResponsiveLayout(this);
+    const t = i18nService.getTranslations();
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("UpgradesScene");
@@ -32,7 +35,7 @@ export class UpgradesScene extends Phaser.Scene {
     // Скидка 50% на улучшения за просмотр рекламы (доступна раз в 30 минут)
     const canShowDiscount = !this.hasDiscount && advertisementService.canShowAd('upgrade-discount', 1800000);
 
-    addSceneTitle(this, "Улучшения");
+    addSceneTitle(this, t.upgradesTitle);
     addBackToMenu(this);
 
     if (layout.isPortrait) {
@@ -46,12 +49,12 @@ export class UpgradesScene extends Phaser.Scene {
       const leftX = layout.padding * 1.5;
       const topY = layout.height * 0.11;
 
-      addInfoText(this, leftX, topY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "28px");
-      addInfoText(this, leftX, topY + 44, `Множитель: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff", "24px");
-      addInfoText(this, leftX, topY + 82, `Гараж: ${save.garageCap}`, "#ffffff", "24px");
+      addInfoText(this, leftX, topY, `${t.upgradesBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "28px");
+      addInfoText(this, leftX, topY + 44, `${i18nService.isRussian() ? 'Множитель' : 'Multiplier'}: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff", "24px");
+      addInfoText(this, leftX, topY + 82, `${t.garageTitle}: ${save.garageCap}`, "#ffffff", "24px");
 
       if (this.hasDiscount) {
-        addInfoText(this, leftX, topY + 120, "✨ Скидка 50% активна!", "#27ae60", "22px");
+        addInfoText(this, leftX, topY + 120, i18nService.isRussian() ? "✨ Скидка 50% активна!" : "✨ 50% Discount Active!", "#27ae60", "22px");
       }
 
       const chanceDescY = layout.height * 0.32;
@@ -59,17 +62,19 @@ export class UpgradesScene extends Phaser.Scene {
       const chanceButtonY = layout.height * 0.42;
       const garageButtonY = layout.height * 0.66;
 
-      addInfoText(this, leftX, chanceDescY, "Шанс влияет на обычный спин.", "#d9e6f2", "22px", { width: layout.width * 0.8 });
-      addInfoText(this, leftX, garageDescY, "Гараж определяет, сколько машин можно хранить.", "#d9e6f2", "22px", { width: layout.width * 0.8 });
+      addInfoText(this, leftX, chanceDescY, t.upgradeChanceDesc, "#d9e6f2", "22px", { width: layout.width * 0.8 });
+      addInfoText(this, leftX, garageDescY, t.upgradeGarageDesc, "#d9e6f2", "22px", { width: layout.width * 0.8 });
 
-      addTextButton(this, centerX, chanceButtonY, `Шанс +0.1 за ${chanceCost.toLocaleString("ru-RU")}`, async () => {
+      addTextButton(this, centerX, chanceButtonY, `${i18nService.isRussian() ? 'Шанс +0.1 за' : 'Chance +0.1 for'} ${chanceCost.toLocaleString("ru-RU")}`, async () => {
+        audioService.playSound("button");
         const result = buyChanceUpgrade(save);
         if (result.status !== "ok") return;
         await saveService.save(result.save);
         this.scene.restart();
       }, { width: layout.width * 0.8, height: 64, fontSize: "24px", disabled: save.money < chanceCost });
 
-      addTextButton(this, centerX, garageButtonY, `Гараж +${GARAGE_STEP} за ${garageCost.toLocaleString("ru-RU")}`, async () => {
+      addTextButton(this, centerX, garageButtonY, `${t.garageTitle} +${GARAGE_STEP} ${i18nService.isRussian() ? 'за' : 'for'} ${garageCost.toLocaleString("ru-RU")}`, async () => {
+        audioService.playSound("button");
         const result = buyGarageUpgrade(save);
         if (result.status !== "ok") return;
         await saveService.save(result.save);
@@ -79,15 +84,15 @@ export class UpgradesScene extends Phaser.Scene {
       // Кнопка скидки за рекламу (portrait)
       if (canShowDiscount) {
         const discountButtonY = layout.height * 0.76;
-        addInfoText(this, leftX, discountButtonY - 35, "🎁 Скидка 50% на любое улучшение", "#27ae60", "20px", { width: layout.width * 0.8 });
-        addTextButton(this, centerX, discountButtonY, "Смотреть рекламу", async () => {
+        addInfoText(this, leftX, discountButtonY - 35, i18nService.isRussian() ? "🎁 Скидка 50% на любое улучшение" : "🎁 50% Discount on Any Upgrade", "#27ae60", "20px", { width: layout.width * 0.8 });
+        addTextButton(this, centerX, discountButtonY, t.upgradesWatchAd, async () => {
           const success = await advertisementService.showRewardedAd(() => {
             // Перезапустить сцену со скидкой
             this.scene.restart({ discount: true });
           }, 'upgrade-discount', 1800000);
 
           if (!success) {
-            addInfoText(this, centerX, layout.height * 0.9, "Реклама недоступна", "#ff8b8b", "18px");
+            addInfoText(this, centerX, layout.height * 0.9, t.upgradesAdUnavailable, "#ff8b8b", "18px");
           }
         }, { width: layout.width * 0.7, height: 56, fillColor: 0x27ae60, fontSize: "22px" });
       }
@@ -102,12 +107,12 @@ export class UpgradesScene extends Phaser.Scene {
       const leftX = layout.width * 0.21;
       const topY = layout.height * 0.21;
 
-      addInfoText(this, leftX, topY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "30px");
-      addInfoText(this, leftX, topY + 48, `Множитель шанса: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff");
-      addInfoText(this, leftX, topY + 84, `Размер гаража: ${save.garageCap}`, "#ffffff");
+      addInfoText(this, leftX, topY, `${t.upgradesBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "30px");
+      addInfoText(this, leftX, topY + 48, `${i18nService.isRussian() ? 'Множитель шанса' : 'Chance Multiplier'}: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#ffffff");
+      addInfoText(this, leftX, topY + 84, `${i18nService.isRussian() ? 'Размер гаража' : 'Garage Size'}: ${save.garageCap}`, "#ffffff");
 
       if (this.hasDiscount) {
-        addInfoText(this, leftX, topY + 120, "✨ Скидка 50% активна!", "#27ae60", "20px");
+        addInfoText(this, leftX, topY + 120, i18nService.isRussian() ? "✨ Скидка 50% активна!" : "✨ 50% Discount Active!", "#27ae60", "20px");
       }
 
       const chanceDescY = layout.height * 0.418;
@@ -115,17 +120,19 @@ export class UpgradesScene extends Phaser.Scene {
       const chanceButtonY = layout.height * 0.518;
       const garageButtonY = layout.height * 0.693;
 
-      addInfoText(this, leftX, chanceDescY, "Шанс влияет на обычный спин.", "#d9e6f2", "22px");
-      addInfoText(this, leftX, garageDescY, "Гараж определяет, сколько машин можно хранить.", "#d9e6f2", "22px");
+      addInfoText(this, leftX, chanceDescY, t.upgradeChanceDesc, "#d9e6f2", "22px");
+      addInfoText(this, leftX, garageDescY, t.upgradeGarageDesc, "#d9e6f2", "22px");
 
-      addTextButton(this, centerX, chanceButtonY, `Шанс +0.1 за ${chanceCost.toLocaleString("ru-RU")}`, async () => {
+      addTextButton(this, centerX, chanceButtonY, `${i18nService.isRussian() ? 'Шанс +0.1 за' : 'Chance +0.1 for'} ${chanceCost.toLocaleString("ru-RU")}`, async () => {
+        audioService.playSound("button");
         const result = buyChanceUpgrade(save);
         if (result.status !== "ok") return;
         await saveService.save(result.save);
         this.scene.restart();
       }, { width: 430, disabled: save.money < chanceCost });
 
-      addTextButton(this, centerX, garageButtonY, `Гараж +${GARAGE_STEP} за ${garageCost.toLocaleString("ru-RU")}`, async () => {
+      addTextButton(this, centerX, garageButtonY, `${t.garageTitle} +${GARAGE_STEP} ${i18nService.isRussian() ? 'за' : 'for'} ${garageCost.toLocaleString("ru-RU")}`, async () => {
+        audioService.playSound("button");
         const result = buyGarageUpgrade(save);
         if (result.status !== "ok") return;
         await saveService.save(result.save);
@@ -135,14 +142,14 @@ export class UpgradesScene extends Phaser.Scene {
       // Кнопка скидки за рекламу (landscape)
       if (canShowDiscount) {
         const discountButtonY = layout.height * 0.793;
-        addInfoText(this, leftX, discountButtonY - 30, "🎁 Скидка 50% на любое улучшение за рекламу", "#27ae60", "18px");
-        addTextButton(this, centerX, discountButtonY, "Смотреть рекламу", async () => {
+        addInfoText(this, leftX, discountButtonY - 30, i18nService.isRussian() ? "🎁 Скидка 50% на любое улучшение за рекламу" : "🎁 50% Discount on Any Upgrade for Watching an Ad", "#27ae60", "18px");
+        addTextButton(this, centerX, discountButtonY, t.upgradesWatchAd, async () => {
           const success = await advertisementService.showRewardedAd(() => {
             this.scene.restart({ discount: true });
           }, 'upgrade-discount', 1800000);
 
           if (!success) {
-            addInfoText(this, centerX, layout.height * 0.88, "Реклама недоступна", "#ff8b8b", "16px");
+            addInfoText(this, centerX, layout.height * 0.88, t.upgradesAdUnavailable, "#ff8b8b", "16px");
           }
         }, { width: 360, height: 50, fillColor: 0x27ae60, fontSize: "20px" });
       }

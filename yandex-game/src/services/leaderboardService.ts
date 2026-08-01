@@ -12,6 +12,24 @@ export async function submitScore(score: number): Promise<void> {
   await yandexSdk.submitLeaderboardScore(score);
 }
 
-export async function getTopEntries(): Promise<LeaderboardEntry[]> {
+/**
+ * Топ лидерборда. null означает «API недоступно или ответило ошибкой»,
+ * пустой массив — «лидерборд есть, но в нём пока никого нет».
+ */
+export async function getTopEntries(): Promise<LeaderboardEntry[] | null> {
   return yandexSdk.getLeaderboardEntries(10);
+}
+
+/**
+ * Стоит ли предлагать игроку войти в аккаунт
+ */
+export function canRequestAuthorization(): boolean {
+  return yandexSdk.canRequestAuthorization();
+}
+
+/**
+ * Открыть диалог авторизации Yandex
+ */
+export async function requestAuthorization(): Promise<boolean> {
+  return yandexSdk.requestAuthorization();
 }

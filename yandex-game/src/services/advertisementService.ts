@@ -48,6 +48,8 @@ export class AdvertisementService {
   /** Идёт показ рекламы: не даём наложить второе объявление поверх первого */
   private isAdInProgress = false;
   private timedAdCheckId: number | null = null;
+  /** Сцены, поставленные на паузу на время рекламы — чтобы снять ровно их */
+  private pausedSceneKeys: string[] = [];
   private stats: AdStatistics = {
     fullscreenShown: 0,
     rewardedShown: 0,
@@ -207,8 +209,9 @@ export class AdvertisementService {
     this.lastFullscreenAdTime = Date.now();
 
     try {
-      // Звук глушим сразу: во время отсчёта игрок уже не играет.
-      this.pauseGameSound();
+      // Пауза до отсчёта, а не после: игрок уже не играет, и за оверлеем
+      // не должны доигрывать анимации, автокрутка и delayedCall.
+      this.pauseGame();
       await showAdCountdown(AD_WARNING_SECONDS);
 
       if (env.shouldUseMockAds) {
@@ -221,7 +224,7 @@ export class AdvertisementService {
       return await this.callFullscreenAdv(reason);
     } finally {
       hideAdCountdown();
-      this.resumeGameSound();
+      this.resumeGame();
       this.isAdInProgress = false;
     }
   }
@@ -273,6 +276,72 @@ export class AdvertisementService {
   }
 
   /**
+   * Поставить игру на паузу на время отсчёта и самой рекламы.
+   *
+   * Паузим сцены, а не игровой цикл целиком: цикл нужен живым, иначе
+   * SceneManager не обработает отложенные операции вроде scene.restart().
+   *
+   * Что даёт пауза сцены: SceneManager.update() шагает только сцены со
+   * статусом до RUNNING включительно, а пауза ставит PAUSED — то есть
+   * замирают Clock (delayedCall), твины и update(). Рендер при этом
+   * продолжается (гейт рендера пропускает PAUSED), поэтому под оверлеем
+   * остаётся нормальный кадр, а не чёрный экран.
+   *
+   * Обратный отсчёт от паузы не страдает: он живёт в DOM на setTimeout,
+   * а не на таймерах Phaser.
+   */
+  private pauseGame(): void {
+    this.pauseGameSound();
+
+    if (!this.gameInstance) {
+      return;
+    }
+
+    /*
+     * getScenes(true) отдаёт только сцены со статусом RUNNING — и это
+     * намеренно. Сцену, которая ещё находится внутри create(), паузить нельзя:
+     * SceneManager.create() после выхода из create() безусловно выставляет
+     * status = RUNNING, а флаг active остался бы false. Сцена застряла бы в
+     * рассогласованном состоянии, и все последующие паузы для неё молча
+     * перестали бы работать (Systems.pause() проверяет active).
+     *
+     * Практическое следствие: при рекламе на переходе между сценами паузить
+     * нечего — предыдущая сцена уже остановлена, а новая ещё не запущена и
+     * успела только нарисовать фон. Пауза важна для таймерной рекламы, когда
+     * игрок реально играет (например, идёт автокрутка в SpinScene).
+     */
+    for (const scene of this.gameInstance.scene.getScenes(true)) {
+      const key = scene.sys.settings.key;
+      this.gameInstance.scene.pause(key);
+      this.pausedSceneKeys.push(key);
+      console.log(`[Advertisement] Сцена ${key} на паузе`);
+    }
+  }
+
+  /**
+   * Снять игру с паузы.
+   *
+   * Возвращаем только те сцены, которые сами и остановили. Сцену, успевшую
+   * за время рекламы перезапуститься (rewarded-коллбэки делают
+   * scene.restart()), не трогаем — она уже работает.
+   */
+  private resumeGame(): void {
+    const keys = this.pausedSceneKeys;
+    this.pausedSceneKeys = [];
+
+    if (this.gameInstance) {
+      for (const key of keys) {
+        if (this.gameInstance.scene.isPaused(key)) {
+          this.gameInstance.scene.resume(key);
+          console.log(`[Advertisement] Сцена ${key} снята с паузы`);
+        }
+      }
+    }
+
+    this.resumeGameSound();
+  }
+
+  /**
    * Показать fullscreen рекламу (межуровневую) с обратным отсчётом.
    *
    * В отличие от tryShowSceneChangeAd не проверяет общий интервал: вызывать
@@ -315,7 +384,8 @@ export class AdvertisementService {
     // это и есть предупреждение. Отсчёт обязателен для рекламы, которая
     // прерывает игру без запроса игрока.
     this.isAdInProgress = true;
-    this.pauseGameSound();
+    // Игра не должна тикать и за rewarded-видео, хотя отсчёта здесь нет.
+    this.pauseGame();
 
     try {
       // Mock режим (разработка)
@@ -337,7 +407,7 @@ export class AdvertisementService {
 
       return await this.callRewardedVideo(onReward, adType);
     } finally {
-      this.resumeGameSound();
+      this.resumeGame();
       this.isAdInProgress = false;
     }
   }

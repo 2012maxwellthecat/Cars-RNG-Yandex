@@ -14,8 +14,10 @@
     return Array.from({ length: 10 }, (_, i) => ({
       rank: i + 1,
       score: Math.floor(Math.random() * 1000000) + 10000,
+      extraData: '',
       player: {
-        publicName: names[i] || `Игрок${i + 1}`
+        publicName: names[i] || `Игрок${i + 1}`,
+        uniqueID: `mock-player-${i + 1}`
       }
     })).sort((a, b) => b.score - a.score).map((entry, i) => ({ ...entry, rank: i + 1 }));
   };
@@ -56,17 +58,30 @@
 
       getName: () => {
         return 'Dev Player';
+      },
+
+      // В настоящем SDK getPlayer() резолвится и для гостя,
+      // авторизацию проверяют отдельно этим методом.
+      isAuthorized: () => {
+        return true;
       }
     };
   };
 
-  // Mock Leaderboards API
+  /**
+   * Mock Leaderboards API.
+   *
+   * Имена методов обязаны совпадать с настоящим ysdk.leaderboards:
+   * setScore / getEntries. У устаревшего ysdk.getLeaderboards() они назывались
+   * setLeaderboardScore / getLeaderboardEntries, и когда mock реализовывал
+   * старые имена, ошибка вызова вылезала только в продакшене.
+   */
   const createMockLeaderboards = () => {
     const leaderboards = new Map();
 
     return {
-      setLeaderboardScore: async (name, score) => {
-        console.log('[MOCK SDK] Leaderboards.setLeaderboardScore called:', name, score);
+      setScore: async (name, score, extraData) => {
+        console.log('[MOCK SDK] leaderboards.setScore called:', name, score, extraData);
         await new Promise(resolve => setTimeout(resolve, 100));
 
         if (!leaderboards.has(name)) {
@@ -81,14 +96,15 @@
         return;
       },
 
-      getLeaderboardEntries: async (name, options = {}) => {
-        console.log('[MOCK SDK] Leaderboards.getLeaderboardEntries called:', name, options);
+      getEntries: async (name, options = {}) => {
+        console.log('[MOCK SDK] leaderboards.getEntries called:', name, options);
         await new Promise(resolve => setTimeout(resolve, 150));
 
         const entries = generateMockLeaderboard();
-        const limit = options.quantityTop || 10;
+        const limit = options.quantityTop || 5;
 
         return {
+          userRank: 0,
           entries: entries.slice(0, limit)
         };
       }
@@ -155,16 +171,27 @@
         return createMockPlayer();
       },
 
-      getLeaderboards: async () => {
-        console.log('[MOCK SDK] SDK.getLeaderboards called (deprecated)');
-        await new Promise(resolve => setTimeout(resolve, 100));
-        return leaderboardsInstance;
+      // getLeaderboards() устарел и в mock намеренно не реализован:
+      // код должен работать только через ysdk.leaderboards.
+      leaderboards: leaderboardsInstance,
+
+      isAvailableMethod: async (methodName) => {
+        console.log('[MOCK SDK] SDK.isAvailableMethod called:', methodName);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        return true;
       },
 
-      leaderboards: leaderboardsInstance,
+      auth: {
+        openAuthDialog: async () => {
+          console.log('[MOCK SDK] auth.openAuthDialog called (mock: сразу успех)');
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+      },
 
       environment: {
         i18n: {
+          // Для тестирования английского языка измените 'ru' на 'en', 'tr', 'de' и т.д.
+          // Любой язык кроме 'ru' переключит игру на английский
           lang: 'ru',
           tld: 'ru'
         },
@@ -191,6 +218,10 @@
 
   // Глобальный объект YaGames
   window.YaGames = {
+    // Явный признак mock. Раньше окружение определялось по YaGames.toString(),
+    // но для объекта это всегда "[object Object]", и mock не распознавался.
+    __isMock: true,
+
     init: async () => {
       console.log('%c[MOCK SDK] 🚀 YaGames.init() вызван - инициализация mock SDK...', 'color: #9C27B0; font-weight: bold; font-size: 16px;');
       console.log('[MOCK SDK] Это mock версия SDK для локальной разработки');

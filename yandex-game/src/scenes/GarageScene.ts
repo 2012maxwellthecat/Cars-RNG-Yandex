@@ -6,6 +6,7 @@ import { advertisementService } from "../services/advertisementService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
+import { i18nService } from "../i18n/i18nService";
 
 const PAGE_SIZE = 8;
 
@@ -27,6 +28,7 @@ export class GarageScene extends Phaser.Scene {
     const save = saveService.current;
     const items = sortInventoryViews(getInventoryViews(save, CARS));
     const layout = getResponsiveLayout(this);
+    const t = i18nService.getTranslations();
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("GarageScene");
@@ -41,23 +43,23 @@ export class GarageScene extends Phaser.Scene {
     this.page = Phaser.Math.Clamp(this.page, 0, totalPages - 1);
     const selected = items.find((item) => item.inventoryId === this.selectedInventoryId) ?? items[0] ?? null;
 
-    addSceneTitle(this, "Гараж");
+    addSceneTitle(this, t.garageTitle);
     addBackToMenu(this);
 
     if (layout.isPortrait) {
-      addInfoText(this, layout.padding, layout.height * 0.11, `Машин: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "24px");
-      addInfoText(this, layout.padding, layout.height * 0.145, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
+      addInfoText(this, layout.padding, layout.height * 0.11, `${t.garageCars}: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "24px");
+      addInfoText(this, layout.padding, layout.height * 0.145, `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
     } else {
-      addInfoText(this, layout.padding, layout.height * 0.139, `Машин: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "26px");
-      addInfoText(this, layout.padding, layout.height * 0.186, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
+      addInfoText(this, layout.padding, layout.height * 0.139, `${t.garageCars}: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "26px");
+      addInfoText(this, layout.padding, layout.height * 0.186, `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "24px");
     }
 
     if (items.length === 0) {
       const emptyPanelWidth = layout.isPortrait ? layout.width * 0.88 : layout.width * 0.594;
       const emptyPanelHeight = layout.isPortrait ? layout.height * 0.28 : layout.height * 0.361;
       addPanel(this, layout.width * 0.5, layout.height * 0.5, emptyPanelWidth, emptyPanelHeight);
-      addInfoText(this, layout.isPortrait ? layout.padding * 1.5 : layout.width * 0.273, layout.height * 0.42, "Гараж пуст. Выиграйте первую машину в спине.", "#ffffff", layout.isPortrait ? "26px" : "28px", { width: emptyPanelWidth * 0.85 });
-      addTextButton(this, layout.width * 0.5, layout.height * 0.56, "Крутить", () => this.scene.start("SpinScene"), {
+      addInfoText(this, layout.isPortrait ? layout.padding * 1.5 : layout.width * 0.273, layout.height * 0.42, t.garageEmpty, "#ffffff", layout.isPortrait ? "26px" : "28px", { width: emptyPanelWidth * 0.85 });
+      addTextButton(this, layout.width * 0.5, layout.height * 0.56, t.spinButton, () => this.scene.start("SpinScene"), {
         width: layout.isPortrait ? layout.width * 0.7 : 280,
         height: layout.isPortrait ? 64 : 56,
         fontSize: layout.isPortrait ? "24px" : "22px",
@@ -88,7 +90,7 @@ export class GarageScene extends Phaser.Scene {
 
       if (selected) {
         const detailY = layout.height * 0.8;
-        addTextButton(this, layout.width * 0.5, detailY, `Продать за ${selected.car.value.toLocaleString("ru-RU")}`, async () => {
+        addTextButton(this, layout.width * 0.5, detailY, `${t.spinSell} ${selected.car.value.toLocaleString("ru-RU")}`, async () => {
           const result = sellInventoryCar(save, selected.inventoryId, CARS);
           if (result.status !== "ok") return;
           await saveService.save(result.save);
@@ -122,7 +124,7 @@ export class GarageScene extends Phaser.Scene {
         this,
         navLeftX,
         navY,
-        "Назад",
+        i18nService.isRussian() ? "Назад" : "Back",
         () => this.scene.restart({ page: this.page - 1, selectedInventoryId: this.selectedInventoryId }),
         { width: btnW, height: layout.isPortrait ? 52 : 46, disabled: this.page === 0, fontSize: "20px" },
       );
@@ -134,7 +136,7 @@ export class GarageScene extends Phaser.Scene {
         this,
         navRightX,
         navY,
-        "Вперёд",
+        i18nService.isRussian() ? "Вперёд" : "Next",
         () => this.scene.restart({ page: this.page + 1, selectedInventoryId: this.selectedInventoryId }),
         { width: btnW, height: layout.isPortrait ? 52 : 46, disabled: this.page + 1 >= totalPages, fontSize: "20px" },
       );
@@ -216,6 +218,7 @@ export class GarageScene extends Phaser.Scene {
     }
 
     const layout = getResponsiveLayout(this);
+    const t = i18nService.getTranslations();
     const detailsX = layout.width * 0.798;
     const cardY = layout.height * 0.469;
     const infoStartX = layout.width * 0.655;
@@ -230,13 +233,15 @@ export class GarageScene extends Phaser.Scene {
       imageHeight: 154,
     });
 
-    addInfoText(this, infoStartX, infoY1, `Получена: ${new Date(selected.obtainedAt).toLocaleDateString("ru-RU")}`, "#d9e6f2", "20px");
-    addInfoText(this, infoStartX, infoY2, `Очки: ${selected.car.points.toLocaleString("ru-RU")}`, "#d9e6f2", "20px");
+    const obtainedLabel = i18nService.isRussian() ? "Получена" : "Obtained";
+    const pointsLabel = i18nService.isRussian() ? "Очки" : "Points";
+    addInfoText(this, infoStartX, infoY1, `${obtainedLabel}: ${new Date(selected.obtainedAt).toLocaleDateString("ru-RU")}`, "#d9e6f2", "20px");
+    addInfoText(this, infoStartX, infoY2, `${pointsLabel}: ${selected.car.points.toLocaleString("ru-RU")}`, "#d9e6f2", "20px");
     addTextButton(
       this,
       detailsX,
       buttonY,
-      `Продать за ${selected.car.value.toLocaleString("ru-RU")}`,
+      `${t.spinSell} ${selected.car.value.toLocaleString("ru-RU")}`,
       async () => {
         const result = sellInventoryCar(saveService.current, selected.inventoryId, CARS);
         if (result.status === "ok") {

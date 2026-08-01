@@ -1,3 +1,5 @@
+import { i18nService } from "../i18n/i18nService";
+
 /**
  * Предупреждение перед показом рекламы (требование Yandex Games).
  *
@@ -48,14 +50,15 @@ function delay(ms: number): Promise<void> {
  */
 export async function showAdCountdown(seconds = 3): Promise<void> {
   const label = createOverlay();
+  const t = i18nService.getTranslations();
 
   try {
     for (let left = seconds; left > 0; left--) {
-      label.textContent = `Реклама через ${left}`;
+      label.textContent = `${t.adCountdownText} ${left} ${t.adCountdownSeconds}`;
       await delay(1000);
     }
-    // Короткий кадр «Реклама» — переход к самому объявлению не выглядит резким.
-    label.textContent = "Реклама";
+    // Короткий кадр «Реклама» / «Ad» — переход к самому объявлению не выглядит резким.
+    label.textContent = i18nService.isRussian() ? "Реклама" : "Ad";
     await delay(400);
   } finally {
     // finally, чтобы оверлей не остался висеть, если отсчёт прервали.

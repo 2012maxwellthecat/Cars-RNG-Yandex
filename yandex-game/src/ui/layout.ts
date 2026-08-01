@@ -96,6 +96,44 @@ export function addBackToMenu(scene: Phaser.Scene): Phaser.GameObjects.Container
   }
 }
 
+export function addBackButton(scene: Phaser.Scene, callback: () => void): Phaser.GameObjects.Container {
+  const layout = getResponsiveLayout(scene);
+
+  if (layout.isPortrait) {
+    // Portrait mode: compact back button in top-left corner
+    return addTextButton(
+      scene,
+      layout.padding + 70,
+      layout.padding * 0.9,
+      "Назад",
+      callback,
+      {
+        width: 140,
+        height: 44,
+        fillColor: 0x3b2280,
+        strokeColor: 0x7b5cff,
+        fontSize: "20px",
+      }
+    );
+  } else {
+    // Landscape mode: top-right corner (original behavior)
+    return addTextButton(
+      scene,
+      layout.width - layout.padding - 84,
+      layout.padding * 1.25,
+      "Назад",
+      callback,
+      {
+        width: 168,
+        height: 48,
+        fillColor: 0x3b2280,
+        strokeColor: 0x7b5cff,
+        fontSize: "22px",
+      }
+    );
+  }
+}
+
 export function addPanel(
   scene: Phaser.Scene,
   x: number,

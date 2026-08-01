@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { CARS } from "../data/cars";
+import { audioService } from "../services/audioService";
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -29,12 +30,27 @@ export class PreloadScene extends Phaser.Scene {
       label.setText("Готово");
     });
 
+    // Загрузка изображений машин
     for (const car of CARS) {
       this.load.image(car.imageKey, `assets/cars/${car.imageFile}`);
     }
+
+    // Загрузка звуковых файлов
+    // Музыка
+    this.load.audio("bgMusic", "assets/audio/music/background-music.wav");
+
+    // Звуковые эффекты
+    this.load.audio("click", "assets/audio/sounds/click.wav");
+    this.load.audio("button", "assets/audio/sounds/button.wav");
+    this.load.audio("spin", "assets/audio/sounds/spin.wav");
+    this.load.audio("win", "assets/audio/sounds/win.wav");
+    this.load.audio("caseOpen", "assets/audio/sounds/case-open.wav");
   }
 
   create(): void {
+    // Инициализация аудио сервиса
+    audioService.init(this);
+
     // Уведомить Yandex Games SDK о готовности игры
     if (window.ysdk?.features?.LoadingAPI) {
       try {

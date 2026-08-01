@@ -8,6 +8,12 @@ const RARITY_COLORS: Record<Car["rarity"], string> = {
   Эпический: "#c083ff",
   Легендарный: "#ffd166",
   Эксклюзивный: "#ff8b8b",
+  Common: "#d9e6f2",
+  Uncommon: "#65d68b",
+  Rare: "#67a7ff",
+  Epic: "#c083ff",
+  Legendary: "#ffd166",
+  Exclusive: "#ff8b8b",
 };
 
 const RARITY_STROKES: Record<Car["rarity"], number> = {
@@ -17,6 +23,12 @@ const RARITY_STROKES: Record<Car["rarity"], number> = {
   Эпический: 0xc083ff,
   Легендарный: 0xffd166,
   Эксклюзивный: 0xff8b8b,
+  Common: 0x6f7c8c,
+  Uncommon: 0x65d68b,
+  Rare: 0x67a7ff,
+  Epic: 0xc083ff,
+  Legendary: 0xffd166,
+  Exclusive: 0xff8b8b,
 };
 
 // Gradient top/bottom colors per rarity for card background
@@ -27,6 +39,12 @@ const RARITY_BG_TOP: Record<Car["rarity"], number> = {
   Эпический: 0x2d1a58,
   Легендарный: 0x3c2c0a,
   Эксклюзивный: 0x3c1a1a,
+  Common:   0x2a3040,
+  Uncommon: 0x1a3828,
+  Rare:     0x1a2860,
+  Epic:     0x2d1a58,
+  Legendary: 0x3c2c0a,
+  Exclusive: 0x3c1a1a,
 };
 
 const RARITY_BG_BOTTOM: Record<Car["rarity"], number> = {
@@ -36,6 +54,12 @@ const RARITY_BG_BOTTOM: Record<Car["rarity"], number> = {
   Эпический: 0x1d0e40,
   Легендарный: 0x201800,
   Эксклюзивный: 0x200a0a,
+  Common:   0x141820,
+  Uncommon: 0x0d2018,
+  Rare:     0x0d1840,
+  Epic:     0x1d0e40,
+  Legendary: 0x201800,
+  Exclusive: 0x200a0a,
 };
 
 export function rarityColor(rarity: Car["rarity"]): string {

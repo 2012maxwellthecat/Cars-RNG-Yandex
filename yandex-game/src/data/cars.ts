@@ -1,6 +1,7 @@
 import type { Car } from "../game/types";
+import { translateRarity } from "../i18n/rarityTranslations";
 
-export const CARS: Car[] = [
+const CARS_DATA: Car[] = [
   {
     id: "lada_2106",
     name: "Лада 2106",
@@ -1652,3 +1653,11 @@ export const CARS: Car[] = [
     imageFile: "koenigsegg_ccgt.webp",
   },
 ];
+
+/**
+ * Экспортируем CARS с переведенными редкостями
+ */
+export const CARS: Car[] = CARS_DATA.map((car) => ({
+  ...car,
+  rarity: translateRarity(car.rarity),
+}));

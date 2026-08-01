@@ -7,6 +7,8 @@ import { addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayo
 import { saveService } from "../services/saveService";
 import { chanceMultFromLevel, type SaveData } from "../game/saveModel";
 import { yandexSdk } from "../services/yandexSdk";
+import { i18nService } from "../i18n/i18nService";
+import { audioService } from "../services/audioService";
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -19,6 +21,11 @@ export class MenuScene extends Phaser.Scene {
     const score = calculateScore(save.inventory, CARS);
     const pendingCar = CARS.find((car) => car.id === save.pendingReward?.carId);
     const layout = getResponsiveLayout(this);
+    const t = i18nService.getTranslations();
+
+    // Инициализация аудио и запуск фоновой музыки
+    audioService.init(this);
+    audioService.playBackgroundMusic("bgMusic");
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("MenuScene");
@@ -27,7 +34,7 @@ export class MenuScene extends Phaser.Scene {
     // Внутри обязательный обратный отсчёт «Реклама через 3… 2… 1…».
     await advertisementService.tryShowSceneChangeAd();
 
-    addSceneTitle(this, "Cars RNG");
+    addSceneTitle(this, t.menuTitle);
 
     if (layout.isPortrait) {
       this.createPortraitLayout(save, score, pendingCar, layout);
@@ -45,23 +52,24 @@ export class MenuScene extends Phaser.Scene {
     const cx = layout.width * 0.5;
     const infoPanelWidth = layout.width * 0.88;
     const infoPanelY = layout.height * 0.14;
+    const t = i18nService.getTranslations();
 
     // Info panel with stats
     addPanel(this, cx, infoPanelY, infoPanelWidth, layout.height * 0.14);
-    addInfoText(this, layout.padding * 1.5, layout.height * 0.09, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
-    addInfoText(this, layout.padding * 1.5, layout.height * 0.12, `Гараж: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
-    addInfoText(this, layout.padding * 1.5, layout.height * 0.145, `Множитель: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#d9e6f2", "22px");
-    addInfoText(this, layout.padding * 1.5, layout.height * 0.17, `Очки: ${score.toLocaleString("ru-RU")}`, "#d9e6f2", "22px");
+    addInfoText(this, layout.padding * 1.5, layout.height * 0.09, `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "26px");
+    addInfoText(this, layout.padding * 1.5, layout.height * 0.12, `${t.garageTitle}: ${save.inventory.length} / ${save.garageCap}`, "#d9e6f2", "22px");
+    addInfoText(this, layout.padding * 1.5, layout.height * 0.145, `${i18nService.isRussian() ? 'Множитель' : 'Multiplier'}: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`, "#d9e6f2", "22px");
+    addInfoText(this, layout.padding * 1.5, layout.height * 0.17, `${i18nService.isRussian() ? 'Очки' : 'Points'}: ${score.toLocaleString("ru-RU")}`, "#d9e6f2", "22px");
 
     // Pending reward notification
     if (pendingCar) {
       const pendingY = layout.height * 0.255;
       addPanel(this, cx, pendingY, infoPanelWidth, layout.height * 0.09);
-      addInfoText(this, layout.padding * 1.5, layout.height * 0.225, `Ожидает: ${pendingCar.name}`, "#ffcf70", "22px", {
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.225, `${i18nService.isRussian() ? 'Ожидает' : 'Pending'}: ${pendingCar.name}`, "#ffcf70", "22px", {
         width: layout.width * 0.5,
         maxLines: 2,
       });
-      addTextButton(this, layout.width * 0.73, pendingY, "Открыть", () => this.scene.start("SpinScene"), {
+      addTextButton(this, layout.width * 0.73, pendingY, i18nService.isRussian() ? "Открыть" : "Open", () => this.scene.start("SpinScene"), {
         width: 150,
         height: 50,
         fontSize: "20px",
@@ -79,25 +87,37 @@ export class MenuScene extends Phaser.Scene {
     const btnSpacing = layout.height * 0.095;
     let btnY = buttonsPanelY + layout.height * 0.055;
 
-    addTextButton(this, cx, btnY, pendingCar ? "Решить награду" : "Крутить", () => this.scene.start("SpinScene"), {
+    addTextButton(this, cx, btnY, pendingCar ? (i18nService.isRussian() ? "Решить награду" : "Resolve Reward") : t.menuSpin, () => {
+      audioService.playSound("button");
+      this.scene.start("SpinScene");
+    }, {
       width: btnWidth,
       height: btnHeight,
       fontSize: "24px",
     });
     btnY += btnSpacing;
-    addTextButton(this, cx, btnY, "Гараж", () => this.scene.start("GarageScene"), {
+    addTextButton(this, cx, btnY, t.menuGarage, () => {
+      audioService.playSound("button");
+      this.scene.start("GarageScene");
+    }, {
       width: btnWidth,
       height: btnHeight,
       fontSize: "24px",
     });
     btnY += btnSpacing;
-    addTextButton(this, cx, btnY, "Кейсы", () => this.scene.start("CasesScene"), {
+    addTextButton(this, cx, btnY, t.menuCases, () => {
+      audioService.playSound("button");
+      this.scene.start("CasesScene");
+    }, {
       width: btnWidth,
       height: btnHeight,
       fontSize: "24px",
     });
     btnY += btnSpacing;
-    addTextButton(this, cx, btnY, "Улучшения", () => this.scene.start("UpgradesScene"), {
+    addTextButton(this, cx, btnY, t.menuUpgrades, () => {
+      audioService.playSound("button");
+      this.scene.start("UpgradesScene");
+    }, {
       width: btnWidth,
       height: btnHeight,
       fontSize: "24px",
@@ -106,7 +126,10 @@ export class MenuScene extends Phaser.Scene {
 
     // Кнопка лидерборда (скрыта в гостевом режиме)
     if (!yandexSdk.isGuestMode()) {
-      addTextButton(this, cx, btnY, "Лидерборд", () => this.scene.start("LeaderboardScene"), {
+      addTextButton(this, cx, btnY, t.menuLeaderboard, () => {
+        audioService.playSound("button");
+        this.scene.start("LeaderboardScene");
+      }, {
         width: btnWidth,
         height: btnHeight,
         fontSize: "24px",
@@ -114,11 +137,23 @@ export class MenuScene extends Phaser.Scene {
       btnY += btnSpacing;
     }
 
+    // Кнопка настроек
+    addTextButton(this, cx, btnY, t.menuSettings, () => {
+      audioService.playSound("button");
+      this.scene.start("SettingsScene");
+    }, {
+      width: btnWidth,
+      height: btnHeight,
+      fontSize: "24px",
+      fillColor: 0x3b2280,
+    });
+    btnY += btnSpacing;
+
     // Кнопка бонусных денег за рекламу
     const canShowBonusAd = advertisementService.canShowAd('bonus-money', 900000); // 15 минут
     if (canShowBonusAd) {
       btnY += btnSpacing;
-      addTextButton(this, cx, btnY, "🎁 Получить 50000$", async () => {
+      addTextButton(this, cx, btnY, i18nService.isRussian() ? "🎁 Получить 50000$" : "🎁 Get $50000", async () => {
         const success = await advertisementService.showRewardedAd(() => {
           // Выдать бонус денег
           const updatedSave = {
@@ -135,7 +170,7 @@ export class MenuScene extends Phaser.Scene {
         }, 'bonus-money', 900000);
 
         if (!success) {
-          const errorText = addInfoText(this, cx, layout.height * 0.92, "Реклама временно недоступна", "#ff8b8b", "18px");
+          const errorText = addInfoText(this, cx, layout.height * 0.92, i18nService.isRussian() ? "Реклама временно недоступна" : "Ad temporarily unavailable", "#ff8b8b", "18px");
           this.time.delayedCall(2000, () => errorText.destroy());
         }
       }, {
@@ -156,21 +191,22 @@ export class MenuScene extends Phaser.Scene {
     const leftPanelWidth = layout.width * 0.406;
     const leftPanelX = layout.padding + leftPanelWidth / 2;
     const infoY = layout.height * 0.164;
+    const t = i18nService.getTranslations();
 
     addPanel(this, leftPanelX, layout.height * 0.278, leftPanelWidth, layout.height * 0.292);
-    addInfoText(this, layout.padding * 1.83, infoY, `Баланс: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "30px");
-    addInfoText(this, layout.padding * 1.83, infoY + 42, `Гараж: ${save.inventory.length} / ${save.garageCap}`);
-    addInfoText(this, layout.padding * 1.83, infoY + 78, `Множитель шанса: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`);
-    addInfoText(this, layout.padding * 1.83, infoY + 114, `Очки коллекции: ${score.toLocaleString("ru-RU")}`);
+    addInfoText(this, layout.padding * 1.83, infoY, `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")}`, "#ffd166", "30px");
+    addInfoText(this, layout.padding * 1.83, infoY + 42, `${t.garageTitle}: ${save.inventory.length} / ${save.garageCap}`);
+    addInfoText(this, layout.padding * 1.83, infoY + 78, `${i18nService.isRussian() ? 'Множитель шанса' : 'Luck multiplier'}: x${chanceMultFromLevel(save.chanceLevel).toFixed(1)}`);
+    addInfoText(this, layout.padding * 1.83, infoY + 114, `${i18nService.isRussian() ? 'Очки коллекции' : 'Collection points'}: ${score.toLocaleString("ru-RU")}`);
 
     if (pendingCar) {
       const pendingPanelY = layout.height * 0.53;
       addPanel(this, leftPanelX, pendingPanelY, leftPanelWidth, layout.height * 0.133);
-      addInfoText(this, layout.padding * 1.83, layout.height * 0.486, `Ожидает решения: ${pendingCar.name}`, "#ffcf70", "22px", {
+      addInfoText(this, layout.padding * 1.83, layout.height * 0.486, `${i18nService.isRussian() ? 'Ожидает решения' : 'Pending'}: ${pendingCar.name}`, "#ffcf70", "22px", {
         width: layout.width * 0.195,
         maxLines: 2,
       });
-      addTextButton(this, leftPanelX + layout.width * 0.103, pendingPanelY, "Открыть", () => this.scene.start("SpinScene"), {
+      addTextButton(this, leftPanelX + layout.width * 0.103, pendingPanelY, i18nService.isRussian() ? "Открыть" : "Open", () => this.scene.start("SpinScene"), {
         width: 160,
         height: 46,
         fontSize: "20px",
@@ -182,22 +218,48 @@ export class MenuScene extends Phaser.Scene {
     const buttonX = rightPanelX;
 
     addPanel(this, rightPanelX, layout.height * 0.5, rightPanelWidth, layout.height * 0.583);
-    addTextButton(this, buttonX, layout.height * 0.264, pendingCar ? "Решить награду" : "Крутить", () => this.scene.start("SpinScene"), {
+    addTextButton(this, buttonX, layout.height * 0.264, pendingCar ? (i18nService.isRussian() ? "Решить награду" : "Resolve Reward") : t.menuSpin, () => {
+      audioService.playSound("button");
+      this.scene.start("SpinScene");
+    }, {
       width: 300,
     });
-    addTextButton(this, buttonX, layout.height * 0.375, "Гараж", () => this.scene.start("GarageScene"), { width: 300 });
-    addTextButton(this, buttonX, layout.height * 0.486, "Кейсы", () => this.scene.start("CasesScene"), { width: 300 });
-    addTextButton(this, buttonX, layout.height * 0.597, "Улучшения", () => this.scene.start("UpgradesScene"), { width: 300 });
+    addTextButton(this, buttonX, layout.height * 0.375, t.menuGarage, () => {
+      audioService.playSound("button");
+      this.scene.start("GarageScene");
+    }, { width: 300 });
+    addTextButton(this, buttonX, layout.height * 0.486, t.menuCases, () => {
+      audioService.playSound("button");
+      this.scene.start("CasesScene");
+    }, { width: 300 });
+    addTextButton(this, buttonX, layout.height * 0.597, t.menuUpgrades, () => {
+      audioService.playSound("button");
+      this.scene.start("UpgradesScene");
+    }, { width: 300 });
 
     // Кнопка лидерборда (скрыта в гостевом режиме)
     if (!yandexSdk.isGuestMode()) {
-      addTextButton(this, buttonX, layout.height * 0.708, "Лидерборд", () => this.scene.start("LeaderboardScene"), { width: 300 });
+      addTextButton(this, buttonX, layout.height * 0.708, t.menuLeaderboard, () => {
+        audioService.playSound("button");
+        this.scene.start("LeaderboardScene");
+      }, { width: 300 });
     }
+
+    // Кнопка настроек
+    const settingsY = yandexSdk.isGuestMode() ? layout.height * 0.708 : layout.height * 0.819;
+    addTextButton(this, buttonX, settingsY, t.menuSettings, () => {
+      audioService.playSound("button");
+      this.scene.start("SettingsScene");
+    }, {
+      width: 300,
+      fillColor: 0x3b2280,
+    });
 
     // Кнопка бонусных денег за рекламу (landscape)
     const canShowBonusAd = advertisementService.canShowAd('bonus-money', 900000); // 15 минут
     if (canShowBonusAd) {
-      addTextButton(this, buttonX, layout.height * 0.819, "🎁 Получить 50000$", async () => {
+      const bonusAdY = yandexSdk.isGuestMode() ? layout.height * 0.819 : layout.height * 0.93;
+      addTextButton(this, buttonX, bonusAdY, i18nService.isRussian() ? "🎁 Получить 50000$" : "🎁 Get $50000", async () => {
         const success = await advertisementService.showRewardedAd(() => {
           const updatedSave = {
             ...saveService.current,
@@ -213,7 +275,7 @@ export class MenuScene extends Phaser.Scene {
         }, 'bonus-money', 900000);
 
         if (!success) {
-          const errorText = addInfoText(this, buttonX, layout.height * 0.92, "Реклама недоступна", "#ff8b8b", "16px");
+          const errorText = addInfoText(this, buttonX, layout.height * 0.92, i18nService.isRussian() ? "Реклама недоступна" : "Ad unavailable", "#ff8b8b", "16px");
           this.time.delayedCall(2000, () => errorText.destroy());
         }
       }, { width: 300, height: 50, fillColor: 0x27ae60, fontSize: "20px" });
