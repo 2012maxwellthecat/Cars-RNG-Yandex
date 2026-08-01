@@ -24,17 +24,10 @@ export class SpinScene extends Phaser.Scene {
     drawBackground(this);
     const layout = getResponsiveLayout(this);
 
-    // Уведомить advertisementService о смене сцены
+    // Уведомить advertisementService о смене сцены.
+    // Таймер рекламы живёт внутри сервиса: Phaser-таймер умирал на каждом
+    // scene.restart() после спина, и реклама с предупреждением не наступала.
     advertisementService.notifySceneChange("SpinScene");
-
-    // Запустить таймер проверки рекламы каждые 5 минут
-    this.time.addEvent({
-      delay: 300000, // 5 минут
-      callback: () => {
-        void advertisementService.showTimedAdWithWarning(this);
-      },
-      loop: true
-    });
 
     addSceneTitle(this, "Спин");
     addBackToMenu(this);

@@ -1,5 +1,22 @@
 import type { YandexGamesSdk } from "../types/yandex-games";
 import { detectEnvironment } from "../config/environment";
+import { hideAdCountdown, showAdCountdown } from "../ui/adWarningOverlay";
+
+/**
+ * Минимальный интервал между показами fullscreen-рекламы.
+ * Общий для рекламы при смене сцены и для таймерной рекламы внутри сцены:
+ * иначе два независимых таймера могут выдать два объявления подряд.
+ */
+const FULLSCREEN_AD_COOLDOWN_MS = 300000; // 5 минут
+
+/** Сколько игрок должен пробыть в одной сцене до таймерной рекламы */
+const TIMED_AD_INTERVAL_MS = 300000; // 5 минут
+
+/** Как часто проверять, пора ли показать таймерную рекламу */
+const TIMED_AD_CHECK_INTERVAL_MS = 30000; // 30 секунд
+
+/** Длительность обратного отсчёта перед рекламой, секунды */
+const AD_WARNING_SECONDS = 3;
 
 /**
  * Типы рекламы
@@ -24,9 +41,13 @@ export class AdvertisementService {
   private sdk: YandexGamesSdk | null = null;
   private cooldowns = new Map<string, number>();
   private gameInstance: Phaser.Game | null = null;
-  private lastSceneChangeTime = 0;
+  /** Время последнего показа (точнее — запроса) любой fullscreen-рекламы */
+  private lastFullscreenAdTime = 0;
   private currentSceneStartTime = 0;
   private currentSceneName = "";
+  /** Идёт показ рекламы: не даём наложить второе объявление поверх первого */
+  private isAdInProgress = false;
+  private timedAdCheckId: number | null = null;
   private stats: AdStatistics = {
     fullscreenShown: 0,
     rewardedShown: 0,
@@ -42,6 +63,12 @@ export class AdvertisementService {
     if (game) {
       this.gameInstance = game;
     }
+
+    // Отсчитываем cooldown от старта игры, иначе первая же сцена после загрузки
+    // получит fullscreen-рекламу — Yandex Games это запрещает.
+    this.lastFullscreenAdTime = Date.now();
+    this.startTimedAdChecks();
+
     const env = detectEnvironment();
 
     if (env.shouldUseMockAds) {
@@ -62,171 +89,167 @@ export class AdvertisementService {
    * Уведомить сервис о смене сцены
    */
   notifySceneChange(sceneName: string): void {
-    const now = Date.now();
+    // scene.restart() внутри той же сцены не считается сменой сцены.
+    // SpinScene перезапускается после каждого спина, и если сбрасывать таймер,
+    // таймерная реклама с предупреждением не покажется никогда.
+    if (sceneName === this.currentSceneName) {
+      return;
+    }
+
     this.currentSceneName = sceneName;
-    this.currentSceneStartTime = now;
+    this.currentSceneStartTime = Date.now();
     console.log(`[Advertisement] Смена сцены: ${sceneName}`);
   }
 
   /**
-   * Показать fullscreen рекламу при переходе между сценами (без предупреждения)
-   * Cooldown: 5 минут
+   * Периодическая проверка таймерной рекламы.
+   *
+   * Таймер живёт в сервисе, а не в сцене: Phaser-таймеры умирают при
+   * scene.restart(), из-за чего отсчёт до рекламы обнулялся на каждом спине.
+   */
+  private startTimedAdChecks(): void {
+    if (this.timedAdCheckId !== null) {
+      return;
+    }
+
+    this.timedAdCheckId = window.setInterval(() => {
+      void this.showTimedAdWithWarning();
+    }, TIMED_AD_CHECK_INTERVAL_MS);
+  }
+
+  /**
+   * Остановить проверку таймерной рекламы
+   */
+  stopTimedAdChecks(): void {
+    if (this.timedAdCheckId !== null) {
+      window.clearInterval(this.timedAdCheckId);
+      this.timedAdCheckId = null;
+    }
+  }
+
+  /**
+   * Показать fullscreen рекламу при переходе между сценами.
+   * Перед показом идёт обязательный обратный отсчёт.
+   * Cooldown: 5 минут.
    */
   async tryShowSceneChangeAd(): Promise<boolean> {
-    const cooldownMs = 300000; // 5 минут
-    const now = Date.now();
-
-    if (now - this.lastSceneChangeTime < cooldownMs) {
+    if (!this.canShowFullscreenAd()) {
       console.log('[Advertisement] Fullscreen при смене сцены на cooldown');
       return false;
     }
 
-    const env = detectEnvironment();
-
-    // Приостановить звук игры перед показом рекламы
-    this.pauseGameSound();
-
-    // Mock режим (разработка)
-    if (env.shouldUseMockAds) {
-      console.log('[Advertisement] Mock fullscreen ad при смене сцены');
-      await this.delay(1000);
-      this.lastSceneChangeTime = now;
-      this.stats.fullscreenShown++;
-      this.resumeGameSound();
-      return true;
-    }
-
-    // Настоящая реклама (production)
-    if (!this.sdk?.adv) {
-      console.warn('[Advertisement] SDK реклама недоступна');
-      this.resumeGameSound();
-      return false;
-    }
-
-    return new Promise((resolve) => {
-      this.sdk!.adv!.showFullscreenAdv({
-        callbacks: {
-          onClose: (wasShown) => {
-            this.resumeGameSound();
-
-            if (wasShown) {
-              this.stats.fullscreenShown++;
-              this.lastSceneChangeTime = now;
-              console.log('[Advertisement] Fullscreen реклама при смене сцены показана');
-            } else {
-              console.log('[Advertisement] Fullscreen реклама не показана');
-            }
-            resolve(wasShown);
-          },
-          onError: (err) => {
-            console.error('[Advertisement] Ошибка fullscreen рекламы:', err);
-            this.stats.errors++;
-            this.resumeGameSound();
-            resolve(false);
-          },
-        },
-      });
-    });
+    return this.showFullscreenWithWarning('при смене сцены');
   }
 
   /**
-   * Показать fullscreen рекламу внутри сцены с предупреждением (3 секунды)
-   * Вызывать каждые 5 минут нахождения в одной сцене
+   * Показать fullscreen рекламу внутри сцены с обратным отсчётом.
+   * Метод вызывается периодически; реклама покажется, когда игрок пробудет
+   * в одной сцене TIMED_AD_INTERVAL_MS и пройдёт общий cooldown.
    */
-  async showTimedAdWithWarning(scene: Phaser.Scene): Promise<boolean> {
-    const now = Date.now();
-    const timeInScene = now - this.currentSceneStartTime;
-
-    // Показывать каждые 5 минут
-    if (timeInScene < 300000) {
-      console.log(`[Advertisement] В сцене ${this.currentSceneName} прошло ${Math.floor(timeInScene/1000)}с, до рекламы ${Math.floor((300000-timeInScene)/1000)}с`);
+  async showTimedAdWithWarning(): Promise<boolean> {
+    // Игра свёрнута: игрок не увидит отсчёт, а показ сгорит вместе с cooldown.
+    if (typeof document !== 'undefined' && document.hidden) {
       return false;
     }
 
-    // Сброс таймера
-    this.currentSceneStartTime = now;
+    const timeInScene = Date.now() - this.currentSceneStartTime;
 
-    // Показать предупреждение
-    await this.showAdWarning(scene);
-
-    // Показать рекламу
-    const env = detectEnvironment();
-
-    // Приостановить звук игры перед показом рекламы
-    this.pauseGameSound();
-
-    // Mock режим (разработка)
-    if (env.shouldUseMockAds) {
-      console.log('[Advertisement] Mock fullscreen ad с предупреждением');
-      await this.delay(1000);
-      this.stats.fullscreenShown++;
-      this.resumeGameSound();
-      return true;
-    }
-
-    // Настоящая реклама (production)
-    if (!this.sdk?.adv) {
-      console.warn('[Advertisement] SDK реклама недоступна');
-      this.resumeGameSound();
+    if (timeInScene < TIMED_AD_INTERVAL_MS) {
       return false;
     }
 
-    return new Promise((resolve) => {
-      this.sdk!.adv!.showFullscreenAdv({
-        callbacks: {
-          onClose: (wasShown) => {
-            this.resumeGameSound();
+    if (!this.canShowFullscreenAd()) {
+      return false;
+    }
 
-            if (wasShown) {
-              this.stats.fullscreenShown++;
-              console.log('[Advertisement] Fullscreen реклама с предупреждением показана');
-            } else {
-              console.log('[Advertisement] Fullscreen реклама не показана');
-            }
-            resolve(wasShown);
-          },
-          onError: (err) => {
-            console.error('[Advertisement] Ошибка fullscreen рекламы:', err);
-            this.stats.errors++;
-            this.resumeGameSound();
-            resolve(false);
-          },
-        },
-      });
-    });
+    // Сброс отсчёта времени в сцене, чтобы следующий показ был не раньше
+    // чем через TIMED_AD_INTERVAL_MS.
+    this.currentSceneStartTime = Date.now();
+
+    return this.showFullscreenWithWarning(`в сцене ${this.currentSceneName}`);
   }
 
   /**
-   * Показать предупреждение о скорой рекламе с 3-секундным таймером
+   * Можно ли сейчас показать fullscreen рекламу
    */
-  private async showAdWarning(scene: Phaser.Scene): Promise<void> {
-    const width = scene.scale.width;
-    const height = scene.scale.height;
+  private canShowFullscreenAd(): boolean {
+    if (this.isAdInProgress) {
+      return false;
+    }
 
-    // Затемнение фона
-    const overlay = scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.8).setDepth(10000);
+    return Date.now() - this.lastFullscreenAdTime >= FULLSCREEN_AD_COOLDOWN_MS;
+  }
 
-    // Текст предупреждения
-    const warningText = scene.add.text(width / 2, height / 2 - 40, 'Реклама через 3', {
-      fontFamily: "'Arial Black', Arial",
-      fontSize: '32px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 6,
-      align: 'center'
-    }).setOrigin(0.5).setDepth(10001);
+  /**
+   * Единый путь показа fullscreen рекламы: обратный отсчёт → пауза звука →
+   * объявление. Все fullscreen-показы идут через этот метод, поэтому
+   * предупреждение невозможно случайно пропустить.
+   *
+   * @param reason Причина показа, только для логов
+   */
+  private async showFullscreenWithWarning(reason: string): Promise<boolean> {
+    if (this.isAdInProgress) {
+      console.log('[Advertisement] Реклама уже показывается, пропуск');
+      return false;
+    }
 
-    // Обратный отсчет
-    for (let i = 2; i >= 0; i--) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      if (warningText.active) {
-        warningText.setText(`Реклама через ${i}`);
+    const env = detectEnvironment();
+
+    // Если рекламы всё равно не будет, не мучаем игрока отсчётом.
+    if (!env.shouldUseMockAds && !this.sdk?.adv) {
+      console.warn('[Advertisement] SDK реклама недоступна');
+      return false;
+    }
+
+    this.isAdInProgress = true;
+    // Cooldown считаем от запроса, а не от успешного показа: Yandex может
+    // не отдать объявление, и иначе игрок увидит отсчёт снова через минуту.
+    this.lastFullscreenAdTime = Date.now();
+
+    try {
+      // Звук глушим сразу: во время отсчёта игрок уже не играет.
+      this.pauseGameSound();
+      await showAdCountdown(AD_WARNING_SECONDS);
+
+      if (env.shouldUseMockAds) {
+        console.log(`[Advertisement] Mock fullscreen ad ${reason}`);
+        await this.delay(1000);
+        this.stats.fullscreenShown++;
+        return true;
       }
-    }
 
-    // Удалить элементы
-    overlay.destroy();
-    warningText.destroy();
+      return await this.callFullscreenAdv(reason);
+    } finally {
+      hideAdCountdown();
+      this.resumeGameSound();
+      this.isAdInProgress = false;
+    }
+  }
+
+  /**
+   * Обёртка над SDK showFullscreenAdv в виде Promise
+   */
+  private callFullscreenAdv(reason: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.sdk!.adv!.showFullscreenAdv({
+        callbacks: {
+          onClose: (wasShown) => {
+            if (wasShown) {
+              this.stats.fullscreenShown++;
+              console.log(`[Advertisement] Fullscreen реклама ${reason} показана`);
+            } else {
+              console.log('[Advertisement] Fullscreen реклама не показана');
+            }
+            resolve(wasShown);
+          },
+          onError: (err) => {
+            console.error('[Advertisement] Ошибка fullscreen рекламы:', err);
+            this.stats.errors++;
+            resolve(false);
+          },
+        },
+      });
+    });
   }
 
   /**
@@ -250,60 +273,18 @@ export class AdvertisementService {
   }
 
   /**
-   * Показать fullscreen рекламу (межуровневую)
+   * Показать fullscreen рекламу (межуровневую) с обратным отсчётом.
+   *
+   * В отличие от tryShowSceneChangeAd не проверяет общий интервал: вызывать
+   * только там, где реклама уместна по сценарию игры.
+   *
    * @param onClose Callback после закрытия рекламы
    * @returns Promise<boolean> - true если реклама была показана
    */
   async showFullscreenAd(onClose?: () => void): Promise<boolean> {
-    const env = detectEnvironment();
-
-    // Приостановить звук игры перед показом рекламы
-    this.pauseGameSound();
-
-    // Mock режим (разработка)
-    if (env.shouldUseMockAds) {
-      console.log('[Advertisement] Mock fullscreen ad');
-      await this.delay(1000);
-      this.stats.fullscreenShown++;
-      this.resumeGameSound();
-      onClose?.();
-      return true;
-    }
-
-    // Настоящая реклама (production)
-    if (!this.sdk?.adv) {
-      console.warn('[Advertisement] SDK реклама недоступна');
-      this.resumeGameSound();
-      onClose?.();
-      return false;
-    }
-
-    return new Promise((resolve) => {
-      this.sdk!.adv!.showFullscreenAdv({
-        callbacks: {
-          onClose: (wasShown) => {
-            // Возобновить звук после закрытия рекламы
-            this.resumeGameSound();
-
-            if (wasShown) {
-              this.stats.fullscreenShown++;
-              console.log('[Advertisement] Fullscreen реклама показана');
-            } else {
-              console.log('[Advertisement] Fullscreen реклама не показана');
-            }
-            onClose?.();
-            resolve(wasShown);
-          },
-          onError: (err) => {
-            console.error('[Advertisement] Ошибка fullscreen рекламы:', err);
-            this.stats.errors++;
-            this.resumeGameSound();
-            onClose?.();
-            resolve(false);
-          },
-        },
-      });
-    });
+    const wasShown = await this.showFullscreenWithWarning('межуровневая');
+    onClose?.();
+    return wasShown;
   }
 
   /**
@@ -318,6 +299,11 @@ export class AdvertisementService {
     adType: AdType = 'rewarded',
     cooldownMs: number = 600000
   ): Promise<boolean> {
+    if (this.isAdInProgress) {
+      console.log('[Advertisement] Реклама уже показывается, пропуск');
+      return false;
+    }
+
     if (!this.canShowAd(adType, cooldownMs)) {
       console.log(`[Advertisement] Rewarded реклама "${adType}" на cooldown`);
       return false;
@@ -325,37 +311,59 @@ export class AdvertisementService {
 
     const env = detectEnvironment();
 
-    // Mock режим (разработка)
-    if (env.shouldUseMockAds) {
-      console.log(`[Advertisement] Mock rewarded ad: ${adType}`);
-      await this.delay(2000);
-      this.setCooldown(adType);
-      this.stats.rewardedShown++;
-      this.stats.totalRewarded++;
-      onReward();
-      return true;
-    }
+    // Обратный отсчёт здесь не нужен: игрок сам нажал «Смотреть рекламу»,
+    // это и есть предупреждение. Отсчёт обязателен для рекламы, которая
+    // прерывает игру без запроса игрока.
+    this.isAdInProgress = true;
+    this.pauseGameSound();
 
-    // Настоящая реклама (production)
-    if (!this.sdk?.adv) {
-      console.warn('[Advertisement] SDK реклама недоступна');
-      return false;
-    }
+    try {
+      // Mock режим (разработка)
+      if (env.shouldUseMockAds) {
+        console.log(`[Advertisement] Mock rewarded ad: ${adType}`);
+        await this.delay(2000);
+        this.setCooldown(adType);
+        this.stats.rewardedShown++;
+        this.stats.totalRewarded++;
+        onReward();
+        return true;
+      }
 
+      // Настоящая реклама (production)
+      if (!this.sdk?.adv) {
+        console.warn('[Advertisement] SDK реклама недоступна');
+        return false;
+      }
+
+      return await this.callRewardedVideo(onReward, adType);
+    } finally {
+      this.resumeGameSound();
+      this.isAdInProgress = false;
+    }
+  }
+
+  /**
+   * Обёртка над SDK showRewardedVideo в виде Promise.
+   * Промис завершается на закрытии объявления, чтобы звук игры не возвращался
+   * поверх ещё идущего видео.
+   */
+  private callRewardedVideo(onReward: () => void, adType: AdType): Promise<boolean> {
     return new Promise((resolve) => {
+      let rewarded = false;
+
       this.sdk!.adv!.showRewardedVideo({
         callbacks: {
           onRewarded: () => {
+            rewarded = true;
             this.stats.rewardedShown++;
             this.stats.totalRewarded++;
             this.setCooldown(adType);
             console.log(`[Advertisement] Rewarded реклама "${adType}" просмотрена, награда выдана`);
             onReward();
-            resolve(true);
           },
           onClose: () => {
             console.log('[Advertisement] Rewarded реклама закрыта');
-            resolve(false);
+            resolve(rewarded);
           },
           onError: (err) => {
             console.error('[Advertisement] Ошибка rewarded рекламы:', err);

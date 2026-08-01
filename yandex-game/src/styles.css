@@ -40,3 +40,30 @@ canvas {
   display: block;
   touch-action: none;
 }
+
+/*
+ * Оверлей обратного отсчёта перед рекламой (см. ui/adWarningOverlay.ts).
+ * Лежит поверх канваса и перехватывает ввод, чтобы игрок не нажимал кнопки
+ * во время отсчёта и не терял действие из-за рекламы.
+ */
+.ad-warning-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.82);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.ad-warning-overlay__text {
+  padding: 0 24px;
+  font-family: "Arial Black", Arial, Helvetica, sans-serif;
+  font-size: clamp(28px, 7vmin, 56px);
+  font-weight: 900;
+  color: #ffd700;
+  text-align: center;
+  text-shadow: 0 0 8px #000, 0 2px 0 #000, 2px 0 0 #000, 0 -2px 0 #000, -2px 0 0 #000;
+}

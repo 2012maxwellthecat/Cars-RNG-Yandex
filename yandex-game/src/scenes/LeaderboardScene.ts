@@ -18,7 +18,8 @@ export class LeaderboardScene extends Phaser.Scene {
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("LeaderboardScene");
 
-    // Показ fullscreen рекламы при переходе между сценами (без предупреждения)
+    // Показ fullscreen рекламы при переходе между сценами.
+    // Внутри обязательный обратный отсчёт «Реклама через 3… 2… 1…».
     await advertisementService.tryShowSceneChangeAd();
 
     addSceneTitle(this, "Лидерборд");

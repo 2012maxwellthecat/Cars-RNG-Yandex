@@ -31,7 +31,8 @@ export class GarageScene extends Phaser.Scene {
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("GarageScene");
 
-    // Показ fullscreen рекламы при переходе между сценами (без предупреждения)
+    // Показ fullscreen рекламы при переходе между сценами.
+    // Внутри обязательный обратный отсчёт «Реклама через 3… 2… 1…».
     await advertisementService.tryShowSceneChangeAd();
 
     // В портретном режиме показываем меньше машин на странице
