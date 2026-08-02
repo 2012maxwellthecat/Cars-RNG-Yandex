@@ -156,6 +156,18 @@
             options.callbacks.onClose();
           }
         }, 2000);
+      },
+
+      showBannerAdv: async () => {
+        console.log('%c[MOCK SDK] 📌 Sticky Banner показывается...', 'color: #9C27B0; font-weight: bold; font-size: 14px;');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log('%c[MOCK SDK] ✅ Sticky Banner показан', 'color: #4CAF50; font-weight: bold;');
+      },
+
+      hideBannerAdv: async () => {
+        console.log('%c[MOCK SDK] 📌 Sticky Banner скрывается...', 'color: #9C27B0; font-weight: bold;');
+        await new Promise(resolve => setTimeout(resolve, 50));
+        console.log('%c[MOCK SDK] ✅ Sticky Banner скрыт', 'color: #4CAF50; font-weight: bold;');
       }
     };
   };
@@ -208,6 +220,14 @@
         LoadingAPI: {
           ready: () => {
             console.log('%c[MOCK SDK] ✅ LoadingAPI.ready() вызван - игра готова к показу', 'color: #4CAF50; font-weight: bold;');
+          }
+        },
+        GameplayAPI: {
+          start: () => {
+            console.log('%c[MOCK SDK] ▶️ GameplayAPI.start() вызван - геймплей начат', 'color: #4CAF50; font-weight: bold;');
+          },
+          stop: () => {
+            console.log('%c[MOCK SDK] ⏸️ GameplayAPI.stop() вызван - геймплей остановлен', 'color: #FF9800; font-weight: bold;');
           }
         }
       },

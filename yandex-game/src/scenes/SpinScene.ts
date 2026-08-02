@@ -197,7 +197,7 @@ export class SpinScene extends Phaser.Scene {
           width: 360, height: 280, imageWidth: 280, imageHeight: 140,
         });
         const actionColor = result.action === "added" ? "#65d68b" : result.action === "replaced" ? "#ffd166" : "#ff8b8b";
-        const actionLabel = result.action === "added" ? (i18nService.isRussian() ? "В гараж" : "To Garage") : result.action === "replaced" ? (i18nService.isRussian() ? "Замена" : "Replaced") : t.spinSold;
+        const actionLabel = result.action === "added" ? t.toGarage : result.action === "replaced" ? t.replaced : t.spinSold;
         const actionText = this.add.text(layout.width * 0.5, layout.height * 0.72, actionLabel, {
           fontFamily: "'Arial Black', Arial", fontStyle: "bold",
           fontSize: "28px", color: actionColor,
@@ -209,7 +209,7 @@ export class SpinScene extends Phaser.Scene {
           if (ui.progressText.active) {
             const earned = save.money - moneyBefore;
             ui.progressText.setText(
-              `${i18nService.isRussian() ? 'Добавлено' : 'Added'}: ${added}  ${i18nService.isRussian() ? 'Заменено' : 'Replaced'}: ${replaced}  ${i18nService.isRussian() ? 'Продано' : 'Sold'}: ${soldNew}\n` +
+              `${t.added}: ${added}  ${t.replaced}: ${replaced}  ${t.sold}: ${soldNew}\n` +
               `${t.spinBalance}: ${save.money.toLocaleString("ru-RU")} $\n` +
               `${earned >= 0 ? "+" : ""}${earned.toLocaleString("ru-RU")} $`,
             );
@@ -283,7 +283,7 @@ export class SpinScene extends Phaser.Scene {
 
     if (layout.isPortrait) {
       addCarCard(this, layout.width * 0.5, layout.height * 0.38, car, { width: layout.width * 0.88, height: 340, imageWidth: 300, imageHeight: 150 });
-      addInfoText(this, layout.padding * 1.5, layout.height * 0.19, i18nService.isRussian() ? "Выберите, что сделать с машиной." : "Choose what to do with the car.", "#ffffff", "24px", { width: layout.width * 0.85 });
+      addInfoText(this, layout.padding * 1.5, layout.height * 0.19, t.chooseWhatToDo, "#ffffff", "24px", { width: layout.width * 0.85 });
 
       const button1X = layout.width * 0.5;
       const button1Y = layout.height * 0.64;
@@ -292,7 +292,7 @@ export class SpinScene extends Phaser.Scene {
       addTextButton(this, button1X, button1Y, t.spinKeep, async () => {
         const result = keepPendingReward(save);
         if (result.status === "garage-full") {
-          addInfoText(this, layout.padding * 1.5, layout.height * 0.82, i18nService.isRussian() ? "Гараж заполнен. Продайте машину или освободите место." : "Garage is full. Sell a car or free up space.", "#ff8b8b", "20px", {
+          addInfoText(this, layout.padding * 1.5, layout.height * 0.82, t.garageFull, "#ff8b8b", "20px", {
             width: layout.width * 0.85, maxLines: 2,
           });
           return;
@@ -310,7 +310,7 @@ export class SpinScene extends Phaser.Scene {
       }, { width: layout.width * 0.8, height: 64, fontSize: "24px" });
     } else {
       addCarCard(this, layout.width * 0.5, layout.height * 0.61, car, { height: 320 });
-      addInfoText(this, layout.width * 0.315, layout.height * 0.325, i18nService.isRussian() ? "Выберите, что сделать с машиной." : "Choose what to do with the car.", "#ffffff", "24px");
+      addInfoText(this, layout.width * 0.315, layout.height * 0.325, t.chooseWhatToDo, "#ffffff", "24px");
 
       const button1X = layout.width * 0.375;
       const button2X = layout.width * 0.625;
@@ -319,7 +319,7 @@ export class SpinScene extends Phaser.Scene {
       addTextButton(this, button1X, buttonY, t.spinKeep, async () => {
         const result = keepPendingReward(save);
         if (result.status === "garage-full") {
-          addInfoText(this, layout.width * 0.289, layout.height * 0.838, i18nService.isRussian() ? "Гараж заполнен. Продайте машину или освободите место." : "Garage is full. Sell a car or free up space.", "#ff8b8b", "20px", {
+          addInfoText(this, layout.width * 0.289, layout.height * 0.838, t.garageFull, "#ff8b8b", "20px", {
             width: layout.width * 0.422, maxLines: 2,
           });
           return;

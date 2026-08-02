@@ -124,7 +124,7 @@ export class GarageScene extends Phaser.Scene {
         this,
         navLeftX,
         navY,
-        i18nService.isRussian() ? "Назад" : "Back",
+        t.previousPage,
         () => this.scene.restart({ page: this.page - 1, selectedInventoryId: this.selectedInventoryId }),
         { width: btnW, height: layout.isPortrait ? 52 : 46, disabled: this.page === 0, fontSize: "20px" },
       );
@@ -136,7 +136,7 @@ export class GarageScene extends Phaser.Scene {
         this,
         navRightX,
         navY,
-        i18nService.isRussian() ? "Вперёд" : "Next",
+        t.nextPage,
         () => this.scene.restart({ page: this.page + 1, selectedInventoryId: this.selectedInventoryId }),
         { width: btnW, height: layout.isPortrait ? 52 : 46, disabled: this.page + 1 >= totalPages, fontSize: "20px" },
       );
@@ -233,8 +233,8 @@ export class GarageScene extends Phaser.Scene {
       imageHeight: 154,
     });
 
-    const obtainedLabel = i18nService.isRussian() ? "Получена" : "Obtained";
-    const pointsLabel = i18nService.isRussian() ? "Очки" : "Points";
+    const obtainedLabel = t.obtained;
+    const pointsLabel = t.points;
     addInfoText(this, infoStartX, infoY1, `${obtainedLabel}: ${new Date(selected.obtainedAt).toLocaleDateString("ru-RU")}`, "#d9e6f2", "20px");
     addInfoText(this, infoStartX, infoY2, `${pointsLabel}: ${selected.car.points.toLocaleString("ru-RU")}`, "#d9e6f2", "20px");
     addTextButton(

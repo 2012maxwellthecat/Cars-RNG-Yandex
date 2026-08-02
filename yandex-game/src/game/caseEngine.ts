@@ -6,33 +6,36 @@ import {
 } from "./constants";
 import { browserRng, type Rng } from "./spinEngine";
 import type { Car, CaseDefinition, Rarity } from "./types";
+import { i18nService } from "../i18n/i18nService";
 
 export function getExclusiveCars(cars: Car[]): Car[] {
-  return cars.filter((car) => car.rarity === "Эксклюзивный");
+  return cars.filter((car) => car.rarity === "Эксклюзивный" || car.rarity === "Exclusive");
 }
 
 export function getBaseCaseDefinitions(): CaseDefinition[] {
+  const isRussian = i18nService.isRussian();
   return [
     {
       id: "case:uncommon",
-      title: "Необычный+ кейс",
-      minRarity: "Необычный",
+      title: isRussian ? "Необычный+ кейс" : "Uncommon+ Case",
+      minRarity: isRussian ? "Необычный" : "Uncommon",
       cost: UNCOMMON_CASE_COST,
     },
     {
       id: "case:rare",
-      title: "Редкий+ кейс",
-      minRarity: "Редкий",
+      title: isRussian ? "Редкий+ кейс" : "Rare+ Case",
+      minRarity: isRussian ? "Редкий" : "Rare",
       cost: RARE_CASE_COST,
     },
   ];
 }
 
 export function getExclusiveCaseDefinitions(cars: Car[]): CaseDefinition[] {
+  const isRussian = i18nService.isRussian();
   return getExclusiveCars(cars).map((car) => ({
     id: `exclusive_case:${car.id}`,
-    title: `${car.name} кейс`,
-    minRarity: "Редкий",
+    title: isRussian ? `${car.name} кейс` : `${car.name} Case`,
+    minRarity: isRussian ? "Редкий" : "Rare",
     cost: EXCLUSIVE_CASE_COST,
     exclusiveCarId: car.id,
   }));
@@ -41,14 +44,14 @@ export function getExclusiveCaseDefinitions(cars: Car[]): CaseDefinition[] {
 export function getCasePool(cars: Car[], minRarity: Rarity, exclusiveCarId?: string): Car[] {
   const minRank = RARITY_RANKS[minRarity];
   const basePool = cars.filter((car) => {
-    return RARITY_RANKS[car.rarity] >= minRank && car.rarity !== "Эксклюзивный";
+    return RARITY_RANKS[car.rarity] >= minRank && car.rarity !== "Эксклюзивный" && car.rarity !== "Exclusive";
   });
 
   if (!exclusiveCarId) {
     return basePool;
   }
 
-  const exclusiveCar = cars.find((car) => car.id === exclusiveCarId && car.rarity === "Эксклюзивный");
+  const exclusiveCar = cars.find((car) => car.id === exclusiveCarId && (car.rarity === "Эксклюзивный" || car.rarity === "Exclusive"));
   if (!exclusiveCar) {
     throw new Error(`Unknown exclusive car: ${exclusiveCarId}`);
   }

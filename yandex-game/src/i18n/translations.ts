@@ -103,6 +103,44 @@ export interface Translations {
   // Ad countdown
   adCountdownText: string;
   adCountdownSeconds: string;
+
+  // Additional UI text
+  garageSize: string;
+  multiplier: string;
+  luckMultiplier: string;
+  collectionPoints: string;
+  points: string;
+  obtained: string;
+  pending: string;
+  open: string;
+  resolveReward: string;
+  minimum: string;
+  regularCases: string;
+  exclusiveCases: string;
+  freeUncommonCase: string;
+  watchAdToOpen: string;
+  discountActive: string;
+  discountOnUpgrade: string;
+  discountOnUpgradeForAd: string;
+  chanceUpgrade: string;
+  garageUpgrade: string;
+  toGarage: string;
+  replaced: string;
+  added: string;
+  sold: string;
+  forWord: string;
+  getBonusMoney: string;
+  adUnavailable: string;
+  adTemporarilyUnavailable: string;
+  chooseWhatToDo: string;
+  garageFull: string;
+  resolveCarFirst: string;
+  loadingCars: string;
+  ready: string;
+  openedCases: string;
+  bestCars: string;
+  nextPage: string;
+  previousPage: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -209,6 +247,44 @@ export const translations: Record<Language, Translations> = {
     // Ad countdown
     adCountdownText: 'Реклама через',
     adCountdownSeconds: 'сек',
+
+    // Additional UI text
+    garageSize: 'Размер гаража',
+    multiplier: 'Множитель',
+    luckMultiplier: 'Множитель шанса',
+    collectionPoints: 'Очки коллекции',
+    points: 'Очки',
+    obtained: 'Получена',
+    pending: 'Ожидает',
+    open: 'Открыть',
+    resolveReward: 'Решить награду',
+    minimum: 'Минимум',
+    regularCases: 'Обычные кейсы',
+    exclusiveCases: 'Эксклюзивные кейсы',
+    freeUncommonCase: '🎁 Бесплатный необычный кейс',
+    watchAdToOpen: 'Открыть за рекламу',
+    discountActive: '✨ Скидка 50% активна!',
+    discountOnUpgrade: '🎁 Скидка 50% на любое улучшение',
+    discountOnUpgradeForAd: '🎁 Скидка 50% на любое улучшение за рекламу',
+    chanceUpgrade: 'Шанс +0.1 за',
+    garageUpgrade: 'за',
+    toGarage: 'В гараж',
+    replaced: 'Замена',
+    added: 'Добавлено',
+    sold: 'Продано',
+    forWord: 'за',
+    getBonusMoney: '🎁 Получить 50000$',
+    adUnavailable: 'Реклама недоступна',
+    adTemporarilyUnavailable: 'Реклама временно недоступна',
+    chooseWhatToDo: 'Выберите, что сделать с машиной.',
+    garageFull: 'Гараж заполнен. Продайте машину или освободите место.',
+    resolveCarFirst: 'Сначала решите судьбу предыдущей машины.',
+    loadingCars: 'Загрузка машин',
+    ready: 'Готово',
+    openedCases: 'Открыто',
+    bestCars: 'Лучшие',
+    nextPage: 'Вперёд',
+    previousPage: 'Назад',
   },
   en: {
     // Common
@@ -313,5 +389,43 @@ export const translations: Record<Language, Translations> = {
     // Ad countdown
     adCountdownText: 'Ad in',
     adCountdownSeconds: 'sec',
+
+    // Additional UI text
+    garageSize: 'Garage Size',
+    multiplier: 'Multiplier',
+    luckMultiplier: 'Luck Multiplier',
+    collectionPoints: 'Collection Points',
+    points: 'Points',
+    obtained: 'Obtained',
+    pending: 'Pending',
+    open: 'Open',
+    resolveReward: 'Resolve Reward',
+    minimum: 'Minimum',
+    regularCases: 'Regular Cases',
+    exclusiveCases: 'Exclusive Cases',
+    freeUncommonCase: '🎁 Free Uncommon Case',
+    watchAdToOpen: 'Watch Ad to Open',
+    discountActive: '✨ 50% Discount Active!',
+    discountOnUpgrade: '🎁 50% Discount on Any Upgrade',
+    discountOnUpgradeForAd: '🎁 50% Discount on Any Upgrade for Watching an Ad',
+    chanceUpgrade: 'Chance +0.1 for',
+    garageUpgrade: 'for',
+    toGarage: 'To Garage',
+    replaced: 'Replaced',
+    added: 'Added',
+    sold: 'Sold',
+    forWord: 'for',
+    getBonusMoney: '🎁 Get $50000',
+    adUnavailable: 'Ad unavailable',
+    adTemporarilyUnavailable: 'Ad temporarily unavailable',
+    chooseWhatToDo: 'Choose what to do with the car.',
+    garageFull: 'Garage is full. Sell a car or free up space.',
+    resolveCarFirst: 'Resolve the previous car first.',
+    loadingCars: 'Loading Cars',
+    ready: 'Ready',
+    openedCases: 'Opened',
+    bestCars: 'Best',
+    nextPage: 'Next',
+    previousPage: 'Back',
   },
 };

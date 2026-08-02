@@ -2,6 +2,8 @@ import type { SaveData } from "../game/saveModel";
 import type { LeaderboardEntry } from "../game/types";
 import type { YandexGamesSdk, YandexPlayer } from "../types/yandex-games";
 import { i18nService } from "../i18n/i18nService";
+import { stickyBannerService } from "./stickyBannerService";
+import { withRetry } from "../utils/retry";
 
 const LEADERBOARD_NAME = "carsRngPoints";
 
@@ -53,6 +55,10 @@ export class YandexSdkService {
         this.isGuest = true;
         // Игра продолжает работать без авторизации
       }
+
+      // Показать sticky banner после инициализации SDK
+      // Это обязательный элемент монетизации для Yandex Games
+      await stickyBannerService.show();
     } catch (sdkError) {
       console.error('[Yandex SDK] Ошибка инициализации SDK:', sdkError);
       this.isGuest = true;
@@ -86,13 +92,10 @@ export class YandexSdkService {
       return null;
     }
 
-    try {
-      const data = await this.player.getData(["saveData"]);
+    return withRetry(async () => {
+      const data = await this.player!.getData(["saveData"]);
       return data.saveData ?? null;
-    } catch (error) {
-      console.error('[Yandex SDK] Ошибка загрузки данных:', error);
-      return null;
-    }
+    });
   }
 
   async savePlayerData(saveData: SaveData): Promise<void> {
@@ -101,11 +104,10 @@ export class YandexSdkService {
       return;
     }
 
-    try {
-      await this.player.setData({ saveData }, true);
-    } catch (error) {
-      console.error('[Yandex SDK] Ошибка сохранения данных:', error);
-    }
+    await withRetry(async () => {
+      await this.player!.setData({ saveData }, true);
+      return true; // withRetry требует возвращаемое значение
+    });
   }
 
   /**
@@ -123,14 +125,13 @@ export class YandexSdkService {
       return;
     }
 
-    try {
+    await withRetry(async () => {
       // setScore, а НЕ setLeaderboardScore: у ysdk.leaderboards имена
       // методов короче, чем у устаревшего ysdk.getLeaderboards().
-      await this.sdk.leaderboards.setScore(LEADERBOARD_NAME, score);
+      await this.sdk!.leaderboards!.setScore(LEADERBOARD_NAME, score);
       console.log('[Yandex SDK] Счет отправлен в лидерборд:', score);
-    } catch (error) {
-      console.error('[Yandex SDK] Ошибка отправки счета:', error);
-    }
+      return true;
+    });
   }
 
   /**
@@ -159,9 +160,9 @@ export class YandexSdkService {
       return null;
     }
 
-    try {
+    return withRetry(async () => {
       // getEntries, а НЕ getLeaderboardEntries — см. комментарий в setScore.
-      const response = await this.sdk.leaderboards.getEntries(LEADERBOARD_NAME, {
+      const response = await this.sdk!.leaderboards!.getEntries(LEADERBOARD_NAME, {
         quantityTop: limit,
       });
 
@@ -170,12 +171,7 @@ export class YandexSdkService {
         displayName: entry.player.publicName || "Игрок",
         score: entry.score,
       }));
-    } catch (error) {
-      // Частая причина — технического имени LEADERBOARD_NAME нет в консоли
-      // разработчика: Yandex отвечает 404.
-      console.error('[Yandex SDK] Ошибка загрузки лидерборда:', error);
-      return null;
-    }
+    });
   }
 
   /**

@@ -49,6 +49,10 @@ export type YandexGamesSdk = {
     LoadingAPI?: {
       ready(): void;
     };
+    GameplayAPI?: {
+      start(): void;
+      stop(): void;
+    };
   };
   adv?: {
     showFullscreenAdv(options?: {
@@ -64,6 +68,8 @@ export type YandexGamesSdk = {
         onError?: (error: unknown) => void;
       };
     }): void;
+    showBannerAdv(): Promise<void>;
+    hideBannerAdv(): Promise<void>;
   };
 };
 

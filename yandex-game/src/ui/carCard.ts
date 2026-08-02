@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import type { Car } from "../game/types";
+import { translateRarity } from "../i18n/rarityTranslations";
 
 const RARITY_COLORS: Record<Car["rarity"], string> = {
   Обычный: "#d9e6f2",
@@ -123,7 +124,7 @@ export function addCarCard(
     .setOrigin(0.5);
 
   const rarity = scene.add
-    .text(0, rarityY, car.rarity, {
+    .text(0, rarityY, translateRarity(car.rarity), {
       fontFamily: "'Arial Black', Arial",
       fontStyle: "bold",
       fontSize: "20px",

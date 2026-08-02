@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { addTextButton } from "./buttons";
+import { i18nService } from "../i18n/i18nService";
 
 export function getResponsiveLayout(scene: Phaser.Scene) {
   const width = scene.scale.width;
@@ -60,14 +61,15 @@ export function addSceneTitle(scene: Phaser.Scene, title: string): Phaser.GameOb
 
 export function addBackToMenu(scene: Phaser.Scene): Phaser.GameObjects.Container {
   const layout = getResponsiveLayout(scene);
+  const t = i18nService.getTranslations();
 
   if (layout.isPortrait) {
-    // Portrait mode: compact back button in top-left corner
+    // Portrait mode: top-right corner to avoid overlapping with centered title
     return addTextButton(
       scene,
-      layout.padding + 70,
+      layout.width - layout.padding - 70,
       layout.padding * 0.9,
-      "Назад",
+      t.back,
       () => scene.scene.start("MenuScene"),
       {
         width: 140,
@@ -83,7 +85,7 @@ export function addBackToMenu(scene: Phaser.Scene): Phaser.GameObjects.Container
       scene,
       layout.width - layout.padding - 84,
       layout.padding * 1.25,
-      "Назад",
+      t.back,
       () => scene.scene.start("MenuScene"),
       {
         width: 168,
@@ -98,14 +100,15 @@ export function addBackToMenu(scene: Phaser.Scene): Phaser.GameObjects.Container
 
 export function addBackButton(scene: Phaser.Scene, callback: () => void): Phaser.GameObjects.Container {
   const layout = getResponsiveLayout(scene);
+  const t = i18nService.getTranslations();
 
   if (layout.isPortrait) {
-    // Portrait mode: compact back button in top-left corner
+    // Portrait mode: top-right corner to avoid overlapping with centered title
     return addTextButton(
       scene,
-      layout.padding + 70,
+      layout.width - layout.padding - 70,
       layout.padding * 0.9,
-      "Назад",
+      t.back,
       callback,
       {
         width: 140,
@@ -121,7 +124,7 @@ export function addBackButton(scene: Phaser.Scene, callback: () => void): Phaser
       scene,
       layout.width - layout.padding - 84,
       layout.padding * 1.25,
-      "Назад",
+      t.back,
       callback,
       {
         width: 168,

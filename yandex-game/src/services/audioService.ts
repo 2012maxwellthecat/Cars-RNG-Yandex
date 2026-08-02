@@ -13,7 +13,6 @@ export class AudioService {
 
   private constructor() {
     this.loadSettings();
-    this.setupVisibilityHandlers();
   }
 
   static getInstance(): AudioService {

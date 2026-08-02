@@ -15,6 +15,7 @@ import { addTextButton } from "../ui/buttons";
 import { rarityColor } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 import { i18nService } from "../i18n/i18nService";
+import { translateRarity } from "../i18n/rarityTranslations";
 import { audioService } from "../services/audioService";
 
 export class CasesScene extends Phaser.Scene {
@@ -62,20 +63,20 @@ export class CasesScene extends Phaser.Scene {
       addPanel(this, layout.width * 0.5, panelY, panelWidth, panelHeight);
 
       let currentY = layout.height * 0.21;
-      addInfoText(this, layout.padding * 1.5, currentY, i18nService.isRussian() ? "Обычные кейсы" : "Regular Cases", "#ffffff", "26px");
+      addInfoText(this, layout.padding * 1.5, currentY, t.regularCases, "#ffffff", "26px");
       currentY += 44;
 
       baseCases.forEach((definition) => {
         addInfoText(this, layout.padding * 1.5, currentY, definition.title, "#ffffff", "22px");
         currentY += 30;
-        addInfoText(this, layout.padding * 1.5, currentY, `${i18nService.isRussian() ? 'Мин' : 'Min'}: ${definition.minRarity}`, rarityColor(definition.minRarity), "19px");
+        addInfoText(this, layout.padding * 1.5, currentY, `${t.minimum}: ${translateRarity(definition.minRarity)}`, rarityColor(definition.minRarity), "19px");
         currentY += 28;
         this.addCaseButtonsMobile(definition, layout.width * 0.15, currentY);
         currentY += 64;
       });
 
       currentY += 20;
-      addInfoText(this, layout.padding * 1.5, currentY, i18nService.isRussian() ? "Эксклюзивные" : "Exclusive", "#ffffff", "26px");
+      addInfoText(this, layout.padding * 1.5, currentY, t.exclusiveCases, "#ffffff", "26px");
       currentY += 44;
 
       exclusiveCases.slice(0, 4).forEach((definition) => {
@@ -89,9 +90,9 @@ export class CasesScene extends Phaser.Scene {
       const canShowFreeCase = advertisementService.canShowAd('free-case', 1200000); // 20 минут
       if (canShowFreeCase && baseCases.length > 0) {
         currentY += 20;
-        addInfoText(this, layout.padding * 1.5, currentY, i18nService.isRussian() ? "🎁 Бесплатный необычный кейс" : "🎁 Free Uncommon Case", "#27ae60", "24px");
+        addInfoText(this, layout.padding * 1.5, currentY, t.freeUncommonCase, "#27ae60", "24px");
         currentY += 44;
-        addTextButton(this, layout.width * 0.5, currentY, i18nService.isRussian() ? "Открыть за рекламу" : "Watch Ad to Open", async () => {
+        addTextButton(this, layout.width * 0.5, currentY, t.watchAdToOpen, async () => {
           const success = await advertisementService.showRewardedAd(async () => {
             // Открыть необычный кейс бесплатно
             const uncommonCase = baseCases[0]; // "case:uncommon"
@@ -143,14 +144,14 @@ export class CasesScene extends Phaser.Scene {
     const titleY = layout.height * 0.26;
     const t = i18nService.getTranslations();
 
-    addInfoText(this, startX, titleY, i18nService.isRussian() ? "Обычные кейсы" : "Regular Cases", "#ffffff", "26px");
+    addInfoText(this, startX, titleY, t.regularCases, "#ffffff", "26px");
     definitions.forEach((definition, index) => {
       const blockTop = titleY + 86 + index * 150;
       const textWidth = layout.width * 0.18;
 
       // Stack top-down with 32px line height for Arial Black Bold 20px
       addInfoText(this, startX, blockTop,      definition.title,                                         "#ffffff", "20px", { width: textWidth });
-      addInfoText(this, startX, blockTop + 86, `${i18nService.isRussian() ? 'Минимум' : 'Minimum'}: ${definition.minRarity}`,                       rarityColor(definition.minRarity), "18px", { width: textWidth });
+      addInfoText(this, startX, blockTop + 86, `${t.minimum}: ${translateRarity(definition.minRarity)}`,                       rarityColor(definition.minRarity), "18px", { width: textWidth });
       addInfoText(this, startX, blockTop + 118, `${t.casesPrice}: ${definition.cost.toLocaleString("ru-RU")}`,       "#ffd166", "18px", { width: textWidth });
       this.addCaseButtons(definition, startX + textWidth + 32, blockTop + 52);
     });
@@ -159,8 +160,8 @@ export class CasesScene extends Phaser.Scene {
     const canShowFreeCase = advertisementService.canShowAd('free-case', 1200000); // 20 минут
     if (canShowFreeCase && definitions.length > 0) {
       const freeCaseY = titleY + 86 + definitions.length * 150 + 30;
-      addInfoText(this, startX, freeCaseY, i18nService.isRussian() ? "🎁 Бесплатный необычный кейс" : "🎁 Free Uncommon Case", "#27ae60", "18px");
-      addTextButton(this, startX + layout.width * 0.15, freeCaseY + 40, i18nService.isRussian() ? "Открыть за рекламу" : "Watch Ad to Open", async () => {
+      addInfoText(this, startX, freeCaseY, t.freeUncommonCase, "#27ae60", "18px");
+      addTextButton(this, startX + layout.width * 0.15, freeCaseY + 40, t.watchAdToOpen, async () => {
         const success = await advertisementService.showRewardedAd(async () => {
           const uncommonCase = definitions[0]; // "case:uncommon"
           await this.openSingle(uncommonCase, true);
@@ -180,7 +181,7 @@ export class CasesScene extends Phaser.Scene {
     const textWidth = layout.width * 0.234;
     const t = i18nService.getTranslations();
 
-    addInfoText(this, startX, titleY, i18nService.isRussian() ? "Эксклюзивные кейсы" : "Exclusive Cases", "#ffffff", "26px");
+    addInfoText(this, startX, titleY, t.exclusiveCases, "#ffffff", "26px");
     definitions.forEach((definition, index) => {
       const y = titleY + 68 + index * 90;
       const car = CARS.find((item) => item.id === definition.exclusiveCarId);
@@ -247,7 +248,7 @@ export class CasesScene extends Phaser.Scene {
     const save = saveService.current;
     const t = i18nService.getTranslations();
     if (save.pendingReward) {
-      this.setStatus(i18nService.isRussian() ? "Сначала решите судьбу предыдущей машины." : "Resolve the previous car first.");
+      this.setStatus(t.resolveCarFirst);
       return;
     }
 
@@ -282,7 +283,7 @@ export class CasesScene extends Phaser.Scene {
     const totalCost = definition.cost * count;
     const t = i18nService.getTranslations();
     if (save.pendingReward) {
-      this.setStatus(i18nService.isRussian() ? "Сначала решите судьбу предыдущей машины." : "Resolve the previous car first.");
+      this.setStatus(t.resolveCarFirst);
       return;
     }
 
@@ -315,8 +316,8 @@ export class CasesScene extends Phaser.Scene {
       .join(", ");
     this.scene.restart({
       status: i18nService.isRussian()
-        ? `Открыто ${count}. Добавлено: ${result.added}, заменено: ${result.replaced}, продано новых: ${result.soldNew}. Лучшие: ${best}.`
-        : `Opened ${count}. Added: ${result.added}, replaced: ${result.replaced}, sold new: ${result.soldNew}. Best: ${best}.`,
+        ? `${t.openedCases} ${count}. ${t.added}: ${result.added}, ${t.replaced}: ${result.replaced}, ${t.sold}: ${result.soldNew}. ${t.bestCars}: ${best}.`
+        : `${t.openedCases} ${count}. ${t.added}: ${result.added}, ${t.replaced}: ${result.replaced}, ${t.sold}: ${result.soldNew}. ${t.bestCars}: ${best}.`,
     });
   }
 

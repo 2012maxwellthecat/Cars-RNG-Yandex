@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { CARS } from "../data/cars";
 import { audioService } from "../services/audioService";
+import { i18nService } from "../i18n/i18nService";
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -10,9 +11,10 @@ export class PreloadScene extends Phaser.Scene {
   preload(): void {
     const width = this.scale.width;
     const height = this.scale.height;
+    const t = i18nService.getTranslations();
 
     const label = this.add
-      .text(width / 2, height / 2 - 42, "Загрузка машин", {
+      .text(width / 2, height / 2 - 42, t.loadingCars, {
         fontFamily: "Arial",
         fontSize: "30px",
         color: "#ffffff",
@@ -27,7 +29,7 @@ export class PreloadScene extends Phaser.Scene {
     });
 
     this.load.on("complete", () => {
-      label.setText("Готово");
+      label.setText(t.ready);
     });
 
     // Загрузка изображений машин
@@ -50,16 +52,6 @@ export class PreloadScene extends Phaser.Scene {
   create(): void {
     // Инициализация аудио сервиса
     audioService.init(this);
-
-    // Уведомить Yandex Games SDK о готовности игры
-    if (window.ysdk?.features?.LoadingAPI) {
-      try {
-        window.ysdk.features.LoadingAPI.ready();
-        console.log('[Yandex SDK] LoadingAPI.ready() вызван');
-      } catch (error) {
-        console.error('[Yandex SDK] Ошибка LoadingAPI.ready():', error);
-      }
-    }
 
     this.scene.start("MenuScene");
   }

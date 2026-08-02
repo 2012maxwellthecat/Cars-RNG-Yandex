@@ -67,3 +67,19 @@ canvas {
   text-align: center;
   text-shadow: 0 0 8px #000, 0 2px 0 #000, 2px 0 0 #000, 0 -2px 0 #000, -2px 0 0 #000;
 }
+
+/*
+ * Sticky Banner (закрепленный баннер внизу экрана).
+ * Обязательный элемент монетизации для Yandex Games.
+ * Yandex SDK сам управляет баннером, но нужно зарезервировать место внизу экрана.
+ */
+#sticky-banner-fallback {
+  /* Fallback баннер для локальной разработки (см. stickyBannerService.ts) */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  z-index: 10000;
+  pointer-events: auto;
+}
