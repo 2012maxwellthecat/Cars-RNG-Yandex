@@ -29,6 +29,7 @@ export class YandexSdkService {
     try {
       this.sdk = await window.YaGames.init();
       window.ysdk = this.sdk; // Сохраняем глобально для LoadingAPI
+      window.dispatchEvent(new Event("cars_rng_yandex_sdk_ready"));
 
       // Определение языка через SDK и установка в i18n сервис
       if (this.sdk.environment?.i18n?.lang) {

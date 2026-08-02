@@ -10,7 +10,6 @@ import { SpinScene } from "./scenes/SpinScene";
 import { UpgradesScene } from "./scenes/UpgradesScene";
 import { SettingsScene } from "./scenes/SettingsScene";
 import { GAMEPLAY_START_EVENT, GAMEPLAY_STOP_EVENT } from "./services/gameplayLifecycleService";
-import { pauseOverlayService } from "./services/pauseOverlayService";
 import "./styles.css";
 
 const isPortrait = window.innerHeight > window.innerWidth;
@@ -46,6 +45,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 const game = new Phaser.Game(config);
+const YANDEX_SDK_READY_EVENT = "cars_rng_yandex_sdk_ready";
 
 type PauseReason = "debug" | "visibility" | "blur" | "gameplayApi";
 
@@ -103,6 +103,7 @@ function installGameplayApiBridge(): boolean {
   gameplayApi.start = () => {
     if (!isReportingGameplayToSdk) {
       console.log("[Yandex API] External GameplayAPI.start() received");
+      gameplayReportedActive = true;
       setPauseReason("gameplayApi", false);
     }
 
@@ -112,6 +113,7 @@ function installGameplayApiBridge(): boolean {
   gameplayApi.stop = () => {
     if (!isReportingGameplayToSdk) {
       console.log("[Yandex API] External GameplayAPI.stop() received");
+      gameplayReportedActive = false;
       setPauseReason("gameplayApi", true);
     }
 
@@ -137,7 +139,6 @@ function syncGamePauseState(): void {
     }
 
     game.sound.pauseAll();
-    pauseOverlayService.show();
     console.log("[Pause] Game paused. Reasons:", [...pauseReasons]);
     return;
   }
@@ -150,7 +151,6 @@ function syncGamePauseState(): void {
 
   pausedSceneKeys.clear();
   game.sound.resumeAll();
-  pauseOverlayService.hide();
   console.log("[Resume] Game resumed");
 }
 
@@ -213,7 +213,13 @@ if (typeof window !== "undefined") {
     }
   };
 
+  const handleYandexSdkReady = () => {
+    attachSdkPauseEvents();
+    installGameplayApiBridge();
+  };
+
   attachSdkPauseEvents();
+  window.addEventListener(YANDEX_SDK_READY_EVENT, handleYandexSdkReady);
 
   const installSdkGameplayBridgeInterval = window.setInterval(installSdkGameplayBridge, 500);
 
