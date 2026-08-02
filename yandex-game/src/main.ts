@@ -9,7 +9,6 @@ import { PreloadScene } from "./scenes/PreloadScene";
 import { SpinScene } from "./scenes/SpinScene";
 import { UpgradesScene } from "./scenes/UpgradesScene";
 import { SettingsScene } from "./scenes/SettingsScene";
-import { pauseOverlayService } from "./services/pauseOverlayService";
 import "./styles.css";
 
 const isPortrait = window.innerHeight > window.innerWidth;
@@ -51,6 +50,7 @@ type PauseReason = "debug" | "visibility" | "blur";
 const pauseReasons = new Set<PauseReason>();
 const pausedSceneKeys = new Set<string>();
 let isGamePaused = false;
+let sdkPauseEventsAttached = false;
 
 function notifyGameplayStopped(): void {
   if (!window.ysdk?.features?.GameplayAPI) return;
@@ -88,7 +88,6 @@ function syncGamePauseState(): void {
     }
 
     game.sound.pauseAll();
-    pauseOverlayService.show();
     console.log("[Pause] Game paused. Reasons:", [...pauseReasons]);
     return;
   }
@@ -101,7 +100,6 @@ function syncGamePauseState(): void {
 
   pausedSceneKeys.clear();
   game.sound.resumeAll();
-  pauseOverlayService.hide();
   console.log("[Resume] Game resumed");
 }
 
@@ -116,15 +114,42 @@ function setPauseReason(reason: PauseReason, enabled: boolean): void {
 }
 
 if (typeof window !== "undefined") {
-  window.addEventListener("game_api_pause", () => {
+  const handleDebugPause = () => {
     console.log("[Yandex API] game_api_pause received");
     setPauseReason("debug", true);
-  });
+  };
 
-  window.addEventListener("game_api_resume", () => {
+  const handleDebugResume = () => {
     console.log("[Yandex API] game_api_resume received");
     setPauseReason("debug", false);
-  });
+  };
+
+  window.addEventListener("game_api_pause", handleDebugPause);
+  window.addEventListener("game_api_resume", handleDebugResume);
+
+  const attachSdkPauseEvents = () => {
+    const sdk = window.ysdk;
+    if (sdkPauseEventsAttached || !sdk?.on) return;
+
+    sdk.on("game_api_pause", handleDebugPause);
+    sdk.on("game_api_resume", handleDebugResume);
+    sdkPauseEventsAttached = true;
+    console.log("[Yandex API] SDK pause events attached");
+  };
+
+  attachSdkPauseEvents();
+
+  const attachSdkEventsInterval = window.setInterval(() => {
+    attachSdkPauseEvents();
+
+    if (sdkPauseEventsAttached) {
+      window.clearInterval(attachSdkEventsInterval);
+    }
+  }, 500);
+
+  window.setTimeout(() => {
+    window.clearInterval(attachSdkEventsInterval);
+  }, 30000);
 }
 
 document.addEventListener("visibilitychange", () => {

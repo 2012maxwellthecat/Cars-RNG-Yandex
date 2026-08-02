@@ -14,6 +14,8 @@ declare global {
 }
 
 export type YandexGamesSdk = {
+  on?(eventName: string, callback: (...args: unknown[]) => void): void;
+  off?(eventName: string, callback: (...args: unknown[]) => void): void;
   getPlayer(options?: { scopes?: boolean; signed?: boolean }): Promise<YandexPlayer>;
   /**
    * Актуальное API лидербордов (SDK v2).
