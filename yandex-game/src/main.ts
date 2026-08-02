@@ -9,6 +9,8 @@ import { PreloadScene } from "./scenes/PreloadScene";
 import { SpinScene } from "./scenes/SpinScene";
 import { UpgradesScene } from "./scenes/UpgradesScene";
 import { SettingsScene } from "./scenes/SettingsScene";
+import { GAMEPLAY_START_EVENT, GAMEPLAY_STOP_EVENT } from "./services/gameplayLifecycleService";
+import { pauseOverlayService } from "./services/pauseOverlayService";
 import "./styles.css";
 
 const isPortrait = window.innerHeight > window.innerWidth;
@@ -45,33 +47,80 @@ const config: Phaser.Types.Core.GameConfig = {
 
 const game = new Phaser.Game(config);
 
-type PauseReason = "debug" | "visibility" | "blur";
+type PauseReason = "debug" | "visibility" | "blur" | "gameplayApi";
 
 const pauseReasons = new Set<PauseReason>();
 const pausedSceneKeys = new Set<string>();
 let isGamePaused = false;
 let sdkPauseEventsAttached = false;
+let gameplayApiBridgeInstalled = false;
+let isReportingGameplayToSdk = false;
+let gameplayReportedActive = false;
 
 function notifyGameplayStopped(): void {
   if (!window.ysdk?.features?.GameplayAPI) return;
+  if (!gameplayReportedActive) return;
 
   try {
+    installGameplayApiBridge();
+    isReportingGameplayToSdk = true;
     window.ysdk.features.GameplayAPI.stop();
+    gameplayReportedActive = false;
     console.log("[Yandex API] GameplayAPI.stop() called");
   } catch (error) {
     console.error("[Yandex API] GameplayAPI.stop() error:", error);
+  } finally {
+    isReportingGameplayToSdk = false;
   }
 }
 
 function notifyGameplayStarted(): void {
   if (!window.ysdk?.features?.GameplayAPI) return;
+  if (gameplayReportedActive || pauseReasons.size > 0) return;
 
   try {
+    installGameplayApiBridge();
+    isReportingGameplayToSdk = true;
     window.ysdk.features.GameplayAPI.start();
+    gameplayReportedActive = true;
     console.log("[Yandex API] GameplayAPI.start() called");
   } catch (error) {
     console.error("[Yandex API] GameplayAPI.start() error:", error);
+  } finally {
+    isReportingGameplayToSdk = false;
   }
+}
+
+function installGameplayApiBridge(): boolean {
+  if (gameplayApiBridgeInstalled) return true;
+
+  const gameplayApi = window.ysdk?.features?.GameplayAPI;
+  if (!gameplayApi) return false;
+
+  const originalStart = gameplayApi.start.bind(gameplayApi);
+  const originalStop = gameplayApi.stop.bind(gameplayApi);
+
+  gameplayApi.start = () => {
+    if (!isReportingGameplayToSdk) {
+      console.log("[Yandex API] External GameplayAPI.start() received");
+      setPauseReason("gameplayApi", false);
+    }
+
+    originalStart();
+  };
+
+  gameplayApi.stop = () => {
+    if (!isReportingGameplayToSdk) {
+      console.log("[Yandex API] External GameplayAPI.stop() received");
+      setPauseReason("gameplayApi", true);
+    }
+
+    originalStop();
+  };
+
+  gameplayApiBridgeInstalled = true;
+  console.log("[Yandex API] GameplayAPI bridge installed");
+  return true;
 }
 
 function syncGamePauseState(): void {
@@ -88,6 +137,7 @@ function syncGamePauseState(): void {
     }
 
     game.sound.pauseAll();
+    pauseOverlayService.show();
     console.log("[Pause] Game paused. Reasons:", [...pauseReasons]);
     return;
   }
@@ -100,6 +150,7 @@ function syncGamePauseState(): void {
 
   pausedSceneKeys.clear();
   game.sound.resumeAll();
+  pauseOverlayService.hide();
   console.log("[Resume] Game resumed");
 }
 
@@ -113,19 +164,38 @@ function setPauseReason(reason: PauseReason, enabled: boolean): void {
   syncGamePauseState();
 }
 
+function handleDocumentVisible(): void {
+  console.log("[Visibility] Document visible");
+
+  // Mobile browsers may restore the page without dispatching window.focus.
+  // Clear both browser lifecycle pause reasons when the document is visible.
+  setPauseReason("visibility", false);
+  setPauseReason("blur", false);
+
+  if (pauseReasons.size === 0) {
+    notifyGameplayStarted();
+  }
+}
+
 if (typeof window !== "undefined") {
   const handleDebugPause = () => {
+    if (isReportingGameplayToSdk) return;
+
     console.log("[Yandex API] game_api_pause received");
     setPauseReason("debug", true);
   };
 
   const handleDebugResume = () => {
+    if (isReportingGameplayToSdk) return;
+
     console.log("[Yandex API] game_api_resume received");
     setPauseReason("debug", false);
   };
 
   window.addEventListener("game_api_pause", handleDebugPause);
   window.addEventListener("game_api_resume", handleDebugResume);
+  window.addEventListener(GAMEPLAY_START_EVENT, notifyGameplayStarted);
+  window.addEventListener(GAMEPLAY_STOP_EVENT, notifyGameplayStopped);
 
   const attachSdkPauseEvents = () => {
     const sdk = window.ysdk;
@@ -137,7 +207,15 @@ if (typeof window !== "undefined") {
     console.log("[Yandex API] SDK pause events attached");
   };
 
+  const installSdkGameplayBridge = () => {
+    if (installGameplayApiBridge()) {
+      window.clearInterval(installSdkGameplayBridgeInterval);
+    }
+  };
+
   attachSdkPauseEvents();
+
+  const installSdkGameplayBridgeInterval = window.setInterval(installSdkGameplayBridge, 500);
 
   const attachSdkEventsInterval = window.setInterval(() => {
     attachSdkPauseEvents();
@@ -149,6 +227,7 @@ if (typeof window !== "undefined") {
 
   window.setTimeout(() => {
     window.clearInterval(attachSdkEventsInterval);
+    window.clearInterval(installSdkGameplayBridgeInterval);
   }, 30000);
 }
 
@@ -158,13 +237,11 @@ document.addEventListener("visibilitychange", () => {
     setPauseReason("visibility", true);
     notifyGameplayStopped();
   } else {
-    console.log("[Visibility] Document visible");
-    setPauseReason("visibility", false);
-    if (pauseReasons.size === 0) {
-      notifyGameplayStarted();
-    }
+    handleDocumentVisible();
   }
 });
+
+window.addEventListener("pageshow", handleDocumentVisible);
 
 window.addEventListener("blur", () => {
   console.log("[Blur] Window lost focus");
@@ -175,6 +252,10 @@ window.addEventListener("focus", () => {
   console.log("[Focus] Window focused");
 
   if (!document.hidden) {
-    setPauseReason("blur", false);
+    handleDocumentVisible();
   }
+});
+
+window.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
 });

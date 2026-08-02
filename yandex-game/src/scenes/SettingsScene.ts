@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { audioService } from "../services/audioService";
+import { reportGameplayStopped } from "../services/gameplayLifecycleService";
 import { addTextButton } from "../ui/buttons";
 import { addBackButton, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 import { i18nService } from "../i18n/i18nService";
@@ -11,6 +12,7 @@ export class SettingsScene extends Phaser.Scene {
 
   create(): void {
     drawBackground(this);
+    reportGameplayStopped();
     const layout = getResponsiveLayout(this);
     const t = i18nService.getTranslations();
 

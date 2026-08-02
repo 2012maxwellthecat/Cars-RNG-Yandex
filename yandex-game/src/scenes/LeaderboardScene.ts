@@ -9,6 +9,7 @@ import {
 } from "../services/leaderboardService";
 import { saveService } from "../services/saveService";
 import { advertisementService } from "../services/advertisementService";
+import { reportGameplayStopped } from "../services/gameplayLifecycleService";
 import type { LeaderboardEntry } from "../game/types";
 import { addTextButton } from "../ui/buttons";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground } from "../ui/layout";
@@ -28,6 +29,7 @@ export class LeaderboardScene extends Phaser.Scene {
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("LeaderboardScene");
+    reportGameplayStopped();
 
     // Показ fullscreen рекламы при переходе между сценами.
     // Внутри обязательный обратный отсчёт «Реклама через 3… 2… 1…».

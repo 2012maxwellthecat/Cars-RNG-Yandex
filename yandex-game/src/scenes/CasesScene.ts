@@ -17,6 +17,7 @@ import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, ge
 import { i18nService } from "../i18n/i18nService";
 import { translateRarity } from "../i18n/rarityTranslations";
 import { audioService } from "../services/audioService";
+import { reportGameplayStopped } from "../services/gameplayLifecycleService";
 
 export class CasesScene extends Phaser.Scene {
   private statusText: Phaser.GameObjects.Text | null = null;
@@ -40,6 +41,7 @@ export class CasesScene extends Phaser.Scene {
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("CasesScene");
+    reportGameplayStopped();
 
     addSceneTitle(this, t.casesTitle);
     addBackToMenu(this);
@@ -115,7 +117,7 @@ export class CasesScene extends Phaser.Scene {
       });
     } else {
       // Ландшафтный режим: оригинальная двухколоночная компоновка
-      const panelWidth1 = layout.width * 0.468;
+      const panelWidth1 = layout.width * 0.468+30;
       const panelWidth2 = layout.width * 0.39;
       const panelHeight = layout.height * 0.616;
       const panelY = layout.height * 0.54;
@@ -142,26 +144,34 @@ export class CasesScene extends Phaser.Scene {
     const layout = getResponsiveLayout(this);
     const startX = layout.padding * 1.92;
     const titleY = layout.height * 0.26;
+    const textWidth = layout.width * 0.18;
     const t = i18nService.getTranslations();
 
     addInfoText(this, startX, titleY, t.regularCases, "#ffffff", "26px");
     definitions.forEach((definition, index) => {
       const blockTop = titleY + 86 + index * 150;
-      const textWidth = layout.width * 0.18;
 
       // Stack top-down with 32px line height for Arial Black Bold 20px
       addInfoText(this, startX, blockTop,      definition.title,                                         "#ffffff", "20px", { width: textWidth });
-      addInfoText(this, startX, blockTop + 86, `${t.minimum}: ${translateRarity(definition.minRarity)}`,                       rarityColor(definition.minRarity), "18px", { width: textWidth });
-      addInfoText(this, startX, blockTop + 118, `${t.casesPrice}: ${definition.cost.toLocaleString("ru-RU")}`,       "#ffd166", "18px", { width: textWidth });
-      this.addCaseButtons(definition, startX + textWidth + 32, blockTop + 52);
+      addInfoText(this, startX, blockTop + 32, `${t.minimum}: ${translateRarity(definition.minRarity)}`,                       rarityColor(definition.minRarity), "18px", { width: textWidth });
+      addInfoText(this, startX, blockTop + 64, `${t.casesPrice}: ${definition.cost.toLocaleString("ru-RU")}`,       "#ffd166", "18px", { width: textWidth });
+      this.addCaseButtons(definition, startX + textWidth + 62, blockTop + 52);
     });
 
     // Кнопка бесплатного необычного кейса за рекламу (landscape)
     const canShowFreeCase = advertisementService.canShowAd('free-case', 1200000); // 20 минут
     if (canShowFreeCase && definitions.length > 0) {
-      const freeCaseY = titleY + 86 + definitions.length * 150 + 30;
-      addInfoText(this, startX, freeCaseY, t.freeUncommonCase, "#27ae60", "18px");
-      addTextButton(this, startX + layout.width * 0.15, freeCaseY + 40, t.watchAdToOpen, async () => {
+      const rareCaseIndex = Math.min(1, definitions.length - 1);
+      const rareCaseBlockTop = titleY + 86 + rareCaseIndex * 150;
+      const rareCaseButtonsX = startX + textWidth + 62;
+      const rareCaseX10X = rareCaseButtonsX + 104;
+      const freeCaseY = rareCaseBlockTop + 102;
+
+      addInfoText(this, rareCaseX10X - 140, freeCaseY-7, t.freeUncommonCase, "#27ae60", "18px", {
+        fixedWidth: 280,
+        align: "center",
+      });
+      addTextButton(this, rareCaseX10X, freeCaseY + 40, t.watchAdToOpen, async () => {
         const success = await advertisementService.showRewardedAd(async () => {
           const uncommonCase = definitions[0]; // "case:uncommon"
           await this.openSingle(uncommonCase, true);

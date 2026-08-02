@@ -1,6 +1,7 @@
 import type { YandexGamesSdk } from "../types/yandex-games";
 import { detectEnvironment } from "../config/environment";
 import { hideAdCountdown, showAdCountdown } from "../ui/adWarningOverlay";
+import { reportGameplayStarted, reportGameplayStopped } from "./gameplayLifecycleService";
 
 /**
  * Минимальный интервал между показами fullscreen-рекламы.
@@ -208,9 +209,12 @@ export class AdvertisementService {
     // не отдать объявление, и иначе игрок увидит отсчёт снова через минуту.
     this.lastFullscreenAdTime = Date.now();
 
+    const shouldResumeGameplay = this.currentSceneName === "SpinScene";
+
     try {
       // Пауза до отсчёта, а не после: игрок уже не играет, и за оверлеем
       // не должны доигрывать анимации, автокрутка и delayedCall.
+      reportGameplayStopped();
       this.pauseGame();
       await showAdCountdown(AD_WARNING_SECONDS);
 
@@ -225,6 +229,9 @@ export class AdvertisementService {
     } finally {
       hideAdCountdown();
       this.resumeGame();
+      if (shouldResumeGameplay) {
+        reportGameplayStarted();
+      }
       this.isAdInProgress = false;
     }
   }
@@ -385,6 +392,8 @@ export class AdvertisementService {
     // прерывает игру без запроса игрока.
     this.isAdInProgress = true;
     // Игра не должна тикать и за rewarded-видео, хотя отсчёта здесь нет.
+    const shouldResumeGameplay = this.currentSceneName === "SpinScene";
+    reportGameplayStopped();
     this.pauseGame();
 
     try {
@@ -408,6 +417,9 @@ export class AdvertisementService {
       return await this.callRewardedVideo(onReward, adType);
     } finally {
       this.resumeGame();
+      if (shouldResumeGameplay) {
+        reportGameplayStarted();
+      }
       this.isAdInProgress = false;
     }
   }

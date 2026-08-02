@@ -9,6 +9,8 @@ import { chanceMultFromLevel, type SaveData } from "../game/saveModel";
 import { yandexSdk } from "../services/yandexSdk";
 import { i18nService } from "../i18n/i18nService";
 import { audioService } from "../services/audioService";
+import { reportGameplayStopped } from "../services/gameplayLifecycleService";
+import { reportLoadingReady } from "../services/loadingApiService";
 
 export class MenuScene extends Phaser.Scene {
   constructor() {
@@ -29,6 +31,7 @@ export class MenuScene extends Phaser.Scene {
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("MenuScene");
+    reportGameplayStopped();
 
     // Показ fullscreen рекламы при переходе между сценами.
     // Внутри обязательный обратный отсчёт «Реклама через 3… 2… 1…».
@@ -42,26 +45,10 @@ export class MenuScene extends Phaser.Scene {
       this.createLandscapeLayout(save, score, pendingCar, layout);
     }
 
-    // Уведомить Yandex Games SDK о полной готовности игры
-    // Вызываем ПОСЛЕ отрисовки UI и инициализации всех сервисов
-    if (window.ysdk?.features?.LoadingAPI) {
-      try {
-        window.ysdk.features.LoadingAPI.ready();
-        console.log('[Yandex SDK] LoadingAPI.ready() вызван - игра полностью готова');
-      } catch (error) {
-        console.error('[Yandex SDK] Ошибка LoadingAPI.ready():', error);
-      }
-    }
+    // Уведомить Yandex Games SDK о полной готовности игры один раз,
+    // после отрисовки первого интерактивного UI.
+    reportLoadingReady();
 
-    // Уведомить Yandex Games API о начале геймплея
-    if (window.ysdk?.features?.GameplayAPI) {
-      try {
-        window.ysdk.features.GameplayAPI.start();
-        console.log('[Yandex SDK] GameplayAPI.start() вызван - геймплей начат');
-      } catch (error) {
-        console.error('[Yandex SDK] Ошибка GameplayAPI.start():', error);
-      }
-    }
   }
 
   private createPortraitLayout(

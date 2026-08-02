@@ -4,6 +4,7 @@ import { buyChanceUpgrade, buyGarageUpgrade, getChanceUpgradeCost, getGarageUpgr
 import { chanceMultFromLevel } from "../game/saveModel";
 import { saveService } from "../services/saveService";
 import { advertisementService } from "../services/advertisementService";
+import { reportGameplayStopped } from "../services/gameplayLifecycleService";
 import { addTextButton } from "../ui/buttons";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 import { i18nService } from "../i18n/i18nService";
@@ -31,6 +32,7 @@ export class UpgradesScene extends Phaser.Scene {
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("UpgradesScene");
+    reportGameplayStopped();
 
     // Скидка 50% на улучшения за просмотр рекламы (доступна раз в 30 минут)
     const canShowDiscount = !this.hasDiscount && advertisementService.canShowAd('upgrade-discount', 1800000);
@@ -98,9 +100,9 @@ export class UpgradesScene extends Phaser.Scene {
       }
     } else {
       const panelWidth = layout.width * 0.64;
-      const panelHeight = layout.height * 0.597;
+      const panelHeight = layout.height * 0.697;
       const centerX = layout.width * 0.5;
-      const centerY = layout.height * 0.49;
+      const centerY = layout.height * 0.54;
 
       addPanel(this, centerX, centerY, panelWidth, panelHeight);
 
@@ -141,8 +143,8 @@ export class UpgradesScene extends Phaser.Scene {
 
       // Кнопка скидки за рекламу (landscape)
       if (canShowDiscount) {
-        const discountButtonY = layout.height * 0.793;
-        addInfoText(this, leftX, discountButtonY - 30, t.discountOnUpgradeForAd, "#27ae60", "18px");
+        const discountButtonY = layout.height * 0.84;
+        addInfoText(this, leftX, discountButtonY - 60, t.discountOnUpgradeForAd, "#27ae60", "18px");
         addTextButton(this, centerX, discountButtonY, t.upgradesWatchAd, async () => {
           const success = await advertisementService.showRewardedAd(() => {
             this.scene.restart({ discount: true });

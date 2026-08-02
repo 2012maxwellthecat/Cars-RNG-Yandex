@@ -3,6 +3,7 @@ import { CARS } from "../data/cars";
 import { getInventoryViews, sellInventoryCar, sortInventoryViews, type InventoryCarView } from "../game/economy";
 import { saveService } from "../services/saveService";
 import { advertisementService } from "../services/advertisementService";
+import { reportGameplayStopped } from "../services/gameplayLifecycleService";
 import { addTextButton } from "../ui/buttons";
 import { addCarCard } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
@@ -32,6 +33,7 @@ export class GarageScene extends Phaser.Scene {
 
     // Уведомить advertisementService о смене сцены
     advertisementService.notifySceneChange("GarageScene");
+    reportGameplayStopped();
 
     // Показ fullscreen рекламы при переходе между сценами.
     // Внутри обязательный обратный отсчёт «Реклама через 3… 2… 1…».

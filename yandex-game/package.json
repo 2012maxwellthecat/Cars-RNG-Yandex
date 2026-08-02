@@ -9,8 +9,7 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
-    "phaser": "4.2.1",
-    "phaser3-rex-plugins": "^1.80.20"
+    "phaser": "4.2.1"
   },
   "devDependencies": {
     "typescript": "latest",

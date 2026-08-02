@@ -41,7 +41,7 @@ export class YandexSdkService {
       }
 
       try {
-        this.player = await this.sdk.getPlayer({ scopes: true });
+        this.player = await this.sdk.getPlayer({ scopes: false });
         // getPlayer() резолвится и для гостя, поэтому авторизацию
         // проверяем отдельным вызовом, а не фактом успеха.
         this.authorized = this.player.isAuthorized?.() ?? false;

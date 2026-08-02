@@ -10,6 +10,7 @@ import { addCarCard } from "../ui/carCard";
 import { addBackToMenu, addInfoText, addPanel, addSceneTitle, drawBackground, getResponsiveLayout } from "../ui/layout";
 import { i18nService } from "../i18n/i18nService";
 import { audioService } from "../services/audioService";
+import { reportGameplayStarted } from "../services/gameplayLifecycleService";
 
 export class SpinScene extends Phaser.Scene {
   private autoSpinActive = false;
@@ -31,6 +32,7 @@ export class SpinScene extends Phaser.Scene {
     // Таймер рекламы живёт внутри сервиса: Phaser-таймер умирал на каждом
     // scene.restart() после спина, и реклама с предупреждением не наступала.
     advertisementService.notifySceneChange("SpinScene");
+    reportGameplayStarted();
 
     addSceneTitle(this, t.spinTitle);
     addBackToMenu(this);

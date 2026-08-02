@@ -175,8 +175,33 @@
   // Mock SDK Instance
   const createMockSdk = () => {
     const leaderboardsInstance = createMockLeaderboards();
+    const eventListeners = new Map();
+
+    const emit = (eventName) => {
+      const listeners = eventListeners.get(eventName) || [];
+      listeners.forEach((callback) => {
+        try {
+          callback();
+        } catch (error) {
+          console.error('[MOCK SDK] Event listener error:', eventName, error);
+        }
+      });
+    };
 
     return {
+      on: (eventName, callback) => {
+        const listeners = eventListeners.get(eventName) || [];
+        listeners.push(callback);
+        eventListeners.set(eventName, listeners);
+        console.log('[MOCK SDK] SDK.on called:', eventName);
+      },
+
+      off: (eventName, callback) => {
+        const listeners = eventListeners.get(eventName) || [];
+        eventListeners.set(eventName, listeners.filter((listener) => listener !== callback));
+        console.log('[MOCK SDK] SDK.off called:', eventName);
+      },
+
       getPlayer: async (options = {}) => {
         console.log('[MOCK SDK] SDK.getPlayer called with options:', options);
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -225,9 +250,11 @@
         GameplayAPI: {
           start: () => {
             console.log('%c[MOCK SDK] ▶️ GameplayAPI.start() вызван - геймплей начат', 'color: #4CAF50; font-weight: bold;');
+            emit('game_api_resume');
           },
           stop: () => {
             console.log('%c[MOCK SDK] ⏸️ GameplayAPI.stop() вызван - геймплей остановлен', 'color: #FF9800; font-weight: bold;');
+            emit('game_api_pause');
           }
         }
       },
