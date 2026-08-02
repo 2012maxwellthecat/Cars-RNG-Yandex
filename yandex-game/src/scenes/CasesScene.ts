@@ -108,7 +108,7 @@ export class CasesScene extends Phaser.Scene {
         currentY += 70;
       }
 
-      this.statusText = this.add.text(layout.padding * 1.5, layout.height * 0.92, "", {
+      this.statusText = this.add.text(layout.padding * 1.5, layout.height * 0.95, "", {
         fontFamily: "Arial",
         fontSize: "19px",
         color: "#ffcf70",
@@ -128,7 +128,7 @@ export class CasesScene extends Phaser.Scene {
       this.renderBaseCases(baseCases);
       this.renderExclusiveCases(exclusiveCases.slice(0, 4));
 
-      this.statusText = this.add.text(layout.padding * 1.92, layout.height * 0.85, "", {
+      this.statusText = this.add.text(layout.padding * 1.92, layout.height * 0.93, "", {
         fontFamily: "Arial",
         fontSize: "20px",
         color: "#ffcf70",

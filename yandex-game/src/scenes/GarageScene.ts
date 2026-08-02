@@ -117,7 +117,7 @@ export class GarageScene extends Phaser.Scene {
       const btnW = layout.isPortrait ? layout.width * 0.32 : 150;
       const textW = layout.isPortrait ? layout.width * 0.28 : 130;
       const gap = 18;
-      const navCenterX = layout.width * 0.5;
+      const navCenterX = layout.width * 0.293;
       const navLeftX = navCenterX - textW / 2 - gap - btnW / 2;
       const navRightX = navCenterX + textW / 2 + gap + btnW / 2;
       const textLeft = navCenterX - textW / 2;

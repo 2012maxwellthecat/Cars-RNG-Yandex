@@ -166,7 +166,7 @@ export const translations: Record<Language, Translations> = {
 
     // Spin Scene
     spinTitle: 'Крутить',
-    spinButton: 'Крутить ($500)',
+    spinButton: 'Крутить',
     spinBalance: 'Баланс',
     spinAutoSpin: 'Авто',
     spinSpinning: 'Крутим...',
@@ -308,7 +308,7 @@ export const translations: Record<Language, Translations> = {
 
     // Spin Scene
     spinTitle: 'Spin',
-    spinButton: 'Spin ($500)',
+    spinButton: 'Spin',
     spinBalance: 'Balance',
     spinAutoSpin: 'Auto',
     spinSpinning: 'Spinning...',
